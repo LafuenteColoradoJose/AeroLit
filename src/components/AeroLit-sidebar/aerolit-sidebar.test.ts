@@ -1,35 +1,104 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { fixture, html } from '@open-wc/testing';
 import { AerolitSidebar } from './aerolit-sidebar';
 
 describe('AerolitSidebar Component', () => {
   let element: AerolitSidebar;
+  let store: Record<string, string> = {};
 
-  // Antes de cada test, renderizamos el componente fresco en el "navegador" virtual
   beforeEach(async () => {
+    // Mock de localStorage
+    store = {};
+    const mockLocalStorage = {
+      getItem: vi.fn((key: string) => store[key] || null),
+      setItem: vi.fn((key: string, value: string) => {
+        store[key] = value;
+      }),
+      clear: vi.fn(() => {
+        store = {};
+      })
+    };
+    Object.defineProperty(window, 'localStorage', {
+      value: mockLocalStorage,
+      writable: true
+    });
+
+    // Mock de matchMedia (Simulamos que por defecto el SO está en light)
+    Object.defineProperty(window, 'matchMedia', {
+      writable: true,
+      value: vi.fn().mockImplementation(query => ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      })),
+    });
+
+    // Limpiamos el atributo del html antes de cada test
+    document.documentElement.removeAttribute('data-theme');
+
     element = await fixture(html`<aerolit-sidebar></aerolit-sidebar>`);
   });
 
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('debería renderizarse correctamente estando abierto por defecto', () => {
-    // Comprobamos que existe en el DOM
     expect(element).toBeDefined();
-    
-    // Comprobamos que no tiene el atributo 'collapsed'
     expect(element.hasAttribute('collapsed')).toBe(false);
   });
 
   it('debería colapsarse al hacer click en el botón de toggle', async () => {
-    // 1. Buscamos el botón dentro del Shadow DOM
     const toggleBtn = element.shadowRoot?.querySelector('.toggle-btn') as HTMLButtonElement;
-    expect(toggleBtn).toBeDefined();
-
-    // 2. Simulamos el click
     toggleBtn.click();
+    await element.updateComplete;
+    expect(element.hasAttribute('collapsed')).toBe(true);
 
-    // 3. Esperamos a que Lit actualice el DOM asíncronamente
+    // Y des-colapsarse al hacer click de nuevo
+    toggleBtn.click();
+    await element.updateComplete;
+    expect(element.hasAttribute('collapsed')).toBe(false);
+  });
+
+  it('debería leer el tema de localStorage si existe', async () => {
+    store['aerolit-theme'] = 'dark';
+    const el = await fixture<AerolitSidebar>(html`<aerolit-sidebar></aerolit-sidebar>`);
+    await el.updateComplete;
+    
+    expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+  });
+
+  it('debería usar matchMedia si no hay nada en localStorage', async () => {
+    // Forzamos matchMedia a true (dark mode)
+    window.matchMedia = vi.fn().mockImplementation(() => ({ matches: true }));
+    const el = await fixture<AerolitSidebar>(html`<aerolit-sidebar></aerolit-sidebar>`);
+    await el.updateComplete;
+    
+    expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+  });
+
+  it('debería cambiar de tema al hacer click en el botón de theme-toggle', async () => {
+    // Estado inicial: light
+    expect(document.documentElement.getAttribute('data-theme')).toBe('light');
+
+    const themeBtn = element.shadowRoot?.querySelector('.theme-toggle-btn') as HTMLButtonElement;
+    themeBtn.click();
     await element.updateComplete;
 
-    // 4. Verificamos que ahora sí tiene el atributo 'collapsed'
-    expect(element.hasAttribute('collapsed')).toBe(true);
+    // Después del click: dark
+    expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+    expect(store['aerolit-theme']).toBe('dark');
+
+    // Click otra vez: light
+    themeBtn.click();
+    await element.updateComplete;
+
+    expect(document.documentElement.getAttribute('data-theme')).toBe('light');
+    expect(store['aerolit-theme']).toBe('light');
   });
 });

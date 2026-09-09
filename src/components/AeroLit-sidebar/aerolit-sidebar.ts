@@ -12,8 +12,8 @@ export class AerolitSidebar extends LitElement {
       display: flex;
       flex-direction: column;
       height: 100vh;
-      background-color: var(--primary-color); /* Dark Teal */
-      color: var(--bg-color); /* Almond Silk */
+      background-color: var(--sidebar-bg);
+      color: var(--sidebar-text);
       transition: width 0.3s ease;
       overflow-x: hidden;
       width: 250px;
@@ -42,7 +42,7 @@ export class AerolitSidebar extends LitElement {
     .toggle-btn {
       background: none;
       border: none;
-      color: var(--bg-color);
+      color: var(--sidebar-text);
       cursor: pointer;
       font-size: 1.5rem;
       display: flex;
@@ -66,7 +66,7 @@ export class AerolitSidebar extends LitElement {
       display: flex;
       align-items: center;
       padding: 0.75rem 1rem;
-      color: var(--bg-color);
+      color: var(--sidebar-text);
       text-decoration: none;
       transition: background-color 0.2s;
       cursor: pointer;
@@ -93,7 +93,71 @@ export class AerolitSidebar extends LitElement {
     :host([collapsed]) .logo {
       display: none;
     }
+    .footer {
+      margin-top: auto;
+      padding: 1rem;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .theme-toggle-btn {
+      background: none;
+      border: none;
+      color: var(--sidebar-text);
+      cursor: pointer;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 0.5rem;
+      border-radius: 8px;
+      transition: background-color 0.2s;
+    }
+
+    .theme-toggle-btn:hover {
+      background-color: rgba(255,255,255,0.1);
+    }
+
+    :host([collapsed]) .theme-text {
+      display: none;
+    }
   `;
+
+  @state()
+  private currentTheme: 'light' | 'dark' = 'light';
+
+  connectedCallback() {
+    super.connectedCallback();
+    this.initTheme();
+  }
+
+  private initTheme() {
+    // 1. Mirar si hay preferencia guardada
+    const savedTheme = localStorage.getItem('aerolit-theme') as 'light' | 'dark' | null;
+    
+    if (savedTheme) {
+      this.currentTheme = savedTheme;
+    } else {
+      // 2. Si no hay guardada, mirar preferencia del SO
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      this.currentTheme = prefersDark ? 'dark' : 'light';
+    }
+
+    this.applyTheme(this.currentTheme);
+  }
+
+  private toggleTheme() {
+    this.currentTheme = this.currentTheme === 'light' ? 'dark' : 'light';
+    localStorage.setItem('aerolit-theme', this.currentTheme);
+    this.applyTheme(this.currentTheme);
+  }
+
+  private applyTheme(theme: 'light' | 'dark') {
+    document.documentElement.setAttribute('data-theme', theme);
+  }
 
   toggle() {
     this.isOpen = !this.isOpen;
@@ -102,6 +166,14 @@ export class AerolitSidebar extends LitElement {
     } else {
       this.setAttribute('collapsed', '');
     }
+  }
+
+  private navigate(e: Event, path: string) {
+    e.preventDefault();
+    window.history.pushState({}, '', path);
+    window.dispatchEvent(new Event('popstate'));
+    
+    // Si estamos en móvil (colapsado), podríamos querer cerrarlo, pero por ahora lo dejamos igual.
   }
 
   render() {
@@ -114,19 +186,26 @@ export class AerolitSidebar extends LitElement {
       </div>
 
       <nav class="nav-links">
-        <a class="nav-item" href="/">
+        <a class="nav-item" href="/" @click=${(e: Event) => this.navigate(e, '/')}>
           <span class="icon">📊</span>
           <span class="text">Dashboard</span>
         </a>
-        <a class="nav-item" href="/flights">
+        <a class="nav-item" href="/flights" @click=${(e: Event) => this.navigate(e, '/flights')}>
           <span class="icon">🛫</span>
           <span class="text">Vuelos</span>
         </a>
-        <a class="nav-item" href="/settings">
+        <a class="nav-item" href="/settings" @click=${(e: Event) => this.navigate(e, '/settings')}>
           <span class="icon">⚙️</span>
           <span class="text">Ajustes</span>
         </a>
       </nav>
+
+      <div class="footer">
+        <button class="theme-toggle-btn" @click=${this.toggleTheme} title="Cambiar Tema">
+          <span class="icon">${this.currentTheme === 'light' ? '🌙' : '☀️'}</span>
+          <span class="text theme-text">${this.currentTheme === 'light' ? 'Modo Oscuro' : 'Modo Claro'}</span>
+        </button>
+      </div>
     `;
   }
 }

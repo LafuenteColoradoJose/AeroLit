@@ -47,17 +47,17 @@ export class FlightCard extends LitElement {
       padding: 4px 8px;
       border-radius: 12px;
       background-color: var(--secondary-color);
-      color: var(--bg-color);
+      color: var(--text-color); /* Mejor contraste que el bg-color */
     }
 
     .status.cancelled {
       background-color: var(--error-color);
-      color: white;
+      color: var(--bg-color); /* Blanco/claro sobre rojo se lee bien */
     }
     
     .status.active {
       background-color: var(--primary-color);
-      color: white;
+      color: var(--bg-color); /* Blanco/claro sobre primario (oscuro) se lee bien */
     }
 
     .route {

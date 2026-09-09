@@ -1,20 +1,31 @@
-/* src/index.css */
-
 :root {
-  /* 1. Definimos la paleta base (tus colores) */
-  --c-shadow-grey: #3A2E39;
-  --c-dark-teal: #1E555C;
-  --c-almond-silk: #F4D8CD;
-  --c-sandy-clay: #EDB183;
-  --c-strawberry: #F15152;
+  /* 1. Definimos la paleta base (Muzli Palette) */
+  --c-space-cadet: #272643;
+  --c-white: #ffffff;
+  --c-mint-cream: #e3f6f5;
+  --c-powder-blue: #bae8e8;
+  --c-cerulean: #2c698d;
+  
+  /* Color de error (mantenemos un rojo suave para alertas) */
+  --c-error: #E06C75; 
+}
 
-  /* 2. Asignamos roles para el TEMA CLARO (por defecto) */
+/* 2. Asignamos roles para el TEMA CLARO */
+:root,
+:root[data-theme="light"] {
   color-scheme: light;
-  --bg-color: var(--c-almond-silk);
-  --text-color: var(--c-shadow-grey);
-  --primary-color: var(--c-dark-teal);
-  --secondary-color: var(--c-sandy-clay);
-  --error-color: var(--c-strawberry);
+  /* Fondo muy claro (mint cream) y texto oscuro */
+  --bg-color: var(--c-mint-cream);
+  --text-color: var(--c-space-cadet);
+  
+  /* Sidebar en color principal de la marca (Cerulean) para el tema claro */
+  --sidebar-bg: var(--c-cerulean);
+  --sidebar-text: var(--c-white);
+  
+  /* Elementos destacados en azules */
+  --primary-color: var(--c-cerulean);
+  --secondary-color: var(--c-powder-blue);
+  --error-color: var(--c-error);
 
   background-color: var(--bg-color);
   color: var(--text-color);
@@ -22,18 +33,40 @@
 
 /* 3. Asignamos roles para el TEMA OSCURO */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --bg-color: var(--c-shadow-grey);
-    --text-color: var(--c-almond-silk);
-    /* En modo oscuro, usamos Sandy Clay como primario porque resalta mejor */
-    --primary-color: var(--c-sandy-clay); 
-    --secondary-color: var(--c-dark-teal);
-    --error-color: var(--c-strawberry);
+    /* Fondo oscuro (space cadet) y texto claro (mint cream) */
+    --bg-color: #1a192d; /* Ligeramente más oscuro que space cadet para separar del sidebar */
+    --text-color: var(--c-mint-cream);
+    
+    /* Sidebar usa el tono oscuro principal de la paleta */
+    --sidebar-bg: var(--c-space-cadet);
+    --sidebar-text: var(--c-white);
+    
+    /* En oscuro usamos los azules más claros para que destaquen */
+    --primary-color: var(--c-powder-blue); 
+    --secondary-color: var(--c-cerulean);
+    --error-color: var(--c-error);
     
     background-color: var(--bg-color);
     color: var(--text-color);
   }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg-color: #1a192d;
+  --text-color: var(--c-mint-cream);
+  
+  --sidebar-bg: var(--c-space-cadet);
+  --sidebar-text: var(--c-white);
+  
+  --primary-color: var(--c-powder-blue); 
+  --secondary-color: var(--c-cerulean);
+  --error-color: var(--c-error);
+  
+  background-color: var(--bg-color);
+  color: var(--text-color);
 }
 
 /* El resto de tu código de body se queda igual... */

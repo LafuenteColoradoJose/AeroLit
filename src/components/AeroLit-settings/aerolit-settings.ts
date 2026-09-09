@@ -1,18 +1,15 @@
 import { LitElement, html, css } from "lit";
 import { customElement } from "lit/decorators.js";
 
-@customElement("aerolit-dashboard")
-export class AerolitDashboard extends LitElement {
+@customElement("aerolit-settings")
+export class AerolitSettings extends LitElement {
     static styles = css`
         :host {
             display: block;
             padding: 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
         }
         h1 {
             color: var(--primary-color);
-            margin-bottom: 2rem;
         }
         p {
             color: var(--text-color);
@@ -21,14 +18,14 @@ export class AerolitDashboard extends LitElement {
 
     render() {
         return html`
-        <h1>AeroLit Dashboard 📊</h1>
-        <p>Bienvenido al panel principal. Utiliza el menú lateral para navegar a Vuelos o Ajustes.</p>
+        <h1>Ajustes ⚙️</h1>
+        <p>Configuración de la aplicación (Próximamente...)</p>
         `;
     }
 }
 
 declare global {
     interface HTMLElementTagNameMap {
-        "aerolit-dashboard": AerolitDashboard;
+        "aerolit-settings": AerolitSettings;
     }
 }
