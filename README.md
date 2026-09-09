@@ -25,3 +25,15 @@ El proyecto implementa un sistema de diseño utilizando la siguiente paleta:
 
 - `src/index.css`: Contiene las variables CSS globales (`:root`) para el sistema de diseño y temas.
 - `src/my-element.ts`: Componente Lit de ejemplo.
+
+## Variables de Entorno
+
+Este proyecto utiliza llamadas a la API de **Aviationstack**. Para que funcione en tu entorno local, necesitas configurar las variables de entorno.
+
+1. Duplica el archivo `.env.example` y renómbralo a `.env`.
+2. Añade tu clave API de APILayer/Aviationstack:
+
+```env
+VITE_AVIATIONSTACK_API_KEY=tu_api_key_aqui
+```
+> **Nota:** Las peticiones al plan gratuito están limitadas, por lo que durante el desarrollo recomendamos usar datos mockeados para no agotar la cuota.

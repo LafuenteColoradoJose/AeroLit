@@ -1,24 +1,46 @@
+/* src/index.css */
+
 :root {
-  color-scheme: light dark;
-  background-color: #ffffff;
+  /* 1. Definimos la paleta base (tus colores) */
+  --c-shadow-grey: #3A2E39;
+  --c-dark-teal: #1E555C;
+  --c-almond-silk: #F4D8CD;
+  --c-sandy-clay: #EDB183;
+  --c-strawberry: #F15152;
+
+  /* 2. Asignamos roles para el TEMA CLARO (por defecto) */
+  color-scheme: light;
+  --bg-color: var(--c-almond-silk);
+  --text-color: var(--c-shadow-grey);
+  --primary-color: var(--c-dark-teal);
+  --secondary-color: var(--c-sandy-clay);
+  --error-color: var(--c-strawberry);
+
+  background-color: var(--bg-color);
+  color: var(--text-color);
 }
 
+/* 3. Asignamos roles para el TEMA OSCURO */
 @media (prefers-color-scheme: dark) {
   :root {
-    background-color: #16171d;
+    color-scheme: dark;
+    --bg-color: var(--c-shadow-grey);
+    --text-color: var(--c-almond-silk);
+    /* En modo oscuro, usamos Sandy Clay como primario porque resalta mejor */
+    --primary-color: var(--c-sandy-clay); 
+    --secondary-color: var(--c-dark-teal);
+    --error-color: var(--c-strawberry);
+    
+    background-color: var(--bg-color);
+    color: var(--text-color);
   }
 }
 
+/* El resto de tu código de body se queda igual... */
 body {
   margin: 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-width: 320px;
-  min-height: 100svh;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
+  /* ... resto de estilos ... */
 }
