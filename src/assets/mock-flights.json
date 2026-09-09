@@ -1,0 +1,142 @@
+{
+  "pagination": {
+    "limit": 100,
+    "offset": 0,
+    "count": 5,
+    "total": 13456
+  },
+  "data": [
+    {
+      "flight_date": "2026-09-09",
+      "flight_status": "active",
+      "departure": {
+        "airport": "Adolfo Suarez Madrid-Barajas",
+        "timezone": "Europe/Madrid",
+        "iata": "MAD",
+        "icao": "LEMD",
+        "terminal": "4",
+        "gate": "H12",
+        "delay": 15,
+        "scheduled": "2026-09-09T10:30:00+00:00",
+        "estimated": "2026-09-09T10:45:00+00:00",
+        "actual": "2026-09-09T10:46:00+00:00",
+        "estimated_runway": "2026-09-09T10:46:00+00:00",
+        "actual_runway": "2026-09-09T10:46:00+00:00"
+      },
+      "arrival": {
+        "airport": "John F Kennedy Intl",
+        "timezone": "America/New_York",
+        "iata": "JFK",
+        "icao": "KJFK",
+        "terminal": "8",
+        "gate": "14",
+        "baggage": "5",
+        "delay": null,
+        "scheduled": "2026-09-09T14:15:00+00:00",
+        "estimated": "2026-09-09T14:15:00+00:00",
+        "actual": null,
+        "estimated_runway": null,
+        "actual_runway": null
+      },
+      "airline": {
+        "name": "Iberia",
+        "iata": "IB",
+        "icao": "IBE"
+      },
+      "flight": {
+        "number": "6123",
+        "iata": "IB6123",
+        "icao": "IBE6123",
+        "codeshared": null
+      }
+    },
+    {
+      "flight_date": "2026-09-09",
+      "flight_status": "scheduled",
+      "departure": {
+        "airport": "Heathrow",
+        "timezone": "Europe/London",
+        "iata": "LHR",
+        "icao": "EGLL",
+        "terminal": "5",
+        "gate": "A10",
+        "delay": null,
+        "scheduled": "2026-09-09T12:00:00+00:00",
+        "estimated": "2026-09-09T12:00:00+00:00",
+        "actual": null,
+        "estimated_runway": null,
+        "actual_runway": null
+      },
+      "arrival": {
+        "airport": "Charles De Gaulle",
+        "timezone": "Europe/Paris",
+        "iata": "CDG",
+        "icao": "LFPG",
+        "terminal": "2E",
+        "gate": "K34",
+        "baggage": null,
+        "delay": null,
+        "scheduled": "2026-09-09T14:20:00+00:00",
+        "estimated": "2026-09-09T14:20:00+00:00",
+        "actual": null,
+        "estimated_runway": null,
+        "actual_runway": null
+      },
+      "airline": {
+        "name": "British Airways",
+        "iata": "BA",
+        "icao": "BAW"
+      },
+      "flight": {
+        "number": "304",
+        "iata": "BA304",
+        "icao": "BAW304",
+        "codeshared": null
+      }
+    },
+    {
+      "flight_date": "2026-09-09",
+      "flight_status": "cancelled",
+      "departure": {
+        "airport": "Barcelona International",
+        "timezone": "Europe/Madrid",
+        "iata": "BCN",
+        "icao": "LEBL",
+        "terminal": "1",
+        "gate": "B22",
+        "delay": null,
+        "scheduled": "2026-09-09T13:00:00+00:00",
+        "estimated": "2026-09-09T13:00:00+00:00",
+        "actual": null,
+        "estimated_runway": null,
+        "actual_runway": null
+      },
+      "arrival": {
+        "airport": "Amsterdam-Schiphol",
+        "timezone": "Europe/Amsterdam",
+        "iata": "AMS",
+        "icao": "EHAM",
+        "terminal": "1",
+        "gate": "C12",
+        "baggage": null,
+        "delay": null,
+        "scheduled": "2026-09-09T15:25:00+00:00",
+        "estimated": "2026-09-09T15:25:00+00:00",
+        "actual": null,
+        "estimated_runway": null,
+        "actual_runway": null
+      },
+      "airline": {
+        "name": "Vueling",
+        "iata": "VY",
+        "icao": "VLG"
+      },
+      "flight": {
+        "number": "8300",
+        "iata": "VY8300",
+        "icao": "VLG8300",
+        "codeshared": null
+      }
+    }
+  ]
+}
