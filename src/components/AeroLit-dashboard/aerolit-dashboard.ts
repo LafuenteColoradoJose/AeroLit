@@ -9,6 +9,7 @@ import { flightService, type KpiStats } from '../../services/flight-service';
 import './kpi-card';
 import './urgent-flights';
 import './activity-chart';
+import './live-map';
 
 @customElement("aerolit-dashboard")
 export class AerolitDashboard extends LitElement {
@@ -29,9 +30,21 @@ export class AerolitDashboard extends LitElement {
         }
         .kpi-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 1.5rem;
-            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        /* Flex container para los gráficos y mapa en desktop */
+        .dashboard-widgets {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+        @media (min-width: 1024px) {
+            .dashboard-widgets {
+                grid-template-columns: 1fr 1fr;
+            }
         }
     `;
 
@@ -58,17 +71,20 @@ export class AerolitDashboard extends LitElement {
             <kpi-card title="En Vuelo" value="${this.stats.active}" colorType="secondary" trend="estable" trendDirection="none">
               <ph-airplane-in-flight slot="icon" weight="duotone"></ph-airplane-in-flight>
             </kpi-card>
-            <kpi-card title="Programados" value="${this.stats.scheduled}" colorType="neutral" trend="+2% mañana" trendDirection="up">
-              <ph-clock slot="icon" weight="duotone"></ph-clock>
-            </kpi-card>
             <kpi-card title="Cancelados" value="${this.stats.cancelled}" colorType="error" trend="-1% este mes" trendDirection="down">
               <ph-x-circle slot="icon" weight="duotone"></ph-x-circle>
+            </kpi-card>
+            <kpi-card title="Programados" value="${this.stats.scheduled}" colorType="neutral" trend="" trendDirection="none">
+              <ph-clock slot="icon" weight="duotone"></ph-clock>
             </kpi-card>
           </div>
           
           <urgent-flights></urgent-flights>
           
-          <activity-chart></activity-chart>
+          <div class="dashboard-widgets">
+            <activity-chart></activity-chart>
+            <live-map></live-map>
+          </div>
         ` : html`<p>Cargando estadísticas...</p>`}
       </div>
         `;

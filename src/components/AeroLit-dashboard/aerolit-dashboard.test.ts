@@ -21,6 +21,7 @@ describe('AerolitDashboard', () => {
     });
     vi.spyOn(flightService, 'getUrgentFlights').mockResolvedValue([]);
     vi.spyOn(flightService, 'getFlightsByTime').mockResolvedValue({ labels: [], data: [] });
+    vi.spyOn(flightService, 'getFlights').mockResolvedValue([]);
   });
 
   afterEach(() => {
@@ -37,18 +38,18 @@ describe('AerolitDashboard', () => {
 
     const el = await fixture<AerolitDashboard>(html`<aerolit-dashboard></aerolit-dashboard>`);
     
-    // Esperamos actualización
+    // Al principio, si no hay datos, deberíamos ver un texto de cargando (dependiendo de la velocidad de resolución).
+    // Como getKpiStats resuelve casi inmediato en el mock, podríamos tener que esperar al updateComplete.
     await el.updateComplete;
 
-    expect(flightService.getKpiStats).toHaveBeenCalled();
     const kpiCards = el.shadowRoot!.querySelectorAll('kpi-card');
     expect(kpiCards.length).toBe(4);
     
-    // Verificamos que se pasan los valores correctamente al atributo
+    // Verificamos que pasamos bien las propiedades
     expect(kpiCards[0].getAttribute('value')).toBe('100');
     expect(kpiCards[1].getAttribute('value')).toBe('10');
-    expect(kpiCards[2].getAttribute('value')).toBe('88');
-    expect(kpiCards[3].getAttribute('value')).toBe('2');
+    expect(kpiCards[2].getAttribute('value')).toBe('2'); // Cancelados
+    expect(kpiCards[3].getAttribute('value')).toBe('88'); // Programados
   });
 
   it('debería mostrar mensaje de error o no romperse si falla getKpiStats', async () => {

@@ -48,6 +48,16 @@
         "iata": "IB6123",
         "icao": "IBE6123",
         "codeshared": null
+      },
+      "live": {
+        "updated": "2026-09-09T12:00:00+00:00",
+        "latitude": 42,
+        "longitude": -30,
+        "altitude": 35000,
+        "direction": 280,
+        "speed_horizontal": 850,
+        "speed_vertical": 0,
+        "is_ground": false
       }
     },
     {
@@ -92,6 +102,16 @@
         "iata": "BA304",
         "icao": "BAW304",
         "codeshared": null
+      },
+      "live": {
+        "updated": "2026-09-09T12:00:00+00:00",
+        "latitude": 50,
+        "longitude": 1.5,
+        "altitude": 18000,
+        "direction": 120,
+        "speed_horizontal": 500,
+        "speed_vertical": -500,
+        "is_ground": false
       }
     },
     {
