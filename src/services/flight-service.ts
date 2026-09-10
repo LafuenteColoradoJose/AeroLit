@@ -106,6 +106,40 @@ class FlightService {
     this.flights = [];
     this.fetchPromise = null;
   }
+
+  /**
+   * Obtiene aviones en tiempo real usando la API pública gratuita de OpenSky Network.
+   * Devuelve aviones volando sobre la Península Ibérica.
+   */
+  async getLivePlanes(): Promise<any[]> {
+    try {
+      // Bounding box para España/Portugal. Usamos el proxy de Vite (/api/opensky) para evitar CORS
+      const response = await fetch('/api/opensky/states/all?lamin=35.0&lomin=-10.0&lamax=44.0&lomax=5.0');
+      
+      if (!response.ok) {
+        throw new Error('Error en OpenSky Network');
+      }
+
+      const data = await response.json();
+      
+      // La API de OpenSky devuelve un array de arrays en "states".
+      // Los índices son: 1=callsign, 2=country, 5=longitude, 6=latitude, 7=altitude, 10=true_track(direction), 9=velocity
+      return (data.states || [])
+        .filter((state: any) => state[5] != null && state[6] != null && !state[8]) // Solo aviones en el aire con coordenadas
+        .map((state: any) => ({
+          callsign: state[1] ? state[1].trim() : 'Desconocido',
+          country: state[2],
+          longitude: state[5],
+          latitude: state[6],
+          altitude: state[7] != null ? Math.round(state[7] * 3.28084) : 0, // Metros a pies
+          velocity: state[9] != null ? Math.round(state[9] * 3.6) : 0, // m/s a km/h
+          direction: state[10] || 0
+        }));
+    } catch (error) {
+      console.error('Error fetching live planes from OpenSky:', error);
+      return [];
+    }
+  }
 }
 
 export const flightService = new FlightService();

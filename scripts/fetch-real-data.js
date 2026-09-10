@@ -21,9 +21,10 @@ if (!API_KEY) {
 
 // Aviationstack en su plan gratuito solo permite HTTP, no HTTPS.
 // APILayer.net endpoint para Aviationstack
-const url = `https://api.apilayer.net/aviationstack/v1/flights?access_key=${API_KEY}&limit=100`;
+// Filtramos por salidas desde Madrid-Barajas (MAD) para asegurar datos de España
+const url = `https://api.apilayer.net/aviationstack/v1/flights?access_key=${API_KEY}&limit=100&dep_iata=MAD`;
 
-console.log("✈️ Obteniendo 100 vuelos reales de Aviationstack (apilayer.net)...");
+console.log("✈️ Obteniendo 100 vuelos reales de Aviationstack (salidas desde Madrid)...");
 
 https.get(url, (res) => {
   let data = '';

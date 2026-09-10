@@ -7,6 +7,7 @@ import '@phosphor-icons/webcomponents/PhMoon';
 import '@phosphor-icons/webcomponents/PhSun';
 import '@phosphor-icons/webcomponents/PhCaretLeft';
 import '@phosphor-icons/webcomponents/PhCaretRight';
+import '@phosphor-icons/webcomponents/PhGlobeHemisphereWest';
 
 @customElement('aerolit-sidebar')
 export class AerolitSidebar extends LitElement {
@@ -132,7 +133,7 @@ export class AerolitSidebar extends LitElement {
       display: none;
     }
     
-    ph-chart-bar, ph-airplane, ph-gear, ph-moon, ph-sun, ph-caret-left, ph-caret-right {
+    ph-chart-bar, ph-airplane, ph-gear, ph-moon, ph-sun, ph-caret-left, ph-caret-right, ph-globe-hemisphere-west {
       font-size: 1.5rem;
     }
   `;
@@ -208,6 +209,10 @@ export class AerolitSidebar extends LitElement {
         <a class="nav-item" href="/flights" @click=${(e: Event) => this.navigate(e, '/flights')}>
           <span class="icon"><ph-airplane weight="duotone"></ph-airplane></span>
           <span class="text">Vuelos</span>
+        </a>
+        <a class="nav-item" href="/radar" @click=${(e: Event) => this.navigate(e, '/radar')}>
+          <span class="icon"><ph-globe-hemisphere-west weight="duotone"></ph-globe-hemisphere-west></span>
+          <span class="text">Radar en Vivo</span>
         </a>
         <a class="nav-item" href="/settings" @click=${(e: Event) => this.navigate(e, '/settings')}>
           <span class="icon"><ph-gear weight="duotone"></ph-gear></span>

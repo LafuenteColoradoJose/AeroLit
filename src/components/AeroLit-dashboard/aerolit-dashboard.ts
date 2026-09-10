@@ -9,7 +9,6 @@ import { flightService, type KpiStats } from '../../services/flight-service';
 import './kpi-card';
 import './urgent-flights';
 import './activity-chart';
-import './live-map';
 
 @customElement("aerolit-dashboard")
 export class AerolitDashboard extends LitElement {
@@ -35,11 +34,12 @@ export class AerolitDashboard extends LitElement {
             margin-bottom: 2rem;
         }
         
-        /* Flex container para los gráficos y mapa en desktop */
+        /* Flex container para los gráficos y vuelos urgentes en desktop */
         .dashboard-widgets {
             display: grid;
             grid-template-columns: 1fr;
             gap: 1.5rem;
+            margin-top: 2rem;
         }
         @media (min-width: 1024px) {
             .dashboard-widgets {
@@ -61,7 +61,7 @@ export class AerolitDashboard extends LitElement {
         return html`
       <div class="dashboard-container">
         <h1>AeroLit Dashboard <ph-chart-bar weight="duotone"></ph-chart-bar></h1>
-        <p>Bienvenido al sistema de control de vuelos.</p>
+        <p>Bienvenido al sistema de control de vuelos de España.</p>
 
         ${this.stats ? html`
           <div class="kpi-grid">
@@ -79,11 +79,9 @@ export class AerolitDashboard extends LitElement {
             </kpi-card>
           </div>
           
-          <urgent-flights></urgent-flights>
-          
           <div class="dashboard-widgets">
+            <urgent-flights></urgent-flights>
             <activity-chart></activity-chart>
-            <live-map></live-map>
           </div>
         ` : html`<p>Cargando estadísticas...</p>`}
       </div>

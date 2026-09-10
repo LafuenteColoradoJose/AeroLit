@@ -1,11 +1,11 @@
 import { fixture, html } from '@open-wc/testing';
 import { expect, vi, describe, it, beforeEach, afterEach } from 'vitest';
 import { flightService } from '../../services/flight-service';
-import './live-map';
-import type { LiveMap } from './live-map';
+import './aerolit-radar';
+import type { AerolitRadar } from './aerolit-radar';
 import type { Flight } from '../../models/flight';
 
-describe('LiveMap', () => {
+describe('AerolitRadar', () => {
   const mockActiveFlights: Flight[] = [
     {
       flight_date: "2023-10-27",
@@ -36,7 +36,7 @@ describe('LiveMap', () => {
   });
 
   it('debería renderizar el contenedor del mapa', async () => {
-    const el = await fixture<LiveMap>(html`<live-map></live-map>`);
+    const el = await fixture<AerolitRadar>(html`<aerolit-radar></aerolit-radar>`);
     await el.updateComplete;
 
     // Verificar que el map renderiza un div con id "map"
@@ -50,10 +50,10 @@ describe('LiveMap', () => {
       () => new Promise(resolve => setTimeout(() => resolve([]), 100))
     );
 
-    const el = await fixture<LiveMap>(html`<live-map></live-map>`);
-    // En el primer render (antes de resolve), debería mostrar 'Cargando mapa...'
+    const el = await fixture<AerolitRadar>(html`<aerolit-radar></aerolit-radar>`);
+    // En el primer render (antes de resolve), debería mostrar 'Cargando radar...'
     const emptyState = el.shadowRoot!.querySelector('.empty-state');
     expect(emptyState).not.toBeNull();
-    expect(emptyState!.textContent).toContain('Cargando mapa...');
+    expect(emptyState!.textContent).toContain('Cargando radar...');
   });
 });

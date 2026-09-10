@@ -6,6 +6,7 @@ import { Routes } from '@lit-labs/router';
 import '../components/AeroLit-dashboard/aerolit-dashboard.ts';
 import '../components/AeroLit-flights/aerolit-flights.ts';
 import '../components/AeroLit-settings/aerolit-settings.ts';
+import '../components/AeroLit-radar/aerolit-radar.ts';
 
 @customElement('aerolit-router')
 export class AerolitRouter extends LitElement {
@@ -25,6 +26,10 @@ export class AerolitRouter extends LitElement {
     { 
       path: '/flights', 
       render: () => html`<aerolit-flights></aerolit-flights>` 
+    },
+    { 
+      path: '/radar', 
+      render: () => html`<aerolit-radar></aerolit-radar>` 
     },
     { 
       path: '/settings', 

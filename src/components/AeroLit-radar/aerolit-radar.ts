@@ -17,8 +17,8 @@ L.Icon.Default.mergeOptions({
   shadowUrl: markerShadow,
 });
 
-@customElement('live-map')
-export class LiveMap extends LitElement {
+@customElement('aerolit-radar')
+export class AerolitRadar extends LitElement {
   @query('#map')
   private mapElement!: HTMLElement;
 
@@ -31,14 +31,13 @@ export class LiveMap extends LitElement {
   static styles = [
     css`
       :host {
-        display: block;
-        margin-top: 2rem;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
         background-color: var(--bg-color);
-        border-radius: 16px;
-        padding: 1.5rem;
-        border: 1px solid rgba(128, 128, 128, 0.15);
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         color: var(--text-color);
+        padding: 1.5rem;
+        box-sizing: border-box;
       }
 
       h2 {
@@ -46,15 +45,23 @@ export class LiveMap extends LitElement {
         display: flex;
         align-items: center;
         gap: 10px;
-        font-size: 1.25rem;
+        font-size: 1.5rem;
         margin-bottom: 1.5rem;
         opacity: 0.9;
       }
 
+      .map-container {
+        flex: 1;
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid rgba(128, 128, 128, 0.15);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      }
+
       #map {
-        height: 400px;
+        height: 100%;
         width: 100%;
-        border-radius: 8px;
         z-index: 1; /* Para no tapar otros elementos */
       }
 
@@ -150,10 +157,10 @@ export class LiveMap extends LitElement {
       <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
       <h2>
         <ph-globe-hemisphere-west weight="bold"></ph-globe-hemisphere-west>
-        Mapa de Vuelos en Vivo
+        Radar de Vuelos en Vivo
       </h2>
-      <div style="position: relative;">
-        ${this.loading ? html`<div class="empty-state" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 1000; background: var(--bg-color); display: flex; align-items: center; justify-content: center;">Cargando mapa...</div>` : ''}
+      <div class="map-container">
+        ${this.loading ? html`<div class="empty-state" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 1000; background: var(--bg-color); display: flex; align-items: center; justify-content: center;">Cargando radar...</div>` : ''}
         <div id="map"></div>
       </div>
     `;
@@ -162,6 +169,6 @@ export class LiveMap extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'live-map': LiveMap;
+    'aerolit-radar': AerolitRadar;
   }
 }
