@@ -3,6 +3,7 @@ import { customElement, state } from "lit/decorators.js";
 import type { Flight } from "../../models/flight";
 
 import "../Flight-card/flight-card.ts";
+import '@phosphor-icons/webcomponents/PhAirplaneTakeoff';
 
 @customElement("aerolit-flights")
 export class AerolitFlights extends LitElement {
@@ -51,7 +52,7 @@ export class AerolitFlights extends LitElement {
 
     render() {
         return html`
-        <h1>Todos los Vuelos 🛫</h1>
+        <h1>Todos los Vuelos <ph-airplane-takeoff weight="duotone" style="vertical-align: middle;"></ph-airplane-takeoff></h1>
         ${this.loading ? html`<p class="loading">Cargando radar...</p>` : ''}
         ${this.error ? html`<p class="error">Error: ${this.error}</p>` : ''}
         ${!this.loading && !this.error ? html`

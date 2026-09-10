@@ -1,5 +1,12 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
+import '@phosphor-icons/webcomponents/PhAirplane';
+import '@phosphor-icons/webcomponents/PhChartBar';
+import '@phosphor-icons/webcomponents/PhGear';
+import '@phosphor-icons/webcomponents/PhMoon';
+import '@phosphor-icons/webcomponents/PhSun';
+import '@phosphor-icons/webcomponents/PhCaretLeft';
+import '@phosphor-icons/webcomponents/PhCaretRight';
 
 @customElement('aerolit-sidebar')
 export class AerolitSidebar extends LitElement {
@@ -124,6 +131,10 @@ export class AerolitSidebar extends LitElement {
     :host([collapsed]) .theme-text {
       display: none;
     }
+    
+    ph-chart-bar, ph-airplane, ph-gear, ph-moon, ph-sun, ph-caret-left, ph-caret-right {
+      font-size: 1.5rem;
+    }
   `;
 
   @state()
@@ -179,30 +190,38 @@ export class AerolitSidebar extends LitElement {
   render() {
     return html`
       <div class="header">
-        <div class="logo">✈️ AeroLit</div>
+        <div class="logo">
+          <ph-airplane weight="duotone" style="vertical-align: middle; margin-right: 8px;"></ph-airplane> AeroLit
+        </div>
         <button class="toggle-btn" @click=${this.toggle} title="Toggle Menu">
-          ${this.isOpen ? '◀' : '▶'}
+          ${this.isOpen 
+            ? html`<ph-caret-left weight="duotone"></ph-caret-left>` 
+            : html`<ph-caret-right weight="duotone"></ph-caret-right>`}
         </button>
       </div>
 
       <nav class="nav-links">
         <a class="nav-item" href="/" @click=${(e: Event) => this.navigate(e, '/')}>
-          <span class="icon">📊</span>
+          <span class="icon"><ph-chart-bar weight="duotone"></ph-chart-bar></span>
           <span class="text">Dashboard</span>
         </a>
         <a class="nav-item" href="/flights" @click=${(e: Event) => this.navigate(e, '/flights')}>
-          <span class="icon">🛫</span>
+          <span class="icon"><ph-airplane weight="duotone"></ph-airplane></span>
           <span class="text">Vuelos</span>
         </a>
         <a class="nav-item" href="/settings" @click=${(e: Event) => this.navigate(e, '/settings')}>
-          <span class="icon">⚙️</span>
+          <span class="icon"><ph-gear weight="duotone"></ph-gear></span>
           <span class="text">Ajustes</span>
         </a>
       </nav>
 
       <div class="footer">
         <button class="theme-toggle-btn" @click=${this.toggleTheme} title="Cambiar Tema">
-          <span class="icon">${this.currentTheme === 'light' ? '🌙' : '☀️'}</span>
+          <span class="icon">
+            ${this.currentTheme === 'light' 
+              ? html`<ph-moon weight="duotone"></ph-moon>` 
+              : html`<ph-sun weight="duotone"></ph-sun>`}
+          </span>
           <span class="text theme-text">${this.currentTheme === 'light' ? 'Modo Oscuro' : 'Modo Claro'}</span>
         </button>
       </div>

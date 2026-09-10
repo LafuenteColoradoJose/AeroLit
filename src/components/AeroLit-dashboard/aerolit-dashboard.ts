@@ -1,5 +1,6 @@
 import { LitElement, html, css } from "lit";
 import { customElement } from "lit/decorators.js";
+import '@phosphor-icons/webcomponents/PhChartBar';
 
 @customElement("aerolit-dashboard")
 export class AerolitDashboard extends LitElement {
@@ -21,8 +22,10 @@ export class AerolitDashboard extends LitElement {
 
     render() {
         return html`
-        <h1>AeroLit Dashboard 📊</h1>
-        <p>Bienvenido al panel principal. Utiliza el menú lateral para navegar a Vuelos o Ajustes.</p>
+      <div class="dashboard-container">
+        <h1>AeroLit Dashboard <ph-chart-bar weight="duotone" style="vertical-align: middle;"></ph-chart-bar></h1>
+        <p>Bienvenido al sistema de control de vuelos.</p>
+      </div>
         `;
     }
 }

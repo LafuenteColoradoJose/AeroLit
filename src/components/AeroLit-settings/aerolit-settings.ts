@@ -1,5 +1,6 @@
 import { LitElement, html, css } from "lit";
 import { customElement } from "lit/decorators.js";
+import '@phosphor-icons/webcomponents/PhGear';
 
 @customElement("aerolit-settings")
 export class AerolitSettings extends LitElement {
@@ -18,9 +19,10 @@ export class AerolitSettings extends LitElement {
 
     render() {
         return html`
-        <h1>Ajustes ⚙️</h1>
-        <p>Configuración de la aplicación (Próximamente...)</p>
-        `;
+      <div class="settings-container">
+        <h1>Ajustes <ph-gear weight="duotone" style="vertical-align: middle;"></ph-gear></h1>
+        <p>Configuración de la aplicación próximamente.</p>
+      </div>  `;
     }
 }
 

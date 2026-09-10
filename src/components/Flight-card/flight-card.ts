@@ -1,6 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import type { Flight } from '../../models/flight';
+import '@phosphor-icons/webcomponents/PhAirplaneTilt';
 
 @customElement('flight-card')
 export class FlightCard extends LitElement {
@@ -88,8 +89,14 @@ export class FlightCard extends LitElement {
 
     .plane-icon {
       color: var(--primary-color);
-      font-size: 1.5rem;
       margin: 0 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    ph-airplane-tilt {
+      font-size: 2rem;
     }
 
     .footer {
@@ -143,7 +150,9 @@ export class FlightCard extends LitElement {
           <div class="city" title="${this.flight.departure.airport}">${this.flight.departure.airport}</div>
         </div>
         
-        <div class="plane-icon">✈️</div>
+        <div class="plane-icon">
+          <ph-airplane-tilt weight="duotone"></ph-airplane-tilt>
+        </div>
         
         <div class="airport">
           <div class="iata">${this.flight.arrival.iata}</div>
