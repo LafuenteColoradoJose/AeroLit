@@ -124,8 +124,10 @@ export class FlightCard extends LitElement {
   // Helper para formatear la fecha/hora
   private formatTime(dateString: string) {
     if (!dateString) return '--:--';
-    const date = new Date(dateString);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const d = new Date(dateString);
+    const date = d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
+    const time = d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+    return `${date} - ${time}`;
   }
 
   render() {
@@ -139,7 +141,7 @@ export class FlightCard extends LitElement {
       <div class="header">
         <div class="airline">
           ${this.flight.airline.name} 
-          <span style="font-size: 0.8rem; font-weight: normal; opacity: 0.7;">(${this.flight.flight.iata})</span>
+          <span style="font-size: 0.9rem; font-weight: 600; color: var(--text-color); opacity: 0.85; margin-left: 6px;">(${this.flight.flight.iata})</span>
         </div>
         <div class="status ${statusClass}">${this.flight.flight_status}</div>
       </div>

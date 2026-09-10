@@ -25,7 +25,8 @@ class FlightService {
 
   private async fetchData(): Promise<Flight[]> {
     try {
-      const response = await fetch('/src/assets/mock-flights.json');
+      // Añadimos un timestamp para evitar que el navegador cachee el archivo antiguo de 5 aeropuertos
+      const response = await fetch('/src/assets/mock-flights.json?v=' + new Date().getTime());
       if (!response.ok) {
         throw new Error(`Network response was not ok: ${response.statusText}`);
       }

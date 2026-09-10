@@ -45,11 +45,10 @@ describe('AerolitFlights', () => {
     // Al principio puede que el componente ya haya resuelto porque mockResolvedValue es rápido,
     // comprobaremos si los vuelos se renderizan.
     await el.updateComplete;
-
     expect(flightService.getFlights).toHaveBeenCalled();
-    const flightCards = el.shadowRoot!.querySelectorAll('flight-card');
-    expect(flightCards.length).toBe(1);
-    expect((flightCards[0] as any).flight.airline.name).toBe('Iberia');
+    const flightRows = el.shadowRoot!.querySelectorAll('.list-row');
+    expect(flightRows.length).toBe(1);
+    expect(flightRows[0].textContent).toContain('Iberia');
   });
 
   it('debería mostrar mensaje de error si falla la carga', async () => {

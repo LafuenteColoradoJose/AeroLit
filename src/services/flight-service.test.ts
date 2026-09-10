@@ -38,9 +38,8 @@ describe('FlightService', () => {
     });
 
     const flights = await flightService.getFlights();
-    
-    expect(globalThis.fetch).toHaveBeenCalledTimes(1);
-    expect(globalThis.fetch).toHaveBeenCalledWith('/src/assets/mock-flights.json');
+        expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+    expect((globalThis.fetch as any).mock.calls[0][0]).toMatch(/mock-flights\.json\?v=\d+/);
     expect(flights).toEqual(mockFlights);
   });
 
