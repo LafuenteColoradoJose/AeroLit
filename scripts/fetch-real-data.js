@@ -20,12 +20,12 @@ if (!API_KEY) {
 }
 
 // Aviationstack en su plan gratuito solo permite HTTP, no HTTPS.
-// Limitamos a 100 vuelos para no gastar toda la cuota mensual (100 por petición).
-const url = `http://api.aviationstack.com/v1/flights?access_key=${API_KEY}&limit=100`;
+// APILayer.net endpoint para Aviationstack
+const url = `https://api.apilayer.net/aviationstack/v1/flights?access_key=${API_KEY}&limit=100`;
 
-console.log("✈️ Obteniendo 100 vuelos reales de Aviationstack...");
+console.log("✈️ Obteniendo 100 vuelos reales de Aviationstack (apilayer.net)...");
 
-http.get(url, (res) => {
+https.get(url, (res) => {
   let data = '';
 
   res.on('data', (chunk) => {
