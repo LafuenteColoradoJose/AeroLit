@@ -24,6 +24,7 @@ export class AerolitRadar extends LitElement {
 
   private map: L.Map | null = null;
   private markers: L.Marker[] = [];
+  private resizeObserver: ResizeObserver | null = null;
 
   @state()
   private loading = true;
@@ -37,6 +38,16 @@ export class AerolitRadar extends LitElement {
         background-color: var(--bg-color);
         color: var(--text-color);
         padding: 1.5rem;
+      }
+      
+      @media (max-width: 768px) {
+        :host {
+          padding: 1rem;
+        }
+        h2 {
+          font-size: 1.2rem;
+          margin-bottom: 1rem;
+        }
         box-sizing: border-box;
       }
 
@@ -81,6 +92,15 @@ export class AerolitRadar extends LitElement {
 
   async firstUpdated() {
     this.initMap();
+    
+    // Observar cambios de tamaño en el contenedor para recalcular el mapa (p.ej. al colapsar el sidebar)
+    this.resizeObserver = new ResizeObserver(() => {
+      if (this.map) {
+        this.map.invalidateSize();
+      }
+    });
+    this.resizeObserver.observe(this.mapElement);
+
     await this.loadFlights();
   }
 
@@ -96,6 +116,10 @@ export class AerolitRadar extends LitElement {
 
   disconnectedCallback() {
     super.disconnectedCallback();
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+      this.resizeObserver = null;
+    }
     if (this.map) {
       this.map.remove();
       this.map = null;
@@ -104,7 +128,7 @@ export class AerolitRadar extends LitElement {
 
   private initMap() {
     // Inicializamos centrado en el Atlántico / Europa
-    this.map = L.map(this.mapElement).setView([45.0, -10.0], 3);
+    this.map = L.map(this.mapElement).setView([39.5, -3.0], 6);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',

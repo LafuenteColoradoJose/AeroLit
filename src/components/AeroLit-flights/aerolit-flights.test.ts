@@ -10,7 +10,7 @@ describe('AerolitFlights', () => {
       flight_date: "2023-10-27",
       flight_status: "active",
       departure: { airport: "Madrid", timezone: "Europe/Madrid", iata: "MAD", icao: "LEMD", terminal: "4", gate: "H1", delay: 10, scheduled: "2023-10-27T10:00:00+00:00", estimated: "2023-10-27T10:10:00+00:00", actual: "2023-10-27T10:10:00+00:00", estimated_runway: null, actual_runway: null },
-      arrival: { airport: "London", timezone: "Europe/London", iata: "LHR", icao: "EGLL", terminal: "5", gate: "A10", delay: 0, scheduled: "2023-10-27T12:00:00+00:00", estimated: "2023-10-27T12:00:00+00:00", actual: null, estimated_runway: null, actual_runway: null },
+      arrival: { airport: "Barcelona", timezone: "Europe/Madrid", iata: "BCN", icao: "EGLL", terminal: "5", gate: "A10", delay: 0, scheduled: "2023-10-27T12:00:00+00:00", estimated: "2023-10-27T12:00:00+00:00", actual: null, estimated_runway: null, actual_runway: null },
       airline: { name: "Iberia", iata: "IB", icao: "IBE" },
       flight: { number: "3166", iata: "IB3166", icao: "IBE3166", codeshared: null }
     }
@@ -60,5 +60,49 @@ describe('AerolitFlights', () => {
     const errorMsg = el.shadowRoot!.querySelector('.error');
     expect(errorMsg).not.toBeNull();
     expect(errorMsg!.textContent).toContain('No se pudieron cargar los vuelos.');
+  });
+
+  it('debería cambiar entre vista de lista y vista de cuadrícula', async () => {
+    vi.spyOn(flightService, 'getFlights').mockResolvedValue(mockFlights);
+    const el = await fixture<AerolitFlights>(html`<aerolit-flights></aerolit-flights>`);
+    await el.updateComplete;
+
+    // Por defecto es list
+    expect(el.shadowRoot!.querySelector('.flight-list')).not.toBeNull();
+    expect(el.shadowRoot!.querySelector('.flight-grid')).toBeNull();
+
+    // Cambiar a grid
+    const gridBtn = el.shadowRoot!.querySelector('.view-btn[title="Vista Cuadrícula"]') as HTMLButtonElement;
+    gridBtn.click();
+    await el.updateComplete;
+
+    expect(el.shadowRoot!.querySelector('.flight-grid')).not.toBeNull();
+    expect(el.shadowRoot!.querySelector('.flight-list')).toBeNull();
+  });
+
+  it('debería aplicar filtros de llegada correctamente', async () => {
+    vi.spyOn(flightService, 'getFlights').mockResolvedValue(mockFlights);
+    const el = await fixture<AerolitFlights>(html`<aerolit-flights></aerolit-flights>`);
+    await el.updateComplete;
+
+    // Cambiamos tipo a arrivals
+    const selects = el.shadowRoot!.querySelectorAll('select');
+    const typeSelect = selects[1] as HTMLSelectElement; // El segundo select es el de tipo
+    typeSelect.value = 'arrival';
+    typeSelect.dispatchEvent(new Event('change'));
+
+    // Cambiamos el aeropuerto a LHR
+    const airportSelect = selects[0] as HTMLSelectElement;
+    airportSelect.value = 'BCN';
+    airportSelect.dispatchEvent(new Event('change'));
+
+    // Click en buscar
+    const searchBtn = el.shadowRoot!.querySelector('.search-btn') as HTMLButtonElement;
+    searchBtn.click();
+    await el.updateComplete;
+
+    const flightRows = el.shadowRoot!.querySelectorAll('.list-row');
+    expect(flightRows.length).toBe(1);
+    expect(flightRows[0].textContent).toContain('MAD'); // Debería mostrar el origen (MAD) porque es llegada
   });
 });

@@ -27,9 +27,17 @@ describe('AerolitRadar', () => {
     }
   ];
 
+  
   beforeEach(() => {
-    vi.spyOn(flightService, 'getFlights').mockResolvedValue(mockActiveFlights);
+    // Mock ResizeObserver
+    global.ResizeObserver = class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    };
+    vi.spyOn(flightService, 'getLivePlanes').mockResolvedValue([{ callsign: 'IB123', country: 'Spain', altitude: 35000, velocity: 800, latitude: 40, longitude: -3, direction: 90 }]);
   });
+
 
   afterEach(() => {
     vi.restoreAllMocks();
@@ -46,7 +54,7 @@ describe('AerolitRadar', () => {
 
   it('debería mostrar mensaje de carga inicialmente si tarda', async () => {
     // Retrasar artificialmente la promesa
-    vi.spyOn(flightService, 'getFlights').mockImplementation(
+    vi.spyOn(flightService, 'getLivePlanes').mockImplementation(
       () => new Promise(resolve => setTimeout(() => resolve([]), 100))
     );
 

@@ -101,4 +101,17 @@ describe('AerolitSidebar Component', () => {
     expect(document.documentElement.getAttribute('data-theme')).toBe('light');
     expect(store['aerolit-theme']).toBe('light');
   });
+
+  it('debería navegar correctamente al hacer click en los links', async () => {
+    const navItems = element.shadowRoot!.querySelectorAll('.nav-item');
+    expect(navItems.length).toBeGreaterThan(0);
+
+    let popstateFired = false;
+    window.addEventListener('popstate', () => { popstateFired = true; });
+
+    const firstLink = navItems[0] as HTMLAnchorElement;
+    firstLink.click();
+
+    expect(popstateFired).toBe(true);
+  });
 });

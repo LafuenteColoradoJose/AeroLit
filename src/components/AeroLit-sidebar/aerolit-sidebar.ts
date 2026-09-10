@@ -13,7 +13,7 @@ import '@phosphor-icons/webcomponents/PhGlobeHemisphereWest';
 export class AerolitSidebar extends LitElement {
 
   @state()
-  private isOpen = true;
+  private isOpen = window.innerWidth > 768;
 
   static styles = css`
     :host {
@@ -144,6 +144,9 @@ export class AerolitSidebar extends LitElement {
   connectedCallback() {
     super.connectedCallback();
     this.initTheme();
+    if (!this.isOpen) {
+      this.setAttribute('collapsed', '');
+    }
   }
 
   private initTheme() {
@@ -185,7 +188,10 @@ export class AerolitSidebar extends LitElement {
     window.history.pushState({}, '', path);
     window.dispatchEvent(new Event('popstate'));
     
-    // Si estamos en móvil (colapsado), podríamos querer cerrarlo, pero por ahora lo dejamos igual.
+    // En móvil, auto-colapsar al navegar para mejor UX
+    if (window.innerWidth <= 768 && this.isOpen) {
+      this.toggle();
+    }
   }
 
   render() {
