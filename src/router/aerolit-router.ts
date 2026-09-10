@@ -16,6 +16,24 @@ export class AerolitRouter extends LitElement {
       display: block;
       width: 100%;
       height: 100%;
+      overflow-x: hidden;
+    }
+
+    /* Animación de transición de página (fade + slide up) */
+    :host > * {
+      animation: pageTransition 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+      /* Eliminamos display: block; height: 100%; para no sobreescribir el display: flex propio de aerolit-radar u otros componentes */
+    }
+
+    @keyframes pageTransition {
+      from {
+        opacity: 0;
+        transform: translateY(15px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
   `;
   private _router = new Routes(this, [
