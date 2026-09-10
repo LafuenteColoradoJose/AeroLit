@@ -108,13 +108,11 @@ export class LiveMap extends LitElement {
   private async loadFlights() {
     try {
       this.loading = true;
-      const flights = await flightService.getFlights();
+      // Usamos OpenSky Network para obtener aviones reales sobre España en vez de Aviationstack
+      const livePlanes = await flightService.getLivePlanes();
       
-      // Filtramos solo los vuelos activos que tengan coordenadas live
-      const liveFlights = flights.filter(f => f.flight_status === 'active' && f.live != null);
-
       if (this.map) {
-        liveFlights.forEach(f => this.addFlightToMap(f));
+        livePlanes.forEach(plane => this.addPlaneToMap(plane));
       }
     } catch (error) {
       console.error('Error al cargar vuelos para el mapa', error);
@@ -123,25 +121,25 @@ export class LiveMap extends LitElement {
     }
   }
 
-  private addFlightToMap(f: Flight) {
-    if (!this.map || !f.live) return;
+  private addPlaneToMap(plane: any) {
+    if (!this.map) return;
 
-    // Crear un icono personalizado (usamos HTML y rotación según f.live.direction)
-    const airplaneHtml = `<div style="transform: rotate(${f.live.direction}deg); font-size: 24px; color: #1e3a8a;"><ph-airplane-in-flight weight="fill"></ph-airplane-in-flight></div>`;
+    // Crear un icono personalizado más pequeño para no saturar el mapa
+    const airplaneHtml = `<div style="transform: rotate(${plane.direction}deg); font-size: 14px; color: #1e3a8a; opacity: 0.85; text-shadow: 0 0 2px white;"><ph-airplane-in-flight weight="fill"></ph-airplane-in-flight></div>`;
     const airplaneIcon = L.divIcon({
       html: airplaneHtml,
       className: 'plane-icon',
-      iconSize: [24, 24],
-      iconAnchor: [12, 12]
+      iconSize: [14, 14],
+      iconAnchor: [7, 7]
     });
 
-    const marker = L.marker([f.live.latitude, f.live.longitude], { icon: airplaneIcon })
+    const marker = L.marker([plane.latitude, plane.longitude], { icon: airplaneIcon })
       .addTo(this.map)
       .bindPopup(`
-        <strong>${f.flight.iata} (${f.airline.name})</strong><br>
-        ${f.departure.iata} <ph-arrow-right weight="bold" style="vertical-align: middle; margin: 0 4px;"></ph-arrow-right> ${f.arrival.iata}<br>
-        Altitud: ${f.live.altitude} ft<br>
-        Velocidad: ${f.live.speed_horizontal} km/h
+        <strong>Vuelo: ${plane.callsign}</strong><br>
+        País: ${plane.country}<br>
+        Altitud: ${plane.altitude} ft<br>
+        Velocidad: ${plane.velocity} km/h
       `);
 
     this.markers.push(marker);
