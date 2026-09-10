@@ -48,21 +48,21 @@ describe('AerolitSidebar Component', () => {
     vi.restoreAllMocks();
   });
 
-  it('debería renderizarse correctamente estando abierto por defecto', () => {
+  it('debería renderizarse correctamente estando cerrado por defecto', () => {
     expect(element).toBeDefined();
-    expect(element.hasAttribute('collapsed')).toBe(false);
+    expect(element.hasAttribute('collapsed')).toBe(true);
   });
 
-  it('debería colapsarse al hacer click en el botón de toggle', async () => {
-    const toggleBtn = element.shadowRoot?.querySelector('.toggle-btn') as HTMLButtonElement;
-    toggleBtn.click();
-    await element.updateComplete;
-    expect(element.hasAttribute('collapsed')).toBe(true);
+  it('debería expandirse al hacer hover (mouseenter) en desktop y colapsarse al hacer mouseleave', async () => {
+    Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1024 });
 
-    // Y des-colapsarse al hacer click de nuevo
-    toggleBtn.click();
+    element.dispatchEvent(new MouseEvent('mouseenter'));
     await element.updateComplete;
     expect(element.hasAttribute('collapsed')).toBe(false);
+
+    element.dispatchEvent(new MouseEvent('mouseleave'));
+    await element.updateComplete;
+    expect(element.hasAttribute('collapsed')).toBe(true);
   });
 
   it('debería leer el tema de localStorage si existe', async () => {

@@ -13,7 +13,7 @@ import '@phosphor-icons/webcomponents/PhGlobeHemisphereWest';
 export class AerolitSidebar extends LitElement {
 
   @state()
-  private isOpen = window.innerWidth > 768;
+  private isOpen = false;
 
   static styles = css`
     :host {
@@ -98,8 +98,14 @@ export class AerolitSidebar extends LitElement {
     
     /* Ocultar texto si está colapsado */
     :host([collapsed]) .text, 
-    :host([collapsed]) .logo {
+    :host([collapsed]) .logo-text {
       display: none;
+    }
+    :host([collapsed]) .header {
+      justify-content: center;
+    }
+    :host([collapsed]) .logo ph-airplane {
+      margin-right: 0 !important;
     }
     .footer {
       margin-top: auto;
@@ -144,7 +150,32 @@ export class AerolitSidebar extends LitElement {
   connectedCallback() {
     super.connectedCallback();
     this.initTheme();
-    if (!this.isOpen) {
+    // Siempre iniciamos colapsados (icons only) por defecto
+    this.isOpen = false;
+    this.setAttribute('collapsed', '');
+
+    this.addEventListener('mouseenter', this.handleMouseEnter);
+    this.addEventListener('mouseleave', this.handleMouseLeave);
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.removeEventListener('mouseenter', this.handleMouseEnter);
+    this.removeEventListener('mouseleave', this.handleMouseLeave);
+  }
+
+  private handleMouseEnter = () => {
+    // Expandir en desktop al hacer hover
+    if (window.innerWidth > 768) {
+      this.isOpen = true;
+      this.removeAttribute('collapsed');
+    }
+  }
+
+  private handleMouseLeave = () => {
+    // Colapsar al quitar el ratón
+    if (window.innerWidth > 768) {
+      this.isOpen = false;
       this.setAttribute('collapsed', '');
     }
   }
@@ -174,37 +205,23 @@ export class AerolitSidebar extends LitElement {
     document.documentElement.setAttribute('data-theme', theme);
   }
 
-  toggle() {
-    this.isOpen = !this.isOpen;
-    if (this.isOpen) {
-      this.removeAttribute('collapsed');
-    } else {
-      this.setAttribute('collapsed', '');
-    }
-  }
+  
 
   private navigate(e: Event, path: string) {
     e.preventDefault();
     window.history.pushState({}, '', path);
     window.dispatchEvent(new Event('popstate'));
     
-    // En móvil, auto-colapsar al navegar para mejor UX
-    if (window.innerWidth <= 768 && this.isOpen) {
-      this.toggle();
-    }
+    
   }
 
   render() {
     return html`
       <div class="header">
         <div class="logo">
-          <ph-airplane weight="duotone" style="vertical-align: middle; margin-right: 8px;"></ph-airplane> AeroLit
+          <ph-airplane weight="duotone" style="vertical-align: middle; margin-right: 8px;"></ph-airplane> <span class="logo-text">AeroLit</span>
         </div>
-        <button class="toggle-btn" @click=${this.toggle} title="Toggle Menu">
-          ${this.isOpen 
-            ? html`<ph-caret-left weight="duotone"></ph-caret-left>` 
-            : html`<ph-caret-right weight="duotone"></ph-caret-right>`}
-        </button>
+        
       </div>
 
       <nav class="nav-links">
@@ -227,13 +244,13 @@ export class AerolitSidebar extends LitElement {
       </nav>
 
       <div class="footer">
-        <button class="theme-toggle-btn" @click=${this.toggleTheme} title="Cambiar Tema">
+        <button class="theme-toggle-btn" @click=${this.toggleTheme} title="${this.currentTheme === 'light' ? 'Cambiar a Modo Oscuro' : 'Cambiar a Modo Claro'}">
           <span class="icon">
             ${this.currentTheme === 'light' 
               ? html`<ph-moon weight="duotone"></ph-moon>` 
               : html`<ph-sun weight="duotone"></ph-sun>`}
           </span>
-          <span class="text theme-text">${this.currentTheme === 'light' ? 'Modo Oscuro' : 'Modo Claro'}</span>
+          
         </button>
       </div>
     `;
