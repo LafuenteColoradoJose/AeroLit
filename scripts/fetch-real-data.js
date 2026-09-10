@@ -21,44 +21,57 @@ if (!API_KEY) {
 
 // Aviationstack en su plan gratuito solo permite HTTP, no HTTPS.
 // APILayer.net endpoint para Aviationstack
-// Filtramos por salidas desde Madrid-Barajas (MAD) para asegurar datos de España
-const url = `https://api.apilayer.net/aviationstack/v1/flights?access_key=${API_KEY}&limit=100&dep_iata=MAD`;
+const SPANISH_AIRPORTS = ['MAD', 'BCN', 'PMI', 'AGP', 'ALC'];
 
-console.log("✈️ Obteniendo 100 vuelos reales de Aviationstack (salidas desde Madrid)...");
+console.log("✈️ Obteniendo vuelos reales de Aviationstack para múltiples aeropuertos de España...");
 
-https.get(url, (res) => {
-  let data = '';
-
-  res.on('data', (chunk) => {
-    data += chunk;
+async function fetchAirportFlights(iata) {
+  const url = `https://api.apilayer.net/aviationstack/v1/flights?access_key=${API_KEY}&limit=100&dep_iata=${iata}`;
+  
+  return new Promise((resolve, reject) => {
+    https.get(url, (res) => {
+      let data = '';
+      res.on('data', (chunk) => data += chunk);
+      res.on('end', () => {
+        try {
+          const response = JSON.parse(data);
+          if (response.error) {
+            console.error(`❌ API Error para ${iata}:`, response.error.message || response.error.info || response.error);
+            resolve([]);
+          } else if (!response.data || !Array.isArray(response.data)) {
+            console.error(`❌ Error de formato en la respuesta para ${iata}`);
+            resolve([]);
+          } else {
+            console.log(`✅ Se obtuvieron ${response.data.length} vuelos para ${iata}.`);
+            resolve(response.data);
+          }
+        } catch (e) {
+          console.error(`❌ Error al parsear JSON para ${iata}`, e);
+          resolve([]);
+        }
+      });
+    }).on('error', (err) => {
+      console.error(`❌ Error HTTP para ${iata}:`, err.message);
+      resolve([]);
+    });
   });
+}
 
-  res.on('end', () => {
-    try {
-      const response = JSON.parse(data);
+async function fetchAllSpainFlights() {
+  let allFlights = [];
+  
+  for (const iata of SPANISH_AIRPORTS) {
+    const flights = await fetchAirportFlights(iata);
+    allFlights = allFlights.concat(flights);
+  }
+  
+  if (allFlights.length > 0) {
+    fs.writeFileSync(MOCK_FILE_PATH, JSON.stringify({ data: allFlights }, null, 2), 'utf-8');
+    console.log(`\n💾 Total combinado: ${allFlights.length} vuelos guardados exitosamente en src/assets/mock-flights.json`);
+    console.log("🚀 ¡Tu dashboard ahora tiene una vista nacional completa!");
+  } else {
+    console.log("❌ No se pudieron obtener vuelos.");
+  }
+}
 
-      if (response.error) {
-        console.error("❌ API Error:", response.error.message || response.error.info || response.error);
-        process.exit(1);
-      }
-
-      if (!response.data || !Array.isArray(response.data)) {
-        console.error("❌ Error de formato en la respuesta:", response);
-        process.exit(1);
-      }
-
-      const flights = response.data;
-      console.log(`✅ Se obtuvieron ${flights.length} vuelos reales.`);
-
-      fs.writeFileSync(MOCK_FILE_PATH, JSON.stringify({ data: flights }, null, 2), 'utf-8');
-      
-      console.log(`💾 Guardados exitosamente en src/assets/mock-flights.json`);
-      console.log("🚀 ¡Tu dashboard ahora usa datos reales!");
-
-    } catch (e) {
-      console.error("❌ Error al parsear el JSON de la respuesta", e);
-    }
-  });
-}).on('error', (err) => {
-  console.error("❌ Error en la petición HTTP:", err.message);
-});
+fetchAllSpainFlights();
