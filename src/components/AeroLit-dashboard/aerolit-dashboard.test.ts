@@ -19,6 +19,7 @@ describe('AerolitDashboard', () => {
         dispatchEvent: vi.fn(),
       })),
     });
+    vi.spyOn(flightService, 'getUrgentFlights').mockResolvedValue([]);
   });
 
   afterEach(() => {

@@ -73,6 +73,19 @@ describe('FlightService', () => {
     expect(stats.scheduled).toBe(0);
   });
 
+  it('debería devolver los vuelos urgentes (cancelados o con retraso)', async () => {
+    (globalThis.fetch as any).mockResolvedValue({
+      ok: true,
+      json: async () => ({ data: mockFlights })
+    });
+
+    const urgentFlights = await flightService.getUrgentFlights();
+    
+    // De mockFlights, el de Madrid tiene delay: 10 (activo pero retrasado) y el de Barcelona está cancelled.
+    // En este caso, ambos cumplen las condiciones.
+    expect(urgentFlights.length).toBe(2);
+  });
+
   it('debería devolver un array vacío si la respuesta no tiene data', async () => {
     (globalThis.fetch as any).mockResolvedValue({
       ok: true,

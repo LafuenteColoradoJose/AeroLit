@@ -68,6 +68,16 @@ class FlightService {
     });
   }
 
+  async getUrgentFlights(): Promise<Flight[]> {
+    const flights = await this.getFlights();
+    return flights.filter(f => 
+      f.flight_status === 'cancelled' || 
+      f.flight_status === 'incident' || 
+      f.flight_status === 'diverted' || 
+      (f.departure && f.departure.delay && f.departure.delay > 0)
+    );
+  }
+
   // Método auxiliar para resetear el estado (útil en tests)
   _reset() {
     this.flights = [];
