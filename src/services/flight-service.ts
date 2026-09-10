@@ -78,6 +78,29 @@ class FlightService {
     );
   }
 
+  async getFlightsByTime(): Promise<{ labels: string[], data: number[] }> {
+    const flights = await this.getFlights();
+    // Inicializar contadores por hora (0-23)
+    const hourCounts = new Array(24).fill(0);
+    
+    flights.forEach(f => {
+      // Usaremos la hora de salida programada para la métrica
+      if (f.departure && f.departure.scheduled) {
+        const date = new Date(f.departure.scheduled);
+        const hour = date.getHours();
+        if (!isNaN(hour)) {
+          hourCounts[hour]++;
+        }
+      }
+    });
+
+    // Para que quede bonito, solo devolveremos las horas que tengan actividad
+    // o un rango normal (ej. 06:00 a 22:00) si quisiéramos, 
+    // pero de momento enviamos todo formateado.
+    const labels = hourCounts.map((_, i) => `${i.toString().padStart(2, '0')}:00`);
+    return { labels, data: hourCounts };
+  }
+
   // Método auxiliar para resetear el estado (útil en tests)
   _reset() {
     this.flights = [];

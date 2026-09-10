@@ -8,6 +8,7 @@ import '@phosphor-icons/webcomponents/PhListChecks';
 import { flightService, type KpiStats } from '../../services/flight-service';
 import './kpi-card';
 import './urgent-flights';
+import './activity-chart';
 
 @customElement("aerolit-dashboard")
 export class AerolitDashboard extends LitElement {
@@ -66,6 +67,8 @@ export class AerolitDashboard extends LitElement {
           </div>
           
           <urgent-flights></urgent-flights>
+          
+          <activity-chart></activity-chart>
         ` : html`<p>Cargando estadísticas...</p>`}
       </div>
         `;

@@ -20,6 +20,7 @@ describe('AerolitDashboard', () => {
       })),
     });
     vi.spyOn(flightService, 'getUrgentFlights').mockResolvedValue([]);
+    vi.spyOn(flightService, 'getFlightsByTime').mockResolvedValue({ labels: [], data: [] });
   });
 
   afterEach(() => {

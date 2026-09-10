@@ -3,6 +3,7 @@ import { customElement, state } from 'lit/decorators.js';
 import type { Flight } from '../../models/flight';
 import { flightService } from '../../services/flight-service';
 import '@phosphor-icons/webcomponents/PhWarning';
+import '@phosphor-icons/webcomponents/PhArrowRight';
 
 @customElement('urgent-flights')
 export class UrgentFlights extends LitElement {
@@ -133,7 +134,11 @@ export class UrgentFlights extends LitElement {
                     return html`
                       <tr>
                         <td class="flight-id">${f.flight.iata}</td>
-                        <td>${f.departure.iata} ➔ ${f.arrival.iata}</td>
+                        <td class="route">
+                          ${f.departure.iata} 
+                          <ph-arrow-right weight="bold" style="vertical-align: middle; margin: 0 4px;"></ph-arrow-right> 
+                          ${f.arrival.iata}
+                        </td>
                         <td>${f.airline.name}</td>
                         <td>
                           <span class="badge ${isCancelled ? 'cancelled' : 'delayed'}">
