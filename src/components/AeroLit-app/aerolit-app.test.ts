@@ -1,11 +1,18 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { fixture, html } from '@open-wc/testing';
 import { AerolitApp } from './aerolit-app';
+import { flightService } from '../../services/flight-service';
 
 describe('AerolitApp Component', () => {
   let element: AerolitApp;
 
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   beforeEach(async () => {
+    vi.spyOn(flightService, 'getKpiStats').mockResolvedValue({ total: 0, active: 0, cancelled: 0, scheduled: 0 });
+    vi.spyOn(flightService, 'getFlights').mockResolvedValue([]);
     // Mock global para jsdom que no implementa matchMedia
     Object.defineProperty(window, 'matchMedia', {
       writable: true,

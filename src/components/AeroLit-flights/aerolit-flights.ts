@@ -1,6 +1,7 @@
 import { LitElement, html, css } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import type { Flight } from "../../models/flight";
+import { flightService } from "../../services/flight-service";
 
 import "../Flight-card/flight-card.ts";
 import '@phosphor-icons/webcomponents/PhAirplaneTakeoff';
@@ -34,17 +35,11 @@ export class AerolitFlights extends LitElement {
         this.fetchFlights();
     }
 
-    async fetchFlights() {
-        this.loading = true;
-        this.error = null;
+    private async fetchFlights() {
         try {
-            const response = await fetch('/src/assets/mock-flights.json');
-            if (!response.ok) throw new Error('Error al cargar los vuelos');
-            const json = await response.json();
-            if (json.error) throw new Error(json.error.message || 'Error en la API');
-            this.flights = json.data;
-        } catch (err: any) {
-            this.error = err.message;
+            this.flights = await flightService.getFlights();
+        } catch (err) {
+            this.error = 'No se pudieron cargar los vuelos.';
         } finally {
             this.loading = false;
         }
