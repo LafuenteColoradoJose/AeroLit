@@ -54,11 +54,43 @@ describe('UrgentFlights', () => {
 
   it('debería mostrar mensaje de estado vacío si no hay vuelos urgentes', async () => {
     vi.spyOn(flightService, 'getUrgentFlights').mockResolvedValue([]);
+    vi.spyOn(flightService, 'getUpcomingFlights').mockResolvedValue([]);
     const el = await fixture<UrgentFlights>(html`<urgent-flights></urgent-flights>`);
     await el.updateComplete;
 
     const emptyState = el.shadowRoot!.querySelector('.empty-state');
     expect(emptyState).not.toBeNull();
-    expect(emptyState!.textContent).toContain('No hay vuelos urgentes');
+    expect(emptyState!.textContent).toContain('No hay vuelos para mostrar.');
   });
+  it('debería mostrar próximos vuelos si no hay vuelos urgentes', async () => {
+    vi.spyOn(flightService, 'getUrgentFlights').mockResolvedValue([]);
+    vi.spyOn(flightService, 'getUpcomingFlights').mockResolvedValue([
+      {
+        flight_status: 'scheduled',
+        flight: { iata: 'IB300' },
+        airline: { name: 'Iberia' },
+        departure: { iata: 'MAD', scheduled: '2026-09-11T12:00:00Z' },
+        arrival: { iata: 'BCN' }
+      } as any
+    ]);
+
+    const el = await fixture<UrgentFlights>(html`<urgent-flights></urgent-flights>`);
+    
+    // Esperamos a que termine de cargar
+    await new Promise(r => setTimeout(r, 0));
+    await el.updateComplete;
+
+    // Título debe haber cambiado
+    const title = el.shadowRoot!.querySelector('h2');
+    expect(title!.textContent).toContain('Próximos Vuelos Programados');
+
+    // Debe mostrar la tabla
+    const rows = el.shadowRoot!.querySelectorAll('tbody tr');
+    expect(rows.length).toBe(1);
+    
+    // Debe mostrar la columna Hora
+    const firstCell = rows[0].querySelector('td');
+    expect(firstCell!.textContent).to.not.be.empty;
+  });
+
 });

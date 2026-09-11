@@ -33,7 +33,10 @@ describe('AerolitDashboard', () => {
       total: 100,
       active: 10,
       cancelled: 2,
-      scheduled: 88
+      scheduled: 88,
+      landed: 15,
+      activeTrend: '2',
+      scheduledTrend: '1'
     });
 
     const el = await fixture<AerolitDashboard>(html`<aerolit-dashboard></aerolit-dashboard>`);
@@ -49,7 +52,7 @@ describe('AerolitDashboard', () => {
     expect(kpiCards[0].getAttribute('value')).toBe('100');
     expect(kpiCards[1].getAttribute('value')).toBe('10');
     expect(kpiCards[2].getAttribute('value')).toBe('2'); // Cancelados
-    expect(kpiCards[3].getAttribute('value')).toBe('88'); // Programados
+    expect(kpiCards[3].getAttribute('value')).toBe('15'); // Aterrizados
   });
 
   it('debería mostrar mensaje de error o no romperse si falla getKpiStats', async () => {

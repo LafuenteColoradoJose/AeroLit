@@ -4,6 +4,8 @@ import type { Flight } from '../../models/flight';
 import { flightService } from '../../services/flight-service';
 import '@phosphor-icons/webcomponents/PhWarning';
 import '@phosphor-icons/webcomponents/PhArrowRight';
+import '@phosphor-icons/webcomponents/PhAirplaneTakeoff';
+import '@phosphor-icons/webcomponents/PhClock';
 
 @customElement('urgent-flights')
 export class UrgentFlights extends LitElement {
@@ -12,6 +14,9 @@ export class UrgentFlights extends LitElement {
 
   @state()
   private loading = true;
+
+  @state()
+  private viewMode: 'urgent' | 'upcoming' = 'urgent';
 
   static styles = css`
     :host {
@@ -30,9 +35,18 @@ export class UrgentFlights extends LitElement {
       display: flex;
       align-items: center;
       gap: 10px;
-      color: var(--error-color);
       font-size: 1.25rem;
       margin-bottom: 1.5rem;
+    }
+    .urgent-title {
+      color: var(--error-color);
+    }
+    .upcoming-title {
+      color: var(--primary-color);
+    }
+    .badge.scheduled {
+      background-color: color-mix(in srgb, var(--primary-color) 15%, transparent);
+      color: var(--primary-color);
     }
 
     .table-container {
@@ -96,43 +110,69 @@ export class UrgentFlights extends LitElement {
   async connectedCallback() {
     super.connectedCallback();
     try {
-      this.flights = await flightService.getUrgentFlights();
+      const urgent = await flightService.getUrgentFlights();
+      if (urgent.length > 0) {
+        this.flights = urgent;
+        this.viewMode = 'urgent';
+      } else {
+        this.flights = await flightService.getUpcomingFlights(5);
+        this.viewMode = 'upcoming';
+      }
     } catch (e) {
-      console.error('Failed to load urgent flights', e);
+      console.error('Failed to load flights', e);
     } finally {
       this.loading = false;
     }
   }
 
   render() {
+    const isUrgent = this.viewMode === 'urgent';
+    
     return html`
-      <h2>
-        <ph-warning weight="duotone"></ph-warning>
-        Atención Requerida (Vuelos Urgentes)
+      <h2 class="${isUrgent ? 'urgent-title' : 'upcoming-title'}">
+        ${isUrgent 
+          ? html`<ph-warning weight="duotone"></ph-warning> Atención Requerida (Vuelos Urgentes)`
+          : html`<ph-airplane-takeoff weight="duotone"></ph-airplane-takeoff> Próximos Vuelos Programados`
+        }
       </h2>
       
       ${this.loading 
         ? html`<div class="empty-state">Cargando...</div>` 
         : this.flights.length === 0 
-          ? html`<div class="empty-state">No hay vuelos urgentes en este momento.</div>`
+          ? html`<div class="empty-state">No hay vuelos para mostrar.</div>`
           : html`
             <div class="table-container">
               <table>
                 <thead>
                   <tr>
+                    ${!isUrgent ? html`<th>Hora</th>` : ''}
                     <th>Vuelo</th>
                     <th>Ruta</th>
                     <th>Aerolínea</th>
                     <th>Estado</th>
-                    <th>Retraso (min)</th>
+                    ${isUrgent ? html`<th>Retraso (min)</th>` : ''}
                   </tr>
                 </thead>
                 <tbody>
                   ${this.flights.map(f => {
                     const isCancelled = f.flight_status === 'cancelled';
+                    const isScheduled = f.flight_status === 'scheduled';
                     const delay = f.departure?.delay || 0;
+                    
+                    let timeStr = '-';
+                    if (!isUrgent && f.departure?.scheduled) {
+                        const date = new Date(f.departure.scheduled);
+                        timeStr = date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                    }
+                    
                     return html`
                       <tr>
+                        ${!isUrgent ? html`
+                           <td style="font-weight: 600; color: var(--text-color);">
+                             <ph-clock style="vertical-align: text-bottom; margin-right: 4px; opacity: 0.7;"></ph-clock>
+                             ${timeStr}
+                           </td>
+                        ` : ''}
                         <td class="flight-id">${f.flight.iata}</td>
                         <td class="route">
                           ${f.departure.iata} 
@@ -141,11 +181,11 @@ export class UrgentFlights extends LitElement {
                         </td>
                         <td>${f.airline.name}</td>
                         <td>
-                          <span class="badge ${isCancelled ? 'cancelled' : 'delayed'}">
-                            ${isCancelled ? 'Cancelado' : 'Retrasado'}
+                          <span class="badge ${isCancelled ? 'cancelled' : isScheduled ? 'scheduled' : 'delayed'}">
+                            ${isCancelled ? 'Cancelado' : isScheduled ? 'Programado' : 'Retrasado'}
                           </span>
                         </td>
-                        <td>${delay > 0 ? `+${delay}` : '-'}</td>
+                        ${isUrgent ? html`<td>${delay > 0 ? `+${delay}` : '-'}</td>` : ''}
                       </tr>
                     `;
                   })}

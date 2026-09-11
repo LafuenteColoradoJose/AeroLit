@@ -94,13 +94,13 @@ export class AerolitDashboard extends LitElement {
             <kpi-card title="Total Vuelos" value="${this.stats.total}" colorType="primary" trend="+5% hoy" trendDirection="up">
               <ph-list-checks slot="icon" weight="duotone"></ph-list-checks>
             </kpi-card>
-            <kpi-card title="En Vuelo" value="${this.stats.active}" colorType="secondary" trend="estable" trendDirection="none">
+            <kpi-card title="En Vuelo" value="${this.stats.active}" colorType="secondary" trend="${this.stats.activeTrend}" trendDirection="up">
               <ph-airplane-in-flight slot="icon" weight="duotone"></ph-airplane-in-flight>
             </kpi-card>
             <kpi-card title="Cancelados" value="${this.stats.cancelled}" colorType="error" trend="-1% este mes" trendDirection="down">
               <ph-x-circle slot="icon" weight="duotone"></ph-x-circle>
             </kpi-card>
-            <kpi-card title="Programados" value="${this.stats.scheduled}" colorType="neutral" trend="" trendDirection="none">
+            <kpi-card title="Aterrizados" value="${this.stats.landed}" colorType="neutral" trend="${this.stats.scheduledTrend}" trendDirection="none">
               <ph-clock slot="icon" weight="duotone"></ph-clock>
             </kpi-card>
           </div>
