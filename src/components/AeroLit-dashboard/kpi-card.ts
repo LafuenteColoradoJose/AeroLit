@@ -25,7 +25,7 @@ export class KpiCard extends LitElement {
   static styles = css`
     :host {
       display: block;
-      background-color: var(--bg-color);
+      background-color: var(--card-bg);
       border-radius: 16px;
       padding: 1.5rem;
       border: 1px solid rgba(128, 128, 128, 0.15);

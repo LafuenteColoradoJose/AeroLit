@@ -22,7 +22,7 @@ export class ActivityChart extends LitElement {
     :host {
       display: block;
       margin-top: 2rem;
-      background-color: var(--bg-color);
+      background-color: var(--card-bg);
       border-radius: 16px;
       padding: 1.5rem;
       border: 1px solid rgba(128, 128, 128, 0.15);

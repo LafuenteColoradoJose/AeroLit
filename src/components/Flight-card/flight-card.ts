@@ -12,7 +12,7 @@ export class FlightCard extends LitElement {
   static styles = css`
     :host {
       display: block;
-      background-color: var(--bg-color);
+      background-color: var(--card-bg);
       border: 1px solid var(--primary-color);
       border-radius: 8px;
       padding: 16px;
@@ -53,12 +53,12 @@ export class FlightCard extends LitElement {
 
     .status.cancelled {
       background-color: var(--error-color);
-      color: var(--bg-color); /* Blanco/claro sobre rojo se lee bien */
+      color: var(--c-white); /* Blanco/claro sobre rojo se lee bien */
     }
     
     .status.active {
       background-color: var(--primary-color);
-      color: var(--bg-color); /* Blanco/claro sobre primario (oscuro) se lee bien */
+      color: var(--c-white); /* Blanco/claro sobre primario (oscuro) se lee bien */
     }
 
     .route {

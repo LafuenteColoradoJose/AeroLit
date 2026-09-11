@@ -15,7 +15,8 @@
 :root[data-theme="light"] {
   color-scheme: light;
   /* Fondo muy claro (mint cream) y texto oscuro */
-  --bg-color: var(--c-mint-cream);
+  --bg-color: #f4f7f6;
+  --card-bg: var(--c-white);
   --text-color: var(--c-space-cadet);
   
   /* Sidebar en color principal de la marca (Cerulean) para el tema claro */
@@ -36,7 +37,8 @@
   :root:not([data-theme="light"]) {
     color-scheme: dark;
     /* Fondo oscuro (space cadet) y texto claro (mint cream) */
-    --bg-color: #1a192d; /* Ligeramente más oscuro que space cadet para separar del sidebar */
+    --bg-color: #1a192d;
+    --card-bg: var(--c-space-cadet);
     --text-color: var(--c-mint-cream);
     
     /* Sidebar usa el tono oscuro principal de la paleta */
@@ -56,6 +58,7 @@
 :root[data-theme="dark"] {
   color-scheme: dark;
   --bg-color: #1a192d;
+  --card-bg: var(--c-space-cadet);
   --text-color: var(--c-mint-cream);
   
   --sidebar-bg: var(--c-space-cadet);

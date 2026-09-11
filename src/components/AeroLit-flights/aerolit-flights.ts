@@ -68,7 +68,7 @@ export class AerolitFlights extends LitElement {
         }
         .view-btn.active {
             color: var(--primary-color);
-            background: var(--bg-color);
+            background: var(--card-bg);
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
 
@@ -97,7 +97,7 @@ export class AerolitFlights extends LitElement {
             padding: 0.75rem;
             border-radius: 8px;
             border: 1px solid rgba(128,128,128,0.3);
-            background: var(--bg-color);
+            background: var(--card-bg);
             color: var(--text-color);
             font-size: 1rem;
             min-width: 200px;
@@ -168,7 +168,7 @@ export class AerolitFlights extends LitElement {
             border-bottom: none;
         }
         .list-row:hover {
-            background: var(--bg-color);
+            background: var(--card-bg);
         }
 
         .col-time { font-weight: 800; font-size: 1rem; color: var(--text-color); white-space: nowrap; }
