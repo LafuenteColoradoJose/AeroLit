@@ -10,8 +10,8 @@ describe('AerolitRadar', () => {
     {
       flight_date: "2023-10-27",
       flight_status: "active",
-      departure: { airport: "Madrid", timezone: "Europe/Madrid", iata: "MAD", icao: "LEMD", terminal: "4", gate: "H12", delay: null, scheduled: "2023-10-27T10:00:00+00:00", estimated: null, actual: null, estimated_runway: null, actual_runway: null },
-      arrival: { airport: "New York", timezone: "America/New_York", iata: "JFK", icao: "KJFK", terminal: "8", gate: "B", delay: null, scheduled: "2023-10-27T12:00:00+00:00", estimated: null, actual: null, estimated_runway: null, actual_runway: null },
+      departure: { airport: "Madrid", timezone: "Europe/Madrid", iata: "MAD", icao: "LEMD", terminal: "4", gate: "H12", delay: null, scheduled: "2023-10-27T10:00:00+00:00", estimated: "2023-10-27T10:00:00+00:00", actual: null, estimated_runway: null, actual_runway: null },
+      arrival: { airport: "New York", timezone: "America/New_York", iata: "JFK", icao: "KJFK", terminal: "8", gate: "B", delay: null, scheduled: "2023-10-27T12:00:00+00:00", estimated: "2023-10-27T10:00:00+00:00", actual: null, estimated_runway: null, actual_runway: null },
       airline: { name: "Iberia", iata: "IB", icao: "IBE" },
       flight: { number: "6123", iata: "IB6123", icao: "IBE6123", codeshared: null },
       live: {
@@ -30,7 +30,7 @@ describe('AerolitRadar', () => {
   
   beforeEach(() => {
     // Mock ResizeObserver
-    global.ResizeObserver = class {
+    globalThis.ResizeObserver = class {
       observe() {}
       unobserve() {}
       disconnect() {}

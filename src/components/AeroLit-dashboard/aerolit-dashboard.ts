@@ -66,12 +66,36 @@ export class AerolitDashboard extends LitElement {
         }
     `;
 
+    private uiTickInterval?: number;
+
     async connectedCallback() {
         super.connectedCallback();
+        flightService.startHybridEngine();
+        
         try {
             this.stats = await flightService.getKpiStats();
         } catch (error) {
             console.error('Error loading stats', error);
+        }
+
+        // Refrescar la UI cada 1 minuto
+        this.uiTickInterval = window.setInterval(async () => {
+            try {
+                this.stats = await flightService.getKpiStats();
+                const activityChart = this.shadowRoot?.querySelector('activity-chart') as any;
+                if (activityChart && typeof activityChart.refresh === 'function') {
+                    activityChart.refresh();
+                }
+            } catch(e) {
+                console.error('Tick update failed', e);
+            }
+        }, 60 * 1000);
+    }
+
+    disconnectedCallback() {
+        super.disconnectedCallback();
+        if (this.uiTickInterval) {
+            window.clearInterval(this.uiTickInterval);
         }
     }
 

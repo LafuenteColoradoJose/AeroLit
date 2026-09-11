@@ -61,8 +61,12 @@ class FlightService {
         this.flights = data.data;
         // Guardar en caché
         if (typeof window !== 'undefined') {
-          localStorage.setItem(CACHE_KEY, JSON.stringify(this.flights));
-          localStorage.setItem(CACHE_TIME_KEY, new Date().getTime().toString());
+          try {
+            localStorage.setItem(CACHE_KEY, JSON.stringify(this.flights));
+            localStorage.setItem(CACHE_TIME_KEY, new Date().getTime().toString());
+          } catch (e) {
+            console.warn('⚠️ No se pudo guardar en localStorage (probablemente excede los 5MB). Funcionando en RAM temporalmente.', e);
+          }
         }
       } else {
         this.flights = [];
@@ -100,10 +104,12 @@ class FlightService {
       if (!f.departure?.scheduled) return f;
 
       const depTime = new Date(f.departure.scheduled).getTime();
-      // Estimamos la llegada (2h por defecto si no la da la API)
-      const arrTime = f.arrival?.scheduled 
-        ? new Date(f.arrival.scheduled).getTime() 
-        : depTime + (2 * 60 * 60 * 1000);
+      // Muchas APIs mockeadas devuelven la misma hora de salida y llegada.
+      // Si arrival existe pero es <= departure, forzamos un vuelo de 2 horas.
+      let arrTime = f.arrival?.scheduled ? new Date(f.arrival.scheduled).getTime() : 0;
+      if (!arrTime || arrTime <= depTime) {
+          arrTime = depTime + (2 * 60 * 60 * 1000);
+      }
 
       let simulatedStatus = f.flight_status;
 

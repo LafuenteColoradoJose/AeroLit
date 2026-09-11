@@ -11,7 +11,7 @@ describe('AerolitApp Component', () => {
   });
 
   beforeEach(async () => {
-    vi.spyOn(flightService, 'getKpiStats').mockResolvedValue({ total: 0, active: 0, cancelled: 0, scheduled: 0 });
+    vi.spyOn(flightService, 'getKpiStats').mockResolvedValue({ total: 0, active: 0, cancelled: 0, scheduled: 0, landed: 0, activeTrend: '0', scheduledTrend: '0' });
     vi.spyOn(flightService, 'getFlights').mockResolvedValue([]);
     // Mock global para jsdom que no implementa matchMedia
     Object.defineProperty(window, 'matchMedia', {

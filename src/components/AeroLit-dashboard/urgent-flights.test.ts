@@ -10,8 +10,8 @@ describe('UrgentFlights', () => {
     {
       flight_date: "2023-10-27",
       flight_status: "cancelled",
-      departure: { airport: "Madrid", timezone: "Europe/Madrid", iata: "MAD", icao: "LEMD", terminal: "1", gate: "A", delay: null, scheduled: "2023-10-27T10:00:00+00:00", estimated: null, actual: null, estimated_runway: null, actual_runway: null },
-      arrival: { airport: "London", timezone: "Europe/London", iata: "LHR", icao: "EGLL", terminal: "2", gate: "B", delay: null, scheduled: "2023-10-27T12:00:00+00:00", estimated: null, actual: null, estimated_runway: null, actual_runway: null },
+      departure: { airport: "Madrid", timezone: "Europe/Madrid", iata: "MAD", icao: "LEMD", terminal: "1", gate: "A", delay: null, scheduled: "2023-10-27T10:00:00+00:00", estimated: "2023-10-27T10:00:00+00:00", actual: null, estimated_runway: null, actual_runway: null },
+      arrival: { airport: "London", timezone: "Europe/London", iata: "LHR", icao: "EGLL", terminal: "2", gate: "B", delay: null, scheduled: "2023-10-27T12:00:00+00:00", estimated: "2023-10-27T10:00:00+00:00", actual: null, estimated_runway: null, actual_runway: null },
       airline: { name: "Iberia", iata: "IB", icao: "IBE" },
       flight: { number: "3166", iata: "IB3166", icao: "IBE3166", codeshared: null }
     },
