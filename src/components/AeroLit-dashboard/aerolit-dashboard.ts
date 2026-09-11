@@ -9,24 +9,42 @@ import { flightService, type KpiStats } from '../../services/flight-service';
 import './kpi-card';
 import './urgent-flights';
 import './activity-chart';
+import './live-clock';
 
 @customElement("aerolit-dashboard")
 export class AerolitDashboard extends LitElement {
     @state()
     private stats: KpiStats | null = null;
 
+    
+
     static styles = css`
         .dashboard-container {
             padding: 2rem;
             color: var(--text-color);
         }
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
         h1 {
             color: var(--primary-color);
             margin-top: 0;
+            margin-bottom: 0.5rem;
             display: flex;
             align-items: center;
             gap: 10px;
         }
+        .header-titles p {
+            margin: 0;
+            opacity: 0.8;
+            font-size: 1.1rem;
+        }
+        
         .kpi-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -57,11 +75,19 @@ export class AerolitDashboard extends LitElement {
         }
     }
 
+
+
     render() {
         return html`
       <div class="dashboard-container">
-        <h1>AeroLit Dashboard <ph-chart-bar weight="duotone"></ph-chart-bar></h1>
-        <p>Bienvenido al sistema de control de vuelos de España.</p>
+        <div class="dashboard-header">
+            <div class="header-titles">
+                <h1>AeroLit Dashboard <ph-chart-bar weight="duotone"></ph-chart-bar></h1>
+                <p>Bienvenido al sistema de control de vuelos de España.</p>
+            </div>
+            <live-clock></live-clock>
+            </div>
+        </div>
 
         ${this.stats ? html`
           <div class="kpi-grid">
