@@ -11,10 +11,17 @@ import './urgent-flights';
 import './activity-chart';
 import './live-clock';
 
-@customElement("aerolit-dashboard")
+/**
+ * Componente contenedor principal del Panel de Control (Dashboard).
+ * Orquesta la visualización de KPIs, gráficos de actividad y tablas de vuelos.
+ * 
+ * @element aerolit-dashboard
+ */
+@customElement('aerolit-dashboard')
 export class AerolitDashboard extends LitElement {
     @state()
-    private stats: KpiStats | null = null;
+    private stats: KpiStats |/** Estado reactivo que almacena los KPIs procesados por el motor híbrido */
+     null = null;
 
     
 

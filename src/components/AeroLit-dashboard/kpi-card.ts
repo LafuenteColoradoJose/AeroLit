@@ -5,6 +5,12 @@ import '@phosphor-icons/webcomponents/PhTrendDown';
 
 export type KpiColorType = 'primary' | 'secondary' | 'error' | 'neutral';
 
+/**
+ * Tarjeta visual para mostrar indicadores clave de rendimiento (KPI).
+ * Soporta diferentes esquemas de colores y direcciones de tendencias.
+ * 
+ * @element kpi-card
+ */
 @customElement('kpi-card')
 export class KpiCard extends LitElement {
   @property({ type: String })

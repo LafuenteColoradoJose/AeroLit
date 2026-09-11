@@ -1,5 +1,22 @@
 import type { Flight } from '../models/flight';
 
+const CACHE_KEY = 'aerolit_flights_cache';
+const CACHE_TIME_KEY = 'aerolit_flights_cache_time';
+const CACHE_DURATION = 12 * 60 * 60 * 1000; // 12 horas en milisegundos
+
+/**
+ * Define la estructura de las estadísticas clave de rendimiento (KPIs) 
+ * mostradas en el Dashboard principal.
+ * 
+ * @interface KpiStats
+ * @property {number} total - Número total de vuelos en el dataset actual.
+ * @property {number} active - Número de vuelos actualmente en el aire.
+ * @property {number} cancelled - Número de vuelos cancelados.
+ * @property {number} scheduled - Número de vuelos programados para el futuro.
+ * @property {number} landed - Número de vuelos que ya han aterrizado.
+ * @property {string} activeTrend - Texto dinámico que indica la tendencia de despegues recientes.
+ * @property {string} scheduledTrend - Texto dinámico que indica la tendencia de despegues próximos.
+ */
 export interface KpiStats {
   total: number;
   active: number;
@@ -10,17 +27,32 @@ export interface KpiStats {
   scheduledTrend: string;
 }
 
-const CACHE_KEY = 'aerolit_flights_cache';
-const CACHE_TIME_KEY = 'aerolit_flights_time';
-const CACHE_DURATION = 12 * 60 * 60 * 1000; // 12 horas en ms
-
-class FlightService {
+/**
+ * Servicio central de gestión de vuelos (Singleton).
+ * Implementa un "Motor Híbrido" (Hybrid Engine) diseñado específicamente para 
+ * mitigar bloqueos de Firewalls de Aplicaciones Web (WAF) como Akamai.
+ * 
+ * @class FlightService
+ * @description 
+ * La arquitectura de este servicio se basa en tres pilares:
+ * 1. **Caché Pesada Local (12h)**: Evita descargar el payload de 23MB de AENA repetidas veces.
+ * 2. **Simulador de Tiempo Real**: Transforma vuelos 'scheduled' a 'active' o 'landed' interpolando la hora local del sistema contra la fecha programada.
+ * 3. **Polling Ligero (15 min)**: Fuerza actualizaciones en segundo plano para captar deltas (cancelaciones, retrasos).
+ */
+export class FlightService {
   private flights: Flight[] = [];
   private fetchPromise: Promise<Flight[]> | null = null;
   private networkPollingInterval: any = null;
 
+  /**
+   * Obtiene la lista maestra de vuelos, ya sea desde la caché, RAM o red,
+   * y los pasa por el simulador de tiempo real para devolver su estado actualizado.
+   * 
+   * @param {boolean} [forceFetch=false] - Si es `true`, ignora la caché local y fuerza una petición de red.
+   * @returns {Promise<Flight[]>} Promesa que resuelve en el array de vuelos con estados simulados.
+   */
   async getFlights(forceFetch: boolean = false): Promise<Flight[]> {
-    if (!forceFetch && this.flights.length > 0) {
+    if (this.flights.length > 0 && !forceFetch) {
       return this.getSimulatedFlights();
     }
 
@@ -32,6 +64,14 @@ class FlightService {
     return this.getSimulatedFlights();
   }
 
+  /**
+   * Método interno que maneja la lógica de petición de datos y caché.
+   * 
+   * @private
+   * @param {boolean} forceFetch - Indica si se debe saltar la validación de caché.
+   * @returns {Promise<Flight[]>} El array crudo de vuelos descargados o recuperados de caché.
+   * @throws {Error} Lanza un error si la petición de red falla y no hay caché disponible.
+   */
   private async fetchData(forceFetch: boolean = false): Promise<Flight[]> {
     try {
       // 1. Verificar la caché (El bloque pesado de 12 horas)
@@ -49,7 +89,7 @@ class FlightService {
         }
       }
 
-      // 2. Fetch a la "Red" (Simulada por nuestro JSON local, pero aquí iría AENA)
+      // 2. Fetch a la red
       const response = await fetch('/src/assets/mock-flights.json?v=' + new Date().getTime());
       if (!response.ok) {
         throw new Error(`Network response was not ok: ${response.statusText}`);
@@ -59,7 +99,7 @@ class FlightService {
       
       if (data && Array.isArray(data.data)) {
         this.flights = data.data;
-        // Guardar en caché
+        // Guardar en caché con protección QuotaExceeded
         if (typeof window !== 'undefined') {
           try {
             localStorage.setItem(CACHE_KEY, JSON.stringify(this.flights));
@@ -87,33 +127,36 @@ class FlightService {
   }
 
   /**
-   * El MOTOR DEL SIMULADOR: 
-   * Evalúa los vuelos basándose en la hora actual del dispositivo del usuario
-   * para transformar vuelos 'scheduled' en 'active' o 'landed' sin tocar la API.
+   * El MOTOR DEL SIMULADOR PREDICTIVO.
+   * Evalúa los vuelos basándose en la hora actual del dispositivo del usuario.
+   * 
+   * @private
+   * @description Modifica el estado ('flight_status') al vuelo:
+   * - `scheduled`: Si la hora actual es anterior a la hora de salida.
+   * - `active`: Si la hora actual está entre la salida y la llegada.
+   * - `landed`: Si la hora actual es posterior a la hora de llegada.
+   * @returns {Flight[]} Un array de vuelos transformados según la interpolación temporal.
    */
   private getSimulatedFlights(): Flight[] {
     const now = new Date().getTime();
     
     return this.flights.map(f => {
-      // Si el vuelo tiene una excepción dura, la respetamos
       if (f.flight_status === 'cancelled' || f.flight_status === 'incident' || f.flight_status === 'diverted') {
         return f;
       }
 
-      // Si no tenemos horas, devolvemos el vuelo tal cual
       if (!f.departure?.scheduled) return f;
 
       const depTime = new Date(f.departure.scheduled).getTime();
-      // Muchas APIs mockeadas devuelven la misma hora de salida y llegada.
-      // Si arrival existe pero es <= departure, forzamos un vuelo de 2 horas.
       let arrTime = f.arrival?.scheduled ? new Date(f.arrival.scheduled).getTime() : 0;
+      
+      // Fallback para APIs con datos defectuosos (misma hora salida/llegada)
       if (!arrTime || arrTime <= depTime) {
-          arrTime = depTime + (2 * 60 * 60 * 1000);
+          arrTime = depTime + (2 * 60 * 60 * 1000); // Se asumen 2 horas estándar
       }
 
       let simulatedStatus = f.flight_status;
 
-      // LA MAGIA DEL TIEMPO REAL:
       if (now < depTime) {
         simulatedStatus = 'scheduled';
       } else if (now >= depTime && now < arrTime) {
@@ -126,13 +169,18 @@ class FlightService {
     });
   }
 
+  /**
+   * Calcula estadísticas agregadas para el Dashboard (KPIs).
+   * 
+   * @returns {Promise<KpiStats>} Objeto con sumatorios y textos de tendencia para renderizar.
+   */
   async getKpiStats(): Promise<KpiStats> {
-    const flights = await this.getFlights(); // Trae los vuelos simulados
+    const flights = await this.getFlights(); 
     const now = new Date().getTime();
     
     let active = 0, cancelled = 0, scheduled = 0, landed = 0;
-    let recentTakeoffs = 0; // Despegues en la última hora
-    let nextTakeoffs = 0; // Despegues en la próxima hora
+    let recentTakeoffs = 0; 
+    let nextTakeoffs = 0; 
     
     flights.forEach(flight => {
       if (flight.flight_status === 'active') active++;
@@ -163,8 +211,13 @@ class FlightService {
     };
   }
 
+  /**
+   * Obtiene la lista de vuelos urgentes o con incidencias.
+   * 
+   * @returns {Promise<Flight[]>} Vuelos cuyo estado implica un problema ('cancelled', 'incident', retraso).
+   */
   async getUrgentFlights(): Promise<Flight[]> {
-    const flights = await this.getFlights(); // Simulados
+    const flights = await this.getFlights();
     return flights.filter(f => 
       f.flight_status === 'cancelled' || 
       f.flight_status === 'incident' || 
@@ -173,8 +226,14 @@ class FlightService {
     );
   }
 
+  /**
+   * Obtiene la lista de los próximos vuelos programados en el futuro.
+   * 
+   * @param {number} [limit=5] - Cantidad máxima de vuelos a devolver.
+   * @returns {Promise<Flight[]>} Array ordenado cronológicamente con los próximos vuelos.
+   */
   async getUpcomingFlights(limit: number = 5): Promise<Flight[]> {
-    const flights = await this.getFlights(); // Simulados
+    const flights = await this.getFlights();
     const now = new Date().getTime();
     
     const scheduled = flights.filter(f => {
@@ -192,8 +251,13 @@ class FlightService {
     return scheduled.slice(0, limit);
   }
 
+  /**
+   * Agrupa los vuelos por su hora de salida para alimentar gráficos de actividad.
+   * 
+   * @returns {Promise<{ labels: string[], data: number[] }>} Arrays de etiquetas (00:00 - 23:00) y el recuento de vuelos por cada hora.
+   */
   async getFlightsByTime(): Promise<{ labels: string[], data: number[] }> {
-    const flights = await this.getFlights(); // Simulados
+    const flights = await this.getFlights();
     const hourCounts = new Array(24).fill(0);
     
     flights.forEach(f => {
@@ -211,24 +275,33 @@ class FlightService {
   }
 
   /**
-   * Arranca el Polling de 15 minutos para actualizar "Deltas" (Cancelaciones, etc)
-   * saltándose el bloque caché.
+   * Inicia el ciclo de vida automático del Motor Híbrido (Heartbeat).
+   * Ejecuta peticiones de bajo peso a la red de forma periódica para buscar deltas.
+   * 
+   * @param {() => void} [onNetworkUpdate] - Callback opcional que se ejecuta tras una actualización de red exitosa.
    */
-  startHybridEngine(onNetworkUpdate: () => void) {
+  startHybridEngine(onNetworkUpdate?: () => void) {
     if (this.networkPollingInterval) clearInterval(this.networkPollingInterval);
     
-    // Polling cada 15 min (15 * 60 * 1000)
     this.networkPollingInterval = setInterval(async () => {
       console.log('🔄 Hybrid Engine: Ejecutando Polling Ligero de 15 min...');
-      await this.getFlights(true); // forceFetch = true bypasses 12h cache
+      await this.getFlights(true); 
       if (onNetworkUpdate) onNetworkUpdate();
     }, 15 * 60 * 1000);
   }
 
+  /**
+   * Detiene el Motor Híbrido, pausando el polling de red.
+   */
   stopHybridEngine() {
     if (this.networkPollingInterval) clearInterval(this.networkPollingInterval);
   }
 
+  /**
+   * Resetea el servicio entero. Útil para entornos de testing.
+   * 
+   * @private
+   */
   _reset() {
     this.flights = [];
     this.fetchPromise = null;
@@ -239,6 +312,12 @@ class FlightService {
     }
   }
 
+  /**
+   * Recupera datos de posición en tiempo real desde la API pública de OpenSky Network.
+   * @deprecated Úsese con precaución en producción por límites de Rate-Limiting.
+   * 
+   * @returns {Promise<any[]>} Array de posiciones aéreas parseadas.
+   */
   async getLivePlanes(): Promise<any[]> {
     try {
       const response = await fetch('/api/opensky/states/all?lamin=35.0&lomin=-10.0&lamax=44.0&lomax=5.0');

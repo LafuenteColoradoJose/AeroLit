@@ -1,7 +1,13 @@
 import { LitElement, html, css } from "lit";
 import { customElement, state } from "lit/decorators.js";
 
-@customElement("live-clock")
+/**
+ * Reloj digital en tiempo real.
+ * Muestra la hora exacta y fecha actualizando su estado cada segundo.
+ * 
+ * @element live-clock
+ */
+@customElement('live-clock')
 export class LiveClock extends LitElement {
     @state()
     private currentTime: Date = new Date();

@@ -8,6 +8,12 @@ import '@phosphor-icons/webcomponents/PhChartLineUp';
 // Registramos todos los componentes de Chart.js
 Chart.register(...registerables);
 
+/**
+ * Gráfico interactivo de actividad de vuelos usando Chart.js.
+ * Diferencia visualmente los vuelos pasados/actuales (línea sólida) de los futuros (línea punteada).
+ * 
+ * @element activity-chart
+ */
 @customElement('activity-chart')
 export class ActivityChart extends LitElement {
   @query('canvas')

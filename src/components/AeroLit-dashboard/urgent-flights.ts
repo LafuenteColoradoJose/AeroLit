@@ -7,6 +7,12 @@ import '@phosphor-icons/webcomponents/PhArrowRight';
 import '@phosphor-icons/webcomponents/PhAirplaneTakeoff';
 import '@phosphor-icons/webcomponents/PhClock';
 
+/**
+ * Tabla de vuelos críticos que requieren atención inmediata.
+ * Si no hay vuelos urgentes, muta automáticamente para mostrar los "Próximos Vuelos Programados".
+ * 
+ * @element urgent-flights
+ */
 @customElement('urgent-flights')
 export class UrgentFlights extends LitElement {
   @state()
@@ -16,7 +22,8 @@ export class UrgentFlights extends LitElement {
   private loading = true;
 
   @state()
-  private viewMode: 'urgent' | 'upcoming' = 'urgent';
+  private viewMode: 'urgent' |/** Estado interno que determina el esquema visual y los datos de la tabla según la gravedad */
+   'upcoming' = 'urgent';
 
   static styles = css`
     :host {
