@@ -72,3 +72,22 @@ La fiabilidad es crítica en entornos aeronáuticos.
 
 ---
 *Documento generado para el equipo de desarrollo y auditoría técnica.*
+
+## 5. Desarrollo impulsado por IA Agéntica (Agentic AI)
+
+Dado el paradigma actual donde la programación asistida por agentes autónomos de IA es un estándar en la industria, el desarrollo de **AeroLit** se ha beneficiado enormemente del uso de "Skills" (habilidades) específicas para la IA.
+
+En concreto, se han empleado las siguientes herramientas agénticas:
+*   **Agent Skills (by Addy Osmani):** Una potente suite de habilidades que proporciona al agente de IA flujos de trabajo estructurados. Se ha utilizado para el desarrollo guiado por pruebas (*Test-Driven Development*), revisión cruzada de código (*Code Review*) y resolución de problemas (*Debugging*), garantizando así un código robusto y una cobertura de tests total (100% passing en Vitest).
+*   **Modern Web Guidance & Frontend Engineering:** Skills enfocadas en asegurar que el código generado sigue las convenciones más modernas del desarrollo web: uso de **Lit** para Web Components estándar, estado reactivo (decorators `@state`), uso avanzado de CSS (variables y *Container Queries*) y buenas prácticas de rendimiento y accesibilidad.
+
+El ciclo de desarrollo riguroso asistido por IA seguido fue:
+
+```text
+  DEFINE          PLAN           BUILD          VERIFY         REVIEW          SHIP
+ ┌──────┐      ┌──────┐      ┌──────┐      ┌──────┐      ┌──────┐      ┌──────┐
+ │ Idea │ ───▶ │ Spec │ ───▶ │ Code │ ───▶ │ Test │ ───▶ │  QA  │ ───▶ │  Go  │
+ │Refine│      │  PRD │      │ Impl │      │Debug │      │ Gate │      │ Live │
+ └──────┘      └──────┘      └──────┘      └──────┘      └──────┘      └──────┘
+  /spec          /plan          /build        /test         /review       /ship
+```
