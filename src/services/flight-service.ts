@@ -40,6 +40,9 @@ export interface KpiStats {
  * 3. **Polling Ligero (15 min)**: Fuerza actualizaciones en segundo plano para captar deltas (cancelaciones, retrasos).
  */
 export class FlightService {
+  private livePlanesCache: any[] | null = null;
+  private lastLivePlanesFetch: number = 0;
+
   private flights: Flight[] = [];
   private fetchPromise: Promise<Flight[]> | null = null;
   private networkPollingInterval: any = null;
@@ -318,12 +321,19 @@ export class FlightService {
    * 
    * @returns {Promise<any[]>} Array de posiciones aéreas parseadas.
    */
+  
   async getLivePlanes(): Promise<any[]> {
+    const now = Date.now();
+    if (this.livePlanesCache && (now - this.lastLivePlanesFetch < 30000)) {
+      return this.livePlanesCache;
+    }
+
     try {
       const response = await fetch('/api/opensky/states/all?lamin=35.0&lomin=-10.0&lamax=44.0&lomax=5.0');
       if (!response.ok) throw new Error('Error en OpenSky Network');
       const data = await response.json();
-      return (data.states || [])
+      
+      const planes = (data.states || [])
         .filter((state: any) => state[5] != null && state[6] != null && !state[8])
         .map((state: any) => ({
           callsign: state[1] ? state[1].trim() : 'Desconocido',
@@ -334,6 +344,11 @@ export class FlightService {
           velocity: state[9] != null ? Math.round(state[9] * 3.6) : 0,
           direction: state[10] || 0
         }));
+      
+      this.livePlanesCache = planes;
+      this.lastLivePlanesFetch = Date.now();
+      return planes;
+
     } catch (error) {
       console.error('Error fetching live planes:', error);
       return [];

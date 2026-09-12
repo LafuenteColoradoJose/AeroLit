@@ -75,9 +75,9 @@ describe('AerolitRadar', () => {
     const removeSpy = vi.fn();
     const disconnectSpy = vi.fn();
     
-    el.map = { remove: removeSpy } as any;
-    el.resizeObserver = { disconnect: disconnectSpy, observe: vi.fn() } as any;
-    el['updateInterval'] = 123;
+    (el as any).map = { remove: removeSpy } as any;
+    (el as any).resizeObserver = { disconnect: disconnectSpy, observe: vi.fn() } as any;
+    (el as any).updateInterval = 123;
     
     el.disconnectedCallback();
     

@@ -25,6 +25,7 @@ export class AerolitRadar extends LitElement {
   private map: L.Map | null = null;
   private markers: L.Marker[] = [];
   private resizeObserver: ResizeObserver | null = null;
+  private updateInterval: number | null = null;
 
   @state()
   private loading = true;
@@ -90,6 +91,7 @@ export class AerolitRadar extends LitElement {
     `
   ];
 
+  
   async firstUpdated() {
     this.initMap();
     
@@ -102,7 +104,16 @@ export class AerolitRadar extends LitElement {
     this.resizeObserver.observe(this.mapElement);
 
     await this.loadFlights();
+
+    // Actualizar cada 60 segundos
+    this.updateInterval = window.setInterval(async () => {
+      // Usar Page Visibility API para no consumir peticiones si la pestaña está oculta
+      if (!document.hidden) {
+        await this.loadFlights();
+      }
+    }, 60000);
   }
+
 
   updated(changedProperties: Map<string | number | symbol, unknown>) {
     super.updated(changedProperties);
@@ -116,6 +127,10 @@ export class AerolitRadar extends LitElement {
 
   disconnectedCallback() {
     super.disconnectedCallback();
+    if (this.updateInterval) {
+      window.clearInterval(this.updateInterval);
+      this.updateInterval = null;
+    }
     if (this.resizeObserver) {
       this.resizeObserver.disconnect();
       this.resizeObserver = null;
@@ -136,6 +151,7 @@ export class AerolitRadar extends LitElement {
     }).addTo(this.map);
   }
 
+  
   private async loadFlights() {
     try {
       this.loading = true;
@@ -143,8 +159,13 @@ export class AerolitRadar extends LitElement {
       const livePlanes = await flightService.getLivePlanes();
       
       if (this.map) {
+        // Limpiar marcadores antiguos antes de repintar
+        this.markers.forEach(m => m.remove());
+        this.markers = [];
+        
         livePlanes.forEach(plane => this.addPlaneToMap(plane));
       }
+
     } catch (error) {
       console.error('Error al cargar vuelos para el mapa', error);
     } finally {
