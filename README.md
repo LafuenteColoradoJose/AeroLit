@@ -10,9 +10,14 @@ AeroLit proporciona una interfaz fluida e intuitiva para consultar salidas y lle
 
 * **Buscador de Vuelos Avanzado (AENA):**
   * Acceso a programación real de vuelos para **48 aeropuertos españoles**.
-  * Filtrado instantáneo por *Salidas* y *Llegadas*.
-  * Ordenación cronológica automática.
+  * Filtrado dinámico por *Salidas*, *Llegadas* y *Estado de Vuelo* (Programado, Activo, Aterrizado, Cancelado).
+  * **Motor de Búsqueda Integrado:** Búsqueda en tiempo real por texto (Nº de Vuelo, Aerolínea, Código IATA).
+  * **Paginación Fluida:** Manejo optimizado del DOM mostrando hasta 20 vuelos por página.
+  * **Reloj en Vivo (Live Clock):** La vista se actualiza silenciosamente cada 60 segundos manteniendo sincronía con el reloj del usuario.
+  * Ordenación cronológica operativa (prioridad a vuelos programados y en curso frente a finalizados).
   * **Doble Vista de visualización**:
+    * *Vista de Panel (Lista):* Estilo panel de terminal clásico para visualizar rápidamente gran cantidad de datos.
+    * *Vista de Tarjetas (Cuadrícula):* Interfaz de tarjetas detalladas y modernas.
     * *Vista de Panel (Lista):* Estilo panel de terminal clásico para visualizar rápidamente gran cantidad de datos (Hora, Destino, Vuelo, Puerta, Estado).
     * *Vista de Tarjetas (Cuadrícula):* Interfaz de tarjetas detalladas y modernas.
 * **Radar en Vivo:** Integración con OpenSky Network para mapear en tiempo real el tráfico aéreo sobre la península ibérica.
@@ -64,4 +69,4 @@ Este proyecto soporta llamadas a **Aviationstack** (para histórico de vuelos) y
 VITE_AVIATIONSTACK_API_KEY=tu_api_key_aqui
 ```
 
-> **Nota para Desarrollo:** Las peticiones al plan gratuito están limitadas. La aplicación cuenta con un fallback a **datos mockeados masivos** (`mock-flights.json` generado a partir de la API de AENA con ~29.000 vuelos) para garantizar una experiencia completa sin agotar tu cuota de peticiones durante el desarrollo.
+> **Nota para Desarrollo (Eternal Mock):** Las peticiones al plan gratuito están limitadas. La aplicación cuenta con un fallback a **datos mockeados masivos** (`mock-flights.json`). Para evitar que estos datos estáticos caduquen, el `FlightService` incorpora una lógica de interpolación que **desplaza temporalmente todas las fechas** basándose en la fecha actual del sistema. De esta forma, el simulador siempre mostrará vuelos relativos a tu "hoy", ofreciendo una experiencia inmersiva y permanente.

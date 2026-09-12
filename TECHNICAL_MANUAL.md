@@ -17,8 +17,11 @@
 
 1. [Arquitectura del Frontend](#1-arquitectura-del-frontend)
 2. [Estrategia de Datos: Evasión de Rate-Limits (Anti-WAF)](#2-estrategia-de-datos-evasión-de-rate-limits-anti-waf)
-3. [Simulación de Estado en el Cliente](#3-simulación-de-estado-en-el-cliente)
-4. [Testing y Control de Calidad](#4-testing-y-control-de-calidad)
+3. [FlightService & Eternal Mock](#3-flightservice--eternal-mock)
+4. [Paginación y Motor de Filtros](#4-paginación-y-motor-de-filtros)
+5. [Simulación de Estado en el Cliente](#5-simulación-de-estado-en-el-cliente)
+6. [Testing, Calidad y Documentación](#6-testing-calidad-y-documentación)
+7. [Desarrollo impulsado por IA Agéntica](#7-desarrollo-impulsado-por-ia-agéntica)
 
 ---
 
@@ -71,7 +74,7 @@ El componente \`<live-clock>\` no es solo un elemento visual, actúa como el "la
 ---
 
 
-## 4. Testing, Calidad y Documentación
+## 6. Testing, Calidad y Documentación
 
 La fiabilidad es crítica en entornos aeronáuticos. 
 - **Vitest & Open-WC:** Toda la lógica de componentes y servicios está testeada de forma unitaria en entornos JSDOM. Se aplican técnicas de *Mocking* profundo (ej. inyección simulada de *Chart.js* y *Leaflet*) y uso de *Fake Timers* (`vi.useFakeTimers()`) para probar la reactividad sin esperar.
@@ -82,7 +85,7 @@ La fiabilidad es crítica en entornos aeronáuticos.
 ---
 *Documento generado para el equipo de desarrollo y auditoría técnica.*
 
-## 5. Desarrollo impulsado por IA Agéntica (Agentic AI)
+## 7. Desarrollo impulsado por IA Agéntica (Agentic AI)
 
 Dado el paradigma actual donde la programación asistida por agentes autónomos de IA es un estándar en la industria, el desarrollo de **AeroLit** se ha beneficiado enormemente del uso de "Skills" (habilidades) específicas para la IA.
 
