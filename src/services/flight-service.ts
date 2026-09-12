@@ -40,11 +40,16 @@ export interface KpiStats {
  * 3. **Polling Ligero (15 min)**: Fuerza actualizaciones en segundo plano para captar deltas (cancelaciones, retrasos).
  */
 export class FlightService {
+  /** Caché en memoria para las posiciones de aviones en vivo (OpenSky API). */
   private livePlanesCache: any[] | null = null;
+  /** Marca de tiempo (timestamp) de la última vez que se solicitó posición en vivo. */
   private lastLivePlanesFetch: number = 0;
 
+  /** Almacenamiento local principal en memoria para la lista de vuelos mockeados/reales. */
   private flights: Flight[] = [];
+  /** Promesa en curso para evitar condiciones de carrera (múltiples requests simultáneos). */
   private fetchPromise: Promise<Flight[]> | null = null;
+  /** ID del intervalo de actualización automática periódica (Hybrid Engine). */
   private networkPollingInterval: any = null;
 
   /**

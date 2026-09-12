@@ -1,188 +1,218 @@
-import { LitElement, html, css } from "lit";
-import { customElement, state } from "lit/decorators.js";
-import type { Flight } from "../../models/flight";
-import { flightService } from "../../services/flight-service";
-
-import "../Flight-card/flight-card.ts";
+import { LitElement, html, css } from 'lit';
+import { customElement, state } from 'lit/decorators.js';
+import { flightService } from '../../services/flight-service';
+import { SPANISH_AIRPORTS } from '../../data/spanish-airports';
+import type { Flight } from '../../models/flight';
+import '../Flight-card/flight-card';
+import '../AeroLit-dashboard/live-clock';
 import '@phosphor-icons/webcomponents/PhAirplaneTakeoff';
-import '@phosphor-icons/webcomponents/PhMagnifyingGlass';
-import '@phosphor-icons/webcomponents/PhSquaresFour';
 import '@phosphor-icons/webcomponents/PhListDashes';
-import { SPANISH_AIRPORTS } from "../../data/spanish-airports";
+import '@phosphor-icons/webcomponents/PhSquaresFour';
+import '@phosphor-icons/webcomponents/PhMagnifyingGlass';
+import '@phosphor-icons/webcomponents/PhCaretLeft';
+import '@phosphor-icons/webcomponents/PhCaretRight';
 
-@customElement("aerolit-flights")
+const ITEMS_PER_PAGE = 20;
+
+/**
+ * Componente principal para el panel de vuelos de AeroLit.
+ * Renderiza, filtra, página y auto-actualiza los vuelos en base a la fecha real del sistema.
+ * @element aerolit-flights
+ */
+@customElement('aerolit-flights')
 export class AerolitFlights extends LitElement {
+    /** Almacena todos los vuelos originales obtenidos del motor simulado. */
     @state() private allFlights: Flight[] = [];
+    /** Almacena los vuelos filtrados por todos los criterios antes de paginar. */
     @state() private flights: Flight[] = [];
+    /** Almacena el segmento de vuelos de la página actual para renderizado rápido. */
+    @state() private pagedFlights: Flight[] = [];
+    /** Indica si el panel de vuelos está en estado de carga de datos iniciales. */
     @state() private loading: boolean = true;
+    /** Almacena un posible mensaje de error durante la carga de red. */
     @state() private error: string | null = null;
 
+    /** Aeropuerto IATA seleccionado actualmente (ej. 'MAD', 'BCN'). */
     @state() private selectedAirport: string = 'MAD';
+    /** Dirección de vuelos a mostrar: Salidas o Llegadas. */
     @state() private filterType: 'departure' | 'arrival' = 'departure';
+    /** Filtro de estado del vuelo ('all', 'scheduled', 'active', 'landed', 'cancelled'). */
+    @state() private statusFilter: string = 'all';
+    /** Término de búsqueda de texto ingresado por el usuario (aerolínea, nº vuelo, IATA). */
+    @state() private searchQuery: string = '';
     
-    // Nueva vista: panel vs tarjetas (Por defecto list para evitar scroll masivo)
+    /** Modo de visualización actual de la UI (lista detallada o tarjetas cuadriculadas). */
     @state() private viewMode: 'grid' | 'list' = 'list';
+    
+    /** Página actualmente visible en el UI para la paginación de resultados. */
+    @state() private currentPage: number = 1;
+    /** Cantidad total de páginas disponibles basadas en los resultados filtrados. */
+    @state() private totalPages: number = 1;
+    /** Referencia al timer de intervalo de actualización automática en tiempo real. */
+    private updateInterval: number | null = null;
 
     static styles = css`
         :host {
             display: block;
             padding: 2rem;
-            color: var(--text-color);
+            background: var(--bg-color);
+            min-height: 100vh;
         }
+
         .header-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
         h1 {
             color: var(--primary-color);
             margin: 0;
             display: flex;
             align-items: center;
             gap: 10px;
+            font-size: 2rem;
         }
+
         .view-controls {
             display: flex;
-            gap: 0.5rem;
-            background: var(--sidebar-bg);
-            padding: 0.5rem;
-            border-radius: 8px;
+            gap: 10px;
         }
+
         .view-btn {
-            background: transparent;
-            border: none;
-            color: var(--secondary-color);
-            padding: 0.5rem;
+            background: var(--surface-color);
+            border: 1px solid rgba(128, 128, 128, 0.2);
+            color: var(--text-color);
+            padding: 8px 12px;
             border-radius: 6px;
             cursor: pointer;
+            transition: all 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
-            transition: all 0.2s;
         }
-        .view-btn:hover {
-            color: var(--primary-color);
-            background: rgba(0,0,0,0.05);
-        }
-        .view-btn.active {
-            color: var(--primary-color);
-            background: var(--card-bg);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
+
+        .view-btn:hover { background: rgba(128, 128, 128, 0.1); }
+        .view-btn.active { background: var(--primary-color); color: white; border-color: var(--primary-color); }
 
         .filters {
             display: flex;
             gap: 1rem;
             margin-bottom: 2rem;
-            background: var(--sidebar-bg);
+            background: var(--surface-color);
             padding: 1.5rem;
             border-radius: 12px;
-            align-items: flex-end;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
             flex-wrap: wrap;
+            align-items: flex-end;
         }
+
         .filter-group {
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
+            flex: 1;
+            min-width: 200px;
         }
+
         .filter-group label {
             font-size: 0.9rem;
-            font-weight: bold;
-            color: var(--secondary-color);
+            font-weight: 600;
+            color: var(--text-color);
+            opacity: 0.8;
         }
-        select {
+
+        select, input {
             padding: 0.75rem;
             border-radius: 8px;
-            border: 1px solid rgba(128,128,128,0.3);
-            background: var(--card-bg);
+            border: 1px solid rgba(128, 128, 128, 0.3);
+            background: var(--bg-color);
             color: var(--text-color);
             font-size: 1rem;
-            min-width: 200px;
-            cursor: pointer;
-        }
-        select:focus {
             outline: none;
+            transition: border-color 0.2s;
+        }
+        
+        select:focus, input:focus {
             border-color: var(--primary-color);
         }
-        button.search-btn {
-            background-color: var(--primary-color);
+
+        .search-btn {
+            background: var(--primary-color);
             color: white;
             border: none;
             padding: 0.75rem 1.5rem;
             border-radius: 8px;
+            font-weight: 600;
             font-size: 1rem;
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 8px;
-            font-weight: bold;
-            transition: opacity 0.2s;
-        }
-        button.search-btn:hover {
-            opacity: 0.9;
-        }
-        
-        /* Resultados */
-        .loading { color: var(--secondary-color); font-size: 1.2rem; }
-        .error { color: var(--error-color); font-size: 1.2rem; }
-        .empty { text-align: center; color: gray; font-style: italic; margin-top: 2rem; }
-        
-        .flight-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
+            transition: background 0.2s;
+            height: 45px;
         }
 
-        /* Vista Panel de Aeropuerto */
+        .search-btn:hover { background: #1a494f; }
+
+        .loading, .error, .empty { text-align: center; font-size: 1.2rem; margin-top: 3rem; opacity: 0.7; }
+        .error { color: #dc2626; }
+
+        .flight-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* VISTA LISTA (PANEL TIPO AEROPUERTO) */
         .flight-list {
             display: flex;
             flex-direction: column;
-            background: var(--card-bg);
+            background: var(--surface-color);
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid rgba(128,128,128,0.15);
         }
-        .list-header, .list-row {
-            display: grid;
-            grid-template-columns: 130px 2fr 1fr 1.5fr 80px 100px;
-            gap: 1rem;
-            padding: 1rem 1.5rem;
-            align-items: center;
-        }
+
         .list-header {
-            background: var(--sidebar-bg);
+            display: grid;
+            grid-template-columns: 1.5fr 2fr 1fr 2fr 1fr 1fr;
+            padding: 1rem 1.5rem;
+            background: var(--primary-color);
+            color: white;
             font-weight: bold;
-            color: var(--secondary-color);
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            border-bottom: 2px solid rgba(0,0,0,0.05);
+            font-size: 0.9rem;
+            letter-spacing: 0.05em;
         }
+
         .list-row {
-            border-bottom: 1px solid rgba(0,0,0,0.05);
+            display: grid;
+            grid-template-columns: 1.5fr 2fr 1fr 2fr 1fr 1fr;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid rgba(128,128,128,0.1);
+            align-items: center;
             transition: background 0.2s;
         }
-        .list-row:last-child {
-            border-bottom: none;
-        }
-        .list-row:hover {
-            background: var(--card-bg);
-        }
+
+        .list-row:hover { background: rgba(128, 128, 128, 0.05); }
+        .list-row:last-child { border-bottom: none; }
 
         .col-time { font-weight: 800; font-size: 1rem; color: var(--text-color); white-space: nowrap; }
         .col-dest { font-weight: 600; font-size: 0.95rem; }
         .col-flight { font-family: monospace; font-size: 1rem; color: var(--text-color); font-weight: 700; opacity: 0.85; }
         .col-airline { font-size: 0.95rem; color: var(--text-color); }
-        .col-gate { 
-            font-weight: 800; 
-            text-align: center; 
-            background: rgba(0,0,0,0.05); 
-            padding: 0.2rem; 
-            border-radius: 4px; 
-            font-size: 0.9rem;
-        }
+        .col-gate { font-weight: 800; text-align: center; background: rgba(0,0,0,0.05); padding: 0.2rem; border-radius: 4px; font-size: 0.9rem; }
+        
         .col-status {
             font-size: 0.75rem;
             font-weight: bold;
@@ -192,16 +222,73 @@ export class AerolitFlights extends LitElement {
             text-transform: uppercase;
         }
 
-        /* Colores de estado simplificados */
         .status-scheduled { background-color: rgba(2, 132, 199, 0.1); color: #0284c7; }
         .status-active { background-color: rgba(22, 163, 74, 0.1); color: #16a34a; }
         .status-landed { background-color: rgba(75, 85, 99, 0.1); color: #4b5563; }
         .status-cancelled { background-color: rgba(220, 38, 38, 0.1); color: #dc2626; }
+
+        /* Paginación */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1.5rem;
+            margin-top: 2rem;
+            padding-bottom: 2rem;
+        }
+        
+        .page-btn {
+            background: var(--surface-color);
+            border: 1px solid rgba(128, 128, 128, 0.3);
+            color: var(--text-color);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        
+        .page-btn:hover:not(:disabled) {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .page-info {
+            font-weight: 600;
+            font-size: 1rem;
+        }
     `;
 
     connectedCallback() {
         super.connectedCallback();
         this.fetchFlights();
+        
+        // Refresca cada minuto para sincronizar estado y reordenar
+        this.updateInterval = window.setInterval(() => {
+            if (!document.hidden) {
+                // Forzamos un fetch ligero para re-calcular estados (scheduled/active/landed)
+                this.fetchFlights();
+            }
+        }, 60000);
+    }
+
+    /**
+     * Hook del ciclo de vida que se asegura de limpiar los intervalos
+     * de refresco al destruir el componente para evitar fugas de memoria.
+     */
+    disconnectedCallback() {
+        super.disconnectedCallback();
+        if (this.updateInterval) {
+            clearInterval(this.updateInterval);
+        }
     }
 
     private async fetchFlights() {
@@ -215,9 +302,16 @@ export class AerolitFlights extends LitElement {
         }
     }
 
+    /**
+     * Aplica toda la cadena de filtros en el siguiente orden:
+     * 1. Aeropuerto de salida/llegada
+     * 2. Búsqueda de texto (aerolínea o códigos IATA)
+     * 3. Filtro de estado
+     * Luego re-ordena la lista por prioridad operativa y genera la vista paginada.
+     */
     private applyFilters() {
         // 1. Filtrar por aeropuerto y tipo
-        const filtered = this.allFlights.filter(f => {
+        let filtered = this.allFlights.filter(f => {
             if (this.filterType === 'departure') {
                 return f.departure?.iata === this.selectedAirport;
             } else {
@@ -225,22 +319,105 @@ export class AerolitFlights extends LitElement {
             }
         });
 
-        // 2. Ordenar cronológicamente
-        this.flights = filtered.sort((a, b) => {
-            const timeA = new Date(this.filterType === 'departure' ? a.departure.scheduled : a.arrival.scheduled).getTime();
-            const timeB = new Date(this.filterType === 'departure' ? b.departure.scheduled : b.arrival.scheduled).getTime();
-            return timeA - timeB;
+        // 2. Filtrar por estado
+        if (this.statusFilter !== 'all') {
+            filtered = filtered.filter(f => f.flight_status.toLowerCase() === this.statusFilter);
+        }
+
+        // 3. Filtrar por buscador (Aerolínea, Num Vuelo o IATA)
+        if (this.searchQuery.trim().length > 0) {
+            const query = this.searchQuery.toLowerCase();
+            filtered = filtered.filter(f => {
+                const flightNum = (f.flight.iata || f.flight.number || '').toLowerCase();
+                const airlineName = (f.airline.name || '').toLowerCase();
+                const destOrigin = this.filterType === 'departure' ? (f.arrival.iata || '').toLowerCase() : (f.departure.iata || '').toLowerCase();
+                
+                return flightNum.includes(query) || airlineName.includes(query) || destOrigin.includes(query);
+            });
+        }
+
+        // 4. Ordenar con prioridad UX aeroportuaria: Programados > Activos > Aterrizados/Cancelados
+        const statusWeight: Record<string, number> = {
+            'scheduled': 1,
+            'active': 2,
+            'landed': 3,
+            'cancelled': 4,
+            'incident': 4,
+            'diverted': 4
+        };
+
+        filtered.sort((a, b) => {
+            const statusA = (a.flight_status || '').toLowerCase();
+            const statusB = (b.flight_status || '').toLowerCase();
+            const weightA = statusWeight[statusA] || 99;
+            const weightB = statusWeight[statusB] || 99;
+            
+            // 1º Prioridad: El estado del vuelo
+            if (weightA !== weightB) {
+                return weightA - weightB;
+            }
+            
+            // 2º Prioridad: Orden cronológico dentro del mismo estado
+            const timeA = new Date(this.filterType === 'departure' ? (a.departure?.scheduled || 0) : (a.arrival?.scheduled || 0)).getTime();
+            const timeB = new Date(this.filterType === 'departure' ? (b.departure?.scheduled || 0) : (b.arrival?.scheduled || 0)).getTime();
+            
+            if (weightA === 1) {
+                // Si están programados (futuro): los más inminentes primero (ascendente)
+                return timeA - timeB;
+            } else {
+                // Si están activos/aterrizados (pasado): los más recientes primero (descendente)
+                return timeB - timeA;
+            }
         });
+
+        this.flights = filtered;
+        this.totalPages = Math.ceil(this.flights.length / ITEMS_PER_PAGE) || 1;
+        this.currentPage = 1; // Volver a la página 1 al filtrar
+        this.updatePagedFlights();
     }
 
+    /**
+     * Calcula y segmenta la porción de vuelos que se mostrará en la vista
+     * en función de la página actualmente seleccionada.
+     */
+    private updatePagedFlights() {
+        const startIndex = (this.currentPage - 1) * ITEMS_PER_PAGE;
+        const endIndex = startIndex + ITEMS_PER_PAGE;
+        this.pagedFlights = this.flights.slice(startIndex, endIndex);
+    }
+
+    /** Manejador de cambio para el selector de aeropuerto */
     private handleAirportChange(e: Event) {
         this.selectedAirport = (e.target as HTMLSelectElement).value;
     }
 
+    /** Manejador de cambio para el selector de dirección (llegada/salida) */
     private handleTypeChange(e: Event) {
         this.filterType = (e.target as HTMLSelectElement).value as 'departure' | 'arrival';
     }
 
+    /** Manejador de cambio para el selector de estado de vuelos */
+    private handleStatusChange(e: Event) {
+        this.statusFilter = (e.target as HTMLSelectElement).value;
+    }
+
+    /** Manejador del input de texto de búsqueda que se dispara en cada pulsación */
+    private handleSearchInput(e: Event) {
+        this.searchQuery = (e.target as HTMLInputElement).value;
+    }
+    
+    /** Ejecuta los filtros cuando el usuario presiona Enter en la barra de búsqueda */
+    private handleSearchKeyup(e: KeyboardEvent) {
+        if (e.key === 'Enter') {
+            this.applyFilters();
+        }
+    }
+
+    /**
+     * Formatea una cadena de fecha ISO a un formato de UI legible (DD/MM - HH:mm).
+     * @param dateString Cadena de fecha a formatear.
+     * @returns {string} Fecha formateada o '--:--' si es nula.
+     */
     private formatTime(dateString: string) {
         if (!dateString) return '--:--';
         const d = new Date(dateString);
@@ -248,14 +425,33 @@ export class AerolitFlights extends LitElement {
         const time = d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
         return `${date} - ${time}`;
     }
+    
+    /** Cambia a la página anterior en el sistema de paginación de la UI */
+    private prevPage() {
+        if (this.currentPage > 1) {
+            this.currentPage--;
+            this.updatePagedFlights();
+        }
+    }
+    
+    /** Avanza a la siguiente página en el sistema de paginación de la UI */
+    private nextPage() {
+        if (this.currentPage < this.totalPages) {
+            this.currentPage++;
+            this.updatePagedFlights();
+        }
+    }
 
     render() {
         return html`
         <div class="header-container">
-            <h1>
-                Vuelos en España 
-                <ph-airplane-takeoff weight="duotone"></ph-airplane-takeoff>
-            </h1>
+            <div class="header-left">
+                <h1>
+                    Vuelos en España 
+                    <ph-airplane-takeoff weight="duotone"></ph-airplane-takeoff>
+                </h1>
+                <live-clock></live-clock>
+            </div>
             
             <div class="view-controls">
                 <button class="view-btn ${this.viewMode === 'list' ? 'active' : ''}" @click=${() => this.viewMode = 'list'} title="Vista Lista">
@@ -271,21 +467,40 @@ export class AerolitFlights extends LitElement {
             <div class="filter-group">
                 <label>Aeropuerto</label>
                 <select @change=${this.handleAirportChange} .value=${this.selectedAirport}>
-                    ${SPANISH_AIRPORTS.map(ap => html`<option value="${ap.iata}" ?selected=${ap.iata === this.selectedAirport}>${ap.name} (${ap.iata})</option>`)}
+                    ${SPANISH_AIRPORTS.map((ap: any) => html`<option value="${ap.iata}" ?selected=${ap.iata === this.selectedAirport}>${ap.name} (${ap.iata})</option>`)}
                 </select>
             </div>
             
             <div class="filter-group">
-                <label>Tipo</label>
+                <label>Dirección</label>
                 <select @change=${this.handleTypeChange} .value=${this.filterType}>
                     <option value="departure">Salidas</option>
                     <option value="arrival">Llegadas</option>
                 </select>
             </div>
+            
+            <div class="filter-group">
+                <label>Estado</label>
+                <select @change=${this.handleStatusChange} .value=${this.statusFilter}>
+                    <option value="all">Todos los estados</option>
+                    <option value="scheduled">Programados</option>
+                    <option value="active">Activos (En Aire)</option>
+                    <option value="landed">Aterrizados</option>
+                    <option value="cancelled">Cancelados</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label>Buscar</label>
+                <input type="text" placeholder="Aerolínea, vuelo, IATA..." 
+                       .value=${this.searchQuery} 
+                       @input=${this.handleSearchInput}
+                       @keyup=${this.handleSearchKeyup}>
+            </div>
 
             <button class="search-btn" @click=${this.applyFilters}>
                 <ph-magnifying-glass weight="bold"></ph-magnifying-glass>
-                Buscar Vuelos
+                Filtrar
             </button>
         </div>
 
@@ -297,7 +512,7 @@ export class AerolitFlights extends LitElement {
                 
                 ${this.viewMode === 'grid' ? html`
                     <div class="flight-grid">
-                        ${this.flights.map(f => html`<flight-card .flight=${f}></flight-card>`)}
+                        ${this.pagedFlights.map(f => html`<flight-card .flight=${f}></flight-card>`)}
                     </div>
                 ` : html`
                     <div class="flight-list">
@@ -309,14 +524,14 @@ export class AerolitFlights extends LitElement {
                             <span class="col-gate">Puerta</span>
                             <span class="col-status">Estado</span>
                         </div>
-                        ${this.flights.map(f => {
+                        ${this.pagedFlights.map(f => {
                             const timeStr = this.filterType === 'departure' ? f.departure.scheduled : f.arrival.scheduled;
                             const rawDest = this.filterType === 'departure' ? f.arrival.airport : f.departure.airport;
                             const targetIata = this.filterType === 'departure' ? f.arrival.iata : f.departure.iata;
-                            // Si dice "Aeropuerto AENA", buscamos el nombre real
+                            
                             let finalDestName = rawDest;
                             if (finalDestName === "Aeropuerto AENA") {
-                                const found = SPANISH_AIRPORTS.find(a => a.iata === targetIata);
+                                const found = SPANISH_AIRPORTS.find((a: any) => a.iata === targetIata);
                                 finalDestName = found ? found.name : targetIata;
                             }
                             const destOrigin = `${finalDestName} (${targetIata})`;
@@ -336,15 +551,22 @@ export class AerolitFlights extends LitElement {
                         })}
                     </div>
                 `}
+                
+                <!-- Paginación UI -->
+                ${this.totalPages > 1 ? html`
+                <div class="pagination">
+                    <button class="page-btn" @click=${this.prevPage} ?disabled=${this.currentPage === 1}>
+                        <ph-caret-left weight="bold"></ph-caret-left> Anterior
+                    </button>
+                    <span class="page-info">Página ${this.currentPage} de ${this.totalPages} (${this.flights.length} vuelos)</span>
+                    <button class="page-btn" @click=${this.nextPage} ?disabled=${this.currentPage === this.totalPages}>
+                        Siguiente <ph-caret-right weight="bold"></ph-caret-right>
+                    </button>
+                </div>
+                ` : ''}
 
             `}
         ` : ''}
         `;
-    }
-}
-
-declare global {
-    interface HTMLElementTagNameMap {
-        "aerolit-flights": AerolitFlights;
     }
 }
