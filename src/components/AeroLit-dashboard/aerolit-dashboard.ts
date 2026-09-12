@@ -93,6 +93,10 @@ export class AerolitDashboard extends LitElement {
                 if (activityChart && typeof activityChart.refresh === 'function') {
                     activityChart.refresh();
                 }
+                const urgentFlights = this.shadowRoot?.querySelector('urgent-flights') as any;
+                if (urgentFlights && typeof urgentFlights.refresh === 'function') {
+                    urgentFlights.refresh();
+                }
             } catch(e) {
                 console.error('Tick update failed', e);
             }

@@ -114,8 +114,7 @@ export class UrgentFlights extends LitElement {
     }
   `;
 
-  async connectedCallback() {
-    super.connectedCallback();
+  public async refresh() {
     try {
       const urgent = await flightService.getUrgentFlights();
       if (urgent.length > 0) {
@@ -130,6 +129,11 @@ export class UrgentFlights extends LitElement {
     } finally {
       this.loading = false;
     }
+  }
+
+  async connectedCallback() {
+    super.connectedCallback();
+    await this.refresh();
   }
 
   render() {
@@ -169,7 +173,10 @@ export class UrgentFlights extends LitElement {
                     let timeStr = '-';
                     if (!isUrgent && f.departure?.scheduled) {
                         const date = new Date(f.departure.scheduled);
-                        timeStr = date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                        const today = new Date();
+                        const isTomorrow = date.getDate() !== today.getDate();
+                        const time = date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                        timeStr = isTomorrow ? `Mañana ${time}` : time;
                     }
                     
                     return html`

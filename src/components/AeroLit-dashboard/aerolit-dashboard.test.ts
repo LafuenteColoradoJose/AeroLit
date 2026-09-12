@@ -41,18 +41,15 @@ describe('AerolitDashboard', () => {
 
     const el = await fixture<AerolitDashboard>(html`<aerolit-dashboard></aerolit-dashboard>`);
     
-    // Al principio, si no hay datos, deberíamos ver un texto de cargando (dependiendo de la velocidad de resolución).
-    // Como getKpiStats resuelve casi inmediato en el mock, podríamos tener que esperar al updateComplete.
     await el.updateComplete;
 
     const kpiCards = el.shadowRoot!.querySelectorAll('kpi-card');
     expect(kpiCards.length).toBe(4);
     
-    // Verificamos que pasamos bien las propiedades
     expect(kpiCards[0].getAttribute('value')).toBe('100');
     expect(kpiCards[1].getAttribute('value')).toBe('10');
-    expect(kpiCards[2].getAttribute('value')).toBe('2'); // Cancelados
-    expect(kpiCards[3].getAttribute('value')).toBe('15'); // Aterrizados
+    expect(kpiCards[2].getAttribute('value')).toBe('2');
+    expect(kpiCards[3].getAttribute('value')).toBe('15');
   });
 
   it('debería mostrar mensaje de error o no romperse si falla getKpiStats', async () => {
@@ -64,7 +61,35 @@ describe('AerolitDashboard', () => {
 
     expect(consoleSpy).toHaveBeenCalledWith('Error loading stats', expect.any(Error));
     const p = el.shadowRoot!.querySelector('p');
-    // Debería seguir mostrando el texto de bienvenida
     expect(p?.textContent).toContain('Bienvenido al sistema');
+  });
+
+  it('debería manejar disconnectedCallback correctamente', async () => {
+    const el = await fixture<AerolitDashboard>(html`<aerolit-dashboard></aerolit-dashboard>`);
+    await el.updateComplete;
+    const clearIntervalSpy = vi.spyOn(window, 'clearInterval');
+    el.disconnectedCallback();
+    expect(clearIntervalSpy).toHaveBeenCalled();
+  });
+
+  it('debería ejecutar uiTickInterval para refrescar los datos', async () => {
+    vi.useFakeTimers();
+    vi.spyOn(flightService, 'getKpiStats').mockResolvedValue({
+      total: 100,
+      active: 10,
+      cancelled: 2,
+      scheduled: 88,
+      landed: 15,
+      activeTrend: '2',
+      scheduledTrend: '1'
+    });
+    const el = await fixture<AerolitDashboard>(html`<aerolit-dashboard></aerolit-dashboard>`);
+    await el.updateComplete;
+    
+    // Avanzar el tiempo 60 segundos
+    vi.advanceTimersByTime(60000);
+    
+    expect(flightService.getKpiStats).toHaveBeenCalledTimes(2);
+    vi.useRealTimers();
   });
 });

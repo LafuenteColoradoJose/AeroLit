@@ -1,4 +1,4 @@
-import { describe, it } from 'vitest';
+import { describe, it, vi } from 'vitest';
 import { html, fixture, expect } from '@open-wc/testing';
 import './live-clock';
 import { LiveClock } from './live-clock';
@@ -25,5 +25,13 @@ describe('LiveClock', () => {
     
     expect(indicator).to.exist;
     expect(indicator!.textContent).to.include('Sistema Online');
+  });
+
+  it('debería limpiar el timer en disconnectedCallback', async () => {
+    const el = await fixture<LiveClock>(html`<live-clock></live-clock>`);
+    await el.updateComplete;
+    const clearIntervalSpy = vi.spyOn(window, 'clearInterval');
+    el.disconnectedCallback();
+    expect(clearIntervalSpy.mock.calls.length).to.be.greaterThan(0);
   });
 });

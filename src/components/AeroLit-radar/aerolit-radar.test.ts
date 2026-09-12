@@ -64,4 +64,25 @@ describe('AerolitRadar', () => {
     expect(emptyState).not.toBeNull();
     expect(emptyState!.textContent).toContain('Cargando radar...');
   });
+
+  
+  it('debería manejar disconnectedCallback correctamente', async () => {
+    const el = await fixture<AerolitRadar>(html`<aerolit-radar></aerolit-radar>`);
+    
+    // Asignar los valores dummy *después* de updateComplete para que no los sobreescriba initMap
+    await el.updateComplete;
+    
+    const removeSpy = vi.fn();
+    const disconnectSpy = vi.fn();
+    
+    el.map = { remove: removeSpy } as any;
+    el.resizeObserver = { disconnect: disconnectSpy, observe: vi.fn() } as any;
+    el['updateInterval'] = 123;
+    
+    el.disconnectedCallback();
+    
+    expect(removeSpy).toHaveBeenCalled();
+    expect(disconnectSpy).toHaveBeenCalled();
+  });
+
 });
