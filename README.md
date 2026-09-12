@@ -17,6 +17,11 @@ AeroLit proporciona una interfaz fluida e intuitiva para consultar salidas y lle
     * *Vista de Tarjetas (Cuadrícula):* Interfaz de tarjetas detalladas y modernas.
 * **Radar en Vivo:** Integración con OpenSky Network para mapear en tiempo real el tráfico aéreo sobre la península ibérica.
 * **Dashboard Interactivo:** Tarjetas de KPIs (vuelos activos, retrasos) y listado rápido de vuelos urgentes.
+
+* **Documentación Autogenerada (TypeDoc):** Todo el código cuenta con JSDoc tipado estrictamente, permitiendo generar un sitio estático de documentación en HTML para desarrolladores.
+* **Radar Dinámico (Anti-Baneo):** El radar refresca las posiciones cada 60s, empleando la API de Visibilidad de Página (`document.hidden`) y una memoria temporal en el frontend para no malgastar peticiones cuando la pestaña no está activa, asegurando estabilidad frente a rate-limits.
+* **Testing Extenso (Vitest):** Cobertura de código superior al 80% (Verde) en los módulos core del dashboard y el radar, con renderizado asíncrono y simulación de timers en un entorno JSDOM.
+
 * **Modo Oscuro Nivel Sistema:** Transición fluida entre temas, con una paleta de colores de alto contraste pensada para la legibilidad.
 
 ## 🎨 Paleta de Colores
@@ -39,6 +44,13 @@ npm run dev
 
 # 3. Construir para producción
 npm run build
+
+# 4. Ejecutar tests y reporte de cobertura
+npm run test:coverage
+
+# 5. Generar sitio web estático de documentación (TypeDoc)
+npm run docs
+
 ```
 
 ## ⚙️ Variables de Entorno y APIs

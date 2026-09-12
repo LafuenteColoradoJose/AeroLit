@@ -51,6 +51,12 @@ Para resolver este problema, AeroLit implementa un patrón avanzado de **Caché 
    - Esta petición **solo** consulta vuelos con cambios críticos (retrasos severos, cancelaciones o desvíos) en la próxima ventana de 2 horas.
    - Las deltas se fusionan con la Caché Base.
 
+### 🛡️ Protección de API en Tiempo Real (Radar)
+Además de la caché predictiva para vuelos programados, el componente `<aerolit-radar>` realiza consultas constantes (cada 60 segundos) a la API de **OpenSky Network**. Para evitar bloqueos temporales por exceso de cuota (HTTP 429), se ha implementado:
+1. **Pausado en Background:** Uso nativo de `document.hidden` (Page Visibility API). Si la pestaña no está visible, el intervalo se suspende.
+2. **Caché Reactiva en Servicio (`flight-service.ts`):** Se retiene en memoria (`livePlanesCache`) el payload de OpenSky durante 30 segundos. Solicitudes redundantes disparadas por la UI (o por doble renderizado) obtienen la caché sin golpear la red.
+
+
 ---
 
 ## 3. Simulación de Estado en el Cliente
@@ -64,11 +70,14 @@ El componente \`<live-clock>\` no es solo un elemento visual, actúa como el "la
 
 ---
 
-## 4. Testing y Control de Calidad
+
+## 4. Testing, Calidad y Documentación
 
 La fiabilidad es crítica en entornos aeronáuticos. 
-- **Vitest & Open-WC:** Toda la lógica de componentes y servicios está testeada de forma unitaria en entornos JSDOM.
-- Los reportes de cobertura (Coverage) son artefactos dinámicos excluidos explícitamente del repositorio (\`.gitignore\`) para mantener un historial limpio en control de versiones, siguiendo los estándares de la industria.
+- **Vitest & Open-WC:** Toda la lógica de componentes y servicios está testeada de forma unitaria en entornos JSDOM. Se aplican técnicas de *Mocking* profundo (ej. inyección simulada de *Chart.js* y *Leaflet*) y uso de *Fake Timers* (`vi.useFakeTimers()`) para probar la reactividad sin esperar.
+- **Cobertura Métrica:** El CI exige superar el umbral del **80% (Verde)** en `Statements, Branches, Functions y Lines`.
+- **Documentación JSDoc & TypeDoc:** La arquitectura exige tipado y comentarios JSDoc obligatorios para modelos y métodos expuestos. Una tarea automatizada (`npm run docs`) extrae esta metadata compilandola en un manual HTML hipervinculado, manteniendo una "Single Source of Truth".
+
 
 ---
 *Documento generado para el equipo de desarrollo y auditoría técnica.*
