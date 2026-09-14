@@ -101,17 +101,44 @@ Enlaza los datos de la clase TypeScript al HTML de forma puramente declarativa d
 
 Lit no usa motores de plantillas pesados; delega toda la lógica de control a la sintaxis nativa de JavaScript/TypeScript.
 
-*   **Condicionales (If / Else):** Uso de operadores ternarios en línea.
+### Condicionales (If / Else)
+Tienes dos formas principales según la complejidad:
+*   **En línea (Ternario):** Ideal para alternar bloques simples.
     ```typescript
-    html`${this.isAdmin ? html`<button>Borrar</button>` : html`<p>No autorizado</p>`}`
+    html`${this.hasAccess ? html`<button>Entrar</button>` : html`<p>Denegado</p>`}`
     ```
-*   **Mapeo de Listas Básico:**
+*   **Bloque clásico (Fuera del HTML):** Si la condición es muy compleja, usa un `if` nativo antes de retornar.
+    ```typescript
+    render() {
+      if (this.isLoading) {
+        return html`<loading-spinner></loading-spinner>`;
+      }
+      return html`<main-content></main-content>`;
+    }
+    ```
+
+### Bucles y Listas (For)
+Tampoco hay directivas especiales, se manipulan arrays de forma nativa:
+*   **Mapeo en línea (`.map`):** La forma estándar.
     ```typescript
     html`
       <ul>
         ${this.items.map((item: Item) => html`<li>${item.name}</li>`)}
       </ul>
     `
+    ```
+*   **Bucle clásico (`for...of`):** Útil si necesitas filtrar u operar con lógica antes de pintar.
+    ```typescript
+    render() {
+      const listHtml = [];
+      for (const item of this.items) {
+        if (item.isActive) {
+          listHtml.push(html`<li>${item.name}</li>`);
+        }
+      }
+      
+      return html`<ul>${listHtml}</ul>`;
+    }
     ```
 
 <div class="page-break"></div>
