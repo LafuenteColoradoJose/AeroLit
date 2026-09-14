@@ -8,7 +8,6 @@ const future = new Date(now + 1000 * 60 * 60).toISOString(); // 1 hr future
 
 const mockFlights: any[] = [
   {
-    flight_date: "2026-09-11",
     flight_status: "active",
     departure: { scheduled: past },
     arrival: { scheduled: future },
@@ -16,7 +15,6 @@ const mockFlights: any[] = [
     flight: { iata: "IB3166" }
   },
   {
-    flight_date: "2026-09-11",
     flight_status: "cancelled",
     departure: { scheduled: past },
     arrival: { scheduled: future },

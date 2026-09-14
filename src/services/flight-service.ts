@@ -1,6 +1,6 @@
 import type { Flight } from '../models/flight';
 
-const CACHE_KEY = 'aerolit_flights_cache';
+const CACHE_KEY = 'aerolit_flights_cache_v2';
 const CACHE_TIME_KEY = 'aerolit_flights_cache_time';
 const CACHE_DURATION = 12 * 60 * 60 * 1000; // 12 horas en milisegundos
 
@@ -105,8 +105,67 @@ export class FlightService {
       
       const data = await response.json();
       
+      let flightsArray = [];
       if (data && Array.isArray(data.data)) {
-        this.flights = data.data;
+        flightsArray = data.data;
+      } else if (Array.isArray(data)) {
+        flightsArray = data;
+      }
+      
+      // --- INYECCIÓN DE LÓGICA ETERNAL MOCK ---
+      if (flightsArray.length > 0) {
+        // Encontrar fecha base (la primera válida)
+        const firstValid = flightsArray.find((f: any) => f.flight_date || f.departure?.scheduled);
+        const firstFlightDate = firstValid ? (firstValid.flight_date || firstValid.departure?.scheduled) : null;
+        
+        if (firstFlightDate) {
+            const baseDate = new Date(firstFlightDate);
+            baseDate.setHours(0, 0, 0, 0); // Inicio del día base
+            
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Inicio de hoy
+            
+            const diffTime = today.getTime() - baseDate.getTime();
+            
+            // Si hay diferencia, desplazamos todos los vuelos al día de hoy
+            if (diffTime !== 0) {
+                flightsArray = flightsArray.map((f: any) => {
+                    const shiftDate = (dateStr: string | null) => {
+                        if (!dateStr) return dateStr;
+                        const d = new Date(dateStr);
+                        if (isNaN(d.getTime())) return dateStr;
+                        d.setTime(d.getTime() + diffTime);
+                        
+                        // Si era formato ISO, devolver en ISO para no romper parseos
+                        if (dateStr.includes('T')) {
+                           // Devolvemos el formato exacto sin cambiar zonas horarias drásticamente
+                           // Algunos mocks vienen en formato '2023-10-27T08:00:00+00:00'
+                           return d.toISOString();
+                        }
+                        return d.toISOString();
+                    };
+
+                    if (f.flight_date) f.flight_date = shiftDate(f.flight_date)?.split('T')[0];
+                    
+                    if (f.departure) {
+                        if (f.departure.scheduled) f.departure.scheduled = shiftDate(f.departure.scheduled);
+                        if (f.departure.estimated) f.departure.estimated = shiftDate(f.departure.estimated);
+                        if (f.departure.actual) f.departure.actual = shiftDate(f.departure.actual);
+                    }
+                    if (f.arrival) {
+                        if (f.arrival.scheduled) f.arrival.scheduled = shiftDate(f.arrival.scheduled);
+                        if (f.arrival.estimated) f.arrival.estimated = shiftDate(f.arrival.estimated);
+                        if (f.arrival.actual) f.arrival.actual = shiftDate(f.arrival.actual);
+                    }
+                    return f;
+                });
+            }
+        }
+      }
+      // ----------------------------------------
+
+      if (flightsArray.length > 0) {
+        this.flights = flightsArray;
         // Guardar en caché con protección QuotaExceeded
         if (typeof window !== 'undefined') {
           try {
