@@ -10,8 +10,8 @@
 ---
 <style>
   @media print {
-    pre, table, blockquote, tr { page-break-inside: avoid !important; }
-    ul, p { page-break-inside: avoid !important; }
+    pre, table, blockquote, tr, code, li { page-break-inside: avoid !important; break-inside: avoid !important; }
+    ul, p, h2, h3 { page-break-inside: avoid !important; break-inside: avoid !important; }
     .page-break { page-break-before: always; }
   }
   .heading-container { display: flex; align-items: center; gap: 10px; margin-top: 1rem; }
@@ -110,9 +110,7 @@ Tienes dos formas principales según la complejidad:
 *   **Bloque clásico (Fuera del HTML):** Si la condición es muy compleja, usa un `if` nativo antes de retornar.
     ```typescript
     render() {
-      if (this.isLoading) {
-        return html`<loading-spinner></loading-spinner>`;
-      }
+      if (this.isLoading) return html`<loading-spinner></loading-spinner>`;
       return html`<main-content></main-content>`;
     }
     ```
@@ -132,11 +130,8 @@ Tampoco hay directivas especiales, se manipulan arrays de forma nativa:
     render() {
       const listHtml = [];
       for (const item of this.items) {
-        if (item.isActive) {
-          listHtml.push(html`<li>${item.name}</li>`);
-        }
+        if (item.isActive) listHtml.push(html`<li>${item.name}</li>`);
       }
-      
       return html`<ul>${listHtml}</ul>`;
     }
     ```
