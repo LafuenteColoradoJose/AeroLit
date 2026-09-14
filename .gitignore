@@ -30,3 +30,4 @@ dist-ssr
 coverage/
 .vitest/
 docs/
+LIT_CHEATSHEET_ANGULAR.md
