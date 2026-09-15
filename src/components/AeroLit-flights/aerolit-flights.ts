@@ -289,8 +289,14 @@ export class AerolitFlights extends LitElement {
         }
     `;
 
+    private _handleResize = () => {
+        // Fuerza un re-render cuando la pantalla cambia de tamaño (para evaluar si estamos en móvil)
+        this.requestUpdate();
+    };
+
     connectedCallback() {
         super.connectedCallback();
+        window.addEventListener('resize', this._handleResize);
         this.fetchFlights();
         
         // Refresca cada minuto para sincronizar estado y reordenar
@@ -308,6 +314,7 @@ export class AerolitFlights extends LitElement {
      */
     disconnectedCallback() {
         super.disconnectedCallback();
+        window.removeEventListener('resize', this._handleResize);
         if (this.updateInterval) {
             clearInterval(this.updateInterval);
         }
@@ -465,6 +472,9 @@ export class AerolitFlights extends LitElement {
     }
 
     render() {
+        const isMobile = window.innerWidth <= 768;
+        const activeViewMode = isMobile ? 'grid' : this.viewMode;
+
         return html`
         <div class="header-container">
             <div class="header-left">
@@ -475,14 +485,16 @@ export class AerolitFlights extends LitElement {
                 <live-clock></live-clock>
             </div>
             
+            ${!isMobile ? html`
             <div class="view-controls">
-                <button class="view-btn ${this.viewMode === 'list' ? 'active' : ''}" @click=${() => this.viewMode = 'list'} title="Vista Lista">
+                <button class="view-btn ${activeViewMode === 'list' ? 'active' : ''}" @click=${() => this.viewMode = 'list'} title="Vista Lista">
                     <ph-list-dashes weight="bold"></ph-list-dashes>
                 </button>
-                <button class="view-btn ${this.viewMode === 'grid' ? 'active' : ''}" @click=${() => this.viewMode = 'grid'} title="Vista Cuadrícula">
+                <button class="view-btn ${activeViewMode === 'grid' ? 'active' : ''}" @click=${() => this.viewMode = 'grid'} title="Vista Cuadrícula">
                     <ph-squares-four weight="fill"></ph-squares-four>
                 </button>
             </div>
+            ` : ''}
         </div>
         
         <div class="filters">
@@ -532,7 +544,7 @@ export class AerolitFlights extends LitElement {
         ${!this.loading && !this.error ? html`
             ${this.flights.length === 0 ? html`<p class="empty">No se encontraron vuelos para los filtros seleccionados.</p>` : html`
                 
-                ${this.viewMode === 'grid' ? html`
+                ${activeViewMode === 'grid' ? html`
                     <div class="flight-grid">
                         ${this.pagedFlights.map(f => html`<flight-card .flight=${f}></flight-card>`)}
                     </div>
