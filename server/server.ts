@@ -23,8 +23,8 @@ app.use(express.json());
  * guardados en la memoria RAM del servidor.
  * @returns {Object} JSON con metadatos de la última actualización y el array de vuelos.
  */
-app.get('/api/flights', (req, res) => {
-    const vuelos = scraperInstance.getFlights();
+app.get('/api/flights', async (req, res) => {
+    const vuelos = await scraperInstance.getFlights();
     res.json(vuelos);
 });
 
@@ -33,8 +33,8 @@ app.get('/api/flights', (req, res) => {
  * @description Endpoint que retorna las posiciones de aviones en vivo 
  * (Caché extraída de OpenSky Network sin penalización de rate-limit).
  */
-app.get('/api/radar', (req, res) => {
-    const planes = openskyInstance.getPlanes();
+app.get('/api/radar', async (req, res) => {
+    const planes = await openskyInstance.getPlanes();
     res.json(planes.data); 
 });
 

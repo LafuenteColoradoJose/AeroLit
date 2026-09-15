@@ -14,9 +14,6 @@ export class OpenSkyScraper {
   /** @private Almacena el timestamp de la última extracción exitosa */
   private lastFetchTime: Date | null = null;
   
-  /** @private ID del temporizador para el polling continuo */
-  private intervalId: NodeJS.Timeout | null = null;
-  
   /** 
    * @private Bounding box aproximado para la península ibérica y Canarias 
    * (Latitudes: 35.0 a 44.0 | Longitudes: -10.0 a 5.0)
@@ -25,36 +22,34 @@ export class OpenSkyScraper {
 
   /**
    * @constructor
-   * Inicializa el motor de extracción y configura un bucle infinito que 
-   * actualiza el mapa del espacio aéreo cada 15 segundos de forma silenciosa.
    */
   constructor() {
-    this.scrapeRadar();
-    
-    // Ejecuta cada 15 segundos para dar un tiempo real fluido sin saturar la red pública
-    this.intervalId = setInterval(() => {
-      this.scrapeRadar();
-    }, 15 * 1000);
+    // En entornos Serverless, evitamos setInterval. Haremos Lazy Fetching.
   }
 
   /**
-   * Detiene el motor de extracción de OpenSky Network.
-   * Útil para liberar memoria y evitar memory leaks durante el ciclo de vida de tests.
+   * Detiene el motor (Compatibilidad hacia atrás para tests)
    * @public
    */
   public stop(): void {
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
-      this.intervalId = null;
-    }
+    // Ya no hay intervalo que detener
   }
 
   /**
-   * Devuelve el payload actual (caché en RAM) del espacio aéreo ibérico.
-   * @returns {Object} JSON con metadatos de la última actualización y el array de vectores.
+   * Devuelve el payload actual del espacio aéreo ibérico.
+   * Si la caché tiene más de 10 segundos o está vacía, refresca de forma asíncrona.
+   * @returns {Promise<Object>} JSON con metadatos de la última actualización y el array de vectores.
    * @public
    */
-  public getPlanes() {
+  public async getPlanes(): Promise<any> {
+    const now = new Date();
+    const cacheAge = this.lastFetchTime ? now.getTime() - this.lastFetchTime.getTime() : Infinity;
+
+    // Si la caché es más antigua de 10 segundos, forzamos un refresco (Lazy Fetching Serverless)
+    if (cacheAge > 10000) {
+      await this.scrapeRadar();
+    }
+
     return {
       lastUpdate: this.lastFetchTime,
       data: this.inMemoryPlanes
@@ -63,47 +58,52 @@ export class OpenSkyScraper {
 
   /**
    * Ejecuta una petición HTTPS nativa servidor-a-servidor contra OpenSky Network.
-   * Gestiona errores de red, JSONs corruptos y previene bloqueos temporales (Timeouts).
+   * Devuelve una Promesa para poder hacer await en entornos Serverless (Vercel).
    * @private
    */
-  private scrapeRadar(): void {
-    const options = {
-      hostname: 'opensky-network.org',
-      port: 443,
-      path: this.URL,
-      method: 'GET',
-      headers: {
-        'User-Agent': 'AeroLit-Backend/1.0',
-        'Accept': 'application/json'
-      },
-      timeout: 8000
-    };
+  private scrapeRadar(): Promise<void> {
+    return new Promise((resolve) => {
+      const options = {
+        hostname: 'opensky-network.org',
+        port: 443,
+        path: this.URL,
+        method: 'GET',
+        headers: {
+          'User-Agent': 'AeroLit-Backend/1.0',
+          'Accept': 'application/json'
+        },
+        timeout: 8000
+      };
 
-    const req = https.request(options, (res) => {
-      let data = '';
-      res.on('data', (chunk) => { data += chunk; });
-      res.on('end', () => {
-        if (res.statusCode === 200) {
-          try {
-            const json = JSON.parse(data);
-            this.inMemoryPlanes = json;
-            this.lastFetchTime = new Date();
-          } catch (e) {
-            console.error('[Radar] Error parseando JSON de OpenSky');
+      const req = https.request(options, (res) => {
+        let data = '';
+        res.on('data', (chunk) => { data += chunk; });
+        res.on('end', () => {
+          if (res.statusCode === 200) {
+            try {
+              const json = JSON.parse(data);
+              this.inMemoryPlanes = json;
+              this.lastFetchTime = new Date();
+            } catch (e) {
+              console.error('[Radar] Error parseando JSON de OpenSky');
+            }
           }
-        }
+          resolve(); // Resolvemos siempre, incluso si falla, para devolver la caché vieja
+        });
       });
-    });
 
-    req.on('error', (e) => {
-      console.error(`[Radar] Error de red: ${e.message}`);
-    });
-    
-    req.on('timeout', () => {
-      req.destroy();
-    });
+      req.on('error', (e) => {
+        console.error(`[Radar] Error de red: ${e.message}`);
+        resolve();
+      });
+      
+      req.on('timeout', () => {
+        req.destroy();
+        resolve();
+      });
 
-    req.end();
+      req.end();
+    });
   }
 }
 

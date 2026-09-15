@@ -132,24 +132,28 @@ export class AenaScraper {
   private lastFetchTime: Date | null = null;
 
   /**
-   * Inicializa el Scraper, ejecutando la primera recolección de datos
-   * de forma síncrona y configurando el cron interno de 1 hora.
+   * Constructor sin side-effects. 
+   * En Serverless el barrido es on-demand (Lazy).
    */
   constructor() {
-    this.scrapeAll();
-    
-    // Ejecuta cada 1 hora (3600000 ms)
-    setInterval(() => {
-      this.scrapeAll();
-    }, 60 * 60 * 1000);
+    // Sin setInterval
   }
 
   /**
-   * Obtiene la copia actual de los vuelos en memoria RAM.
+   * Obtiene la copia actual de los vuelos.
+   * Si la caché es mayor a 1 hora o está vacía, extrae de nuevo.
    * 
-   * @returns {Object} Un contenedor con los datos y la fecha del último refresco.
+   * @returns {Promise<Object>} Contenedor con los datos y fecha de refresco.
    */
-  public getFlights() {
+  public async getFlights(): Promise<any> {
+    const now = new Date();
+    const cacheAge = this.lastFetchTime ? now.getTime() - this.lastFetchTime.getTime() : Infinity;
+
+    // Si la caché tiene más de 1 hora (3600000 ms), refrescamos
+    if (cacheAge > 3600000) {
+      await this.scrapeAll();
+    }
+
     return {
       lastUpdate: this.lastFetchTime,
       data: this.inMemoryFlights

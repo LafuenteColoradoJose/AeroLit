@@ -81,7 +81,11 @@ describe('AenaScraper', () => {
         await vi.advanceTimersByTimeAsync(150);
     }
 
-    const result = scraper.getFlights();
+    const resultPromise = scraper.getFlights();
+    for (let i = 0; i < 50; i++) {
+        await vi.advanceTimersByTimeAsync(150);
+    }
+    const result = await resultPromise;
     expect(result.data).toBeInstanceOf(Array);
     expect(result.data.length).toBeGreaterThan(0);
 
@@ -122,7 +126,11 @@ describe('AenaScraper', () => {
         await vi.advanceTimersByTimeAsync(150);
     }
 
-    const result = scraper.getFlights();
+    const resultPromise = scraper.getFlights();
+    for (let i = 0; i < 50; i++) {
+        await vi.advanceTimersByTimeAsync(150);
+    }
+    const result = await resultPromise;
     expect(result.data).toBeInstanceOf(Array);
   });
 
@@ -141,7 +149,11 @@ describe('AenaScraper', () => {
         await vi.advanceTimersByTimeAsync(150);
     }
 
-    const result = scraper.getFlights();
+    const resultPromise = scraper.getFlights();
+    for (let i = 0; i < 50; i++) {
+        await vi.advanceTimersByTimeAsync(150);
+    }
+    const result = await resultPromise;
     expect(result.data).toBeInstanceOf(Array);
   });
 });
