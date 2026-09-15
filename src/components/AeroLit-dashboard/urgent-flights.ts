@@ -190,8 +190,10 @@ export class UrgentFlights extends LitElement {
                     <th>Vuelo</th>
                     <th>Ruta</th>
                     <th>Aerolínea</th>
-                    <th>Estado</th>
-                    ${isUrgent ? html`<th>Retraso (min)</th>` : ''}
+                    ${isUrgent ? html`
+                      <th>Estado</th>
+                      <th>Retraso (min)</th>
+                    ` : ''}
                   </tr>
                 </thead>
                 <tbody>
@@ -224,12 +226,15 @@ export class UrgentFlights extends LitElement {
                           ${f.arrival.iata}
                         </td>
                         <td>${f.airline.name}</td>
-                        <td>
-                          <span class="badge ${isCancelled ? 'cancelled' : isScheduled ? 'scheduled' : 'delayed'}">
-                            ${isCancelled ? 'Cancelado' : isScheduled ? 'Programado' : 'Retrasado'}
-                          </span>
-                        </td>
-                        ${isUrgent ? html`<td>${delay > 0 ? `+${delay}` : '-'}</td>` : ''}
+                        
+                        ${isUrgent ? html`
+                          <td>
+                            <span class="badge ${isCancelled ? 'cancelled' : isScheduled ? 'scheduled' : 'delayed'}">
+                              ${isCancelled ? 'Cancelado' : isScheduled ? 'Programado' : 'Retrasado'}
+                            </span>
+                          </td>
+                          <td>${delay > 0 ? `+${delay}` : '-'}</td>
+                        ` : ''}
                       </tr>
                     `;
                   })}
