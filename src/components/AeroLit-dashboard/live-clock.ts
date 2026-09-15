@@ -50,6 +50,7 @@ export class LiveClock extends LitElement {
             line-height: 1.2;
             font-family: var(--font-heading, sans-serif);
             letter-spacing: -0.5px;
+            font-variant-numeric: tabular-nums; /* Mágia CSS: los números tienen ancho fijo */
         }
         .date-display {
             font-size: 0.9rem;
