@@ -173,6 +173,28 @@ export class AerolitFlights extends LitElement {
             gap: 1.5rem;
         }
 
+        /* Ajustes Mobile de la Cabecera (Idea 3) */
+        @media (max-width: 768px) {
+            :host {
+                padding: 1rem;
+            }
+            
+            .header-container {
+                margin-bottom: 1rem;
+            }
+
+            .header-left {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.2rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+                gap: 6px;
+            }
+        }
+
         /* VISTA LISTA (PANEL TIPO AEROPUERTO) */
         .flight-list {
             display: flex;

@@ -63,6 +63,29 @@ export class LiveClock extends LitElement {
             70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
             100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
         }
+
+        @media (max-width: 768px) {
+            :host {
+                background: transparent;
+                box-shadow: none;
+                border: none;
+                padding: 0;
+                text-align: left;
+                min-width: auto;
+            }
+            .live-indicator {
+                display: none; /* Ocultamos el puntito verde para ahorrar espacio */
+            }
+            .time-display {
+                font-size: 1.2rem;
+                display: inline-block;
+            }
+            .date-display {
+                font-size: 0.9rem;
+                display: inline-block;
+                margin-left: 8px;
+            }
+        }
     `;
 
     connectedCallback() {
