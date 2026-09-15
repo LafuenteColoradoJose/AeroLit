@@ -76,9 +76,12 @@ La solución es el **Client-Side State Simulation (Simulación de Estado en el C
 
 ## 4. Protección de API de Radar en Vivo
 
-El componente `<aerolit-radar>` realiza consultas constantes (cada 60s) a la API de **OpenSky Network**. Para evitar bloqueos temporales por cuotas (HTTP 429), se ha implementado:
-1. **Pausado en Background:** Uso nativo de `document.hidden` (Page Visibility API). Si la pestaña pierde visibilidad, el polling del radar se suspende de inmediato.
-2. **Caché Reactiva de Memoria:** El `flight-service.ts` retiene el payload geoespacial durante 30 segundos. Si el usuario navega entre vistas, recupera la posición exacta al instante en vez de disparar otro *fetch*.
+Al igual que ocurre con los vuelos de AENA, **OpenSky Network** aplica bloqueos estrictos a las IPs que realizan excesivas peticiones desde un navegador (HTTP 429 Too Many Requests). 
+
+Para garantizar un radar 100% estable, se ha implementado el **Motor de Extracción OpenSkyScraper** en Node.js (`server/opensky-scraper.ts`):
+1. **Extracción Silenciosa (Server-Side):** El backend extrae posiciones mediante una llamada HTTPS nativa servidor-a-servidor cada 15 segundos.
+2. **Distribución RAM (Client-Side):** Los clientes frontend no interactúan con OpenSky directamente. Consumen el endpoint interno `/api/radar` que devuelve instantáneamente la última lectura de la memoria RAM del servidor.
+3. **Pausado en Background (Frontend):** Para ahorrar recursos de red locales, el componente `<aerolit-radar>` pausa su refresco visual automáticamente empleando la API `document.hidden` cuando el usuario cambia de pestaña.
 
 ---
 

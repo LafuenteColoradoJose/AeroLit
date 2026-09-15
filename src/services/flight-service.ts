@@ -341,8 +341,8 @@ export class FlightService {
     }
 
     try {
-      const response = await fetch('/api/opensky/states/all?lamin=35.0&lomin=-10.0&lamax=44.0&lomax=5.0');
-      if (!response.ok) throw new Error('Error en OpenSky Network');
+      const response = await fetch('/api/radar');
+      if (!response.ok) throw new Error('Error en el servidor radar');
       const data = await response.json();
       
       const planes = (data.states || [])

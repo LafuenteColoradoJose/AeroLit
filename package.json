@@ -12,7 +12,7 @@
     "test": "vitest",
     "test:ui": "vitest --ui --coverage --open=false",
     "coverage": "vitest run --coverage",
-    "docs": "typedoc --entryPointStrategy expand ./src --out docs --name 'AeroLit API Documentation'"
+    "docs": "typedoc --entryPointStrategy expand ./src ./server --out docs --name 'AeroLit API Documentation'"
   },
   "dependencies": {
     "@lit-labs/motion": "^1.1.0",

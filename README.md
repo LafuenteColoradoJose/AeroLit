@@ -18,9 +18,9 @@ AeroLit proporciona una interfaz fluida e intuitiva para consultar salidas y lle
     * *Vista de Tarjetas (Cuadrícula):* Interfaz de tarjetas detalladas y modernas para móviles.
 * **Backend de Extracción Dedicado (Scraper Engine):**
   * Servidor intermedio Node.js + Express.
-  * Evade las estrictas restricciones de CORS y WAF (Akamai) de AENA mediante recolección servidor-a-servidor.
-  * Caché en memoria RAM de ultra-baja latencia.
-* **Radar en Vivo:** Integración con OpenSky Network para mapear en tiempo real el tráfico aéreo sobre la península ibérica.
+  * Evade las estrictas restricciones de CORS y WAF (Akamai de AENA, Rate-Limits de OpenSky) mediante recolección servidor-a-servidor.
+  * Caché unificada en memoria RAM de ultra-baja latencia para vuelos y posiciones de radar.
+* **Radar en Vivo:** Integración con OpenSky Network gestionada desde el servidor backend para mapear en tiempo real el tráfico aéreo sobre la península ibérica de forma segura.
 * **Dashboard Interactivo:** Tarjetas de KPIs (vuelos activos, retrasos), gráficas de actividad y listado rápido de vuelos urgentes.
 
 * **Testing Extenso (Vitest):** Cobertura de código superior al 90% (Verde) cubriendo al 100% el backend (con Supertest) y los componentes clave del frontend (JSDOM).

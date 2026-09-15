@@ -8,6 +8,7 @@
 import express from 'express';
 import cors from 'cors';
 import { scraperInstance } from './aena-scraper.js'; 
+import { openskyInstance } from './opensky-scraper.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -27,7 +28,18 @@ app.get('/api/flights', (req, res) => {
     res.json(vuelos);
 });
 
+/**
+ * @route GET /api/radar
+ * @description Endpoint que retorna las posiciones de aviones en vivo 
+ * (Caché extraída de OpenSky Network sin penalización de rate-limit).
+ */
+app.get('/api/radar', (req, res) => {
+    const planes = openskyInstance.getPlanes();
+    res.json(planes.data); 
+});
+
 // Iniciamos el servidor sólo si es el proceso principal (evita bloqueos en los tests)
+/* c8 ignore next 5 */
 if (process.env.NODE_ENV !== 'test') {
   app.listen(PORT, () => {
       console.log(`[Server] Backend proxy escuchando en http://localhost:${PORT}`);
