@@ -15,86 +15,82 @@
 
 ## 📋 Tabla de Contenidos
 
-1. [Arquitectura Full-Stack](#1-arquitectura-full-stack)
+1. [Arquitectura Full-Stack Serverless](#1-arquitectura-full-stack-serverless)
 2. [Estrategia de Datos: Evasión de Rate-Limits (Anti-WAF)](#2-estrategia-de-datos-evasi%C3%B3n-de-rate-limits-anti-waf)
 3. [Motor Híbrido y Simulación de Estado](#3-motor-h%C3%ADbrido-y-simulaci%C3%B3n-de-estado)
-4. [Protección de API de Radar en Vivo](#4-protecci%C3%B3n-de-api-de-radar-en-vivo)
+4. [Protección de API de Radar en Vivo (ADSB.lol)](#4-protecci%C3%B3n-de-api-de-radar-en-vivo-adsblol)
 5. [Testing, Calidad y Documentación](#5-testing-calidad-y-documentaci%C3%B3n)
 6. [Desarrollo impulsado por IA Agéntica](#6-desarrollo-impulsado-por-ia-ag%C3%A9ntica)
 
 ---
 
-## 1. Arquitectura Full-Stack
+## 1. Arquitectura Full-Stack Serverless
 
-AeroLit ha evolucionado a una arquitectura *Full-Stack* dividida en dos capas especializadas:
+AeroLit ha evolucionado de un backend Express clásico a una arquitectura *Serverless* diseñada para plataformas Serverless de primer nivel como Vercel:
 
 ### Capa Cliente (Frontend)
 Construida bajo el paradigma de **Component-Driven Design** utilizando **Lit** (Web Components) y **TypeScript**. 
-- **Encapsulamiento:** Cada componente (\`<live-clock>\`, \`<urgent-flights>\`) gestiona su propio estado y ciclo de vida mediante Shadow DOM.
+- **Encapsulamiento:** Cada componente (`<live-clock>`, `<urgent-flights>`) gestiona su propio estado y ciclo de vida mediante Shadow DOM.
 - **Rendimiento:** No se utiliza Virtual DOM; la reactividad ataca directamente a los estándares de la plataforma web.
 
-### Capa Servidor (Backend)
-Desarrollada sobre **Node.js** y **Express**.
-- Responsable exclusivo de extraer, normalizar y cachear los datos de tráfico aéreo.
-- Expone endpoints estables (`/api/flights`) al frontend.
+### Capa Servidor (Backend Serverless)
+Desarrollada sobre **Vercel Serverless Functions** (`api/`).
+- Responsable exclusivo de extraer, normalizar y servir los datos de tráfico aéreo al vuelo (Lazy Fetching) dentro del estricto límite de 10 segundos del plan gratuito.
+- Expone endpoints ligeros (`/api/flights`, `/api/radar`) al frontend.
 
 ---
 
 ## 2. Estrategia de Datos: Evasión de Rate-Limits (Anti-WAF)
 
 ### ⚠️ El Problema
-Los proveedores aeronáuticos protegen sus endpoints con potentes firewalls de capa 7 (WAF) como **Akamai**, aplicando bloqueos severos por CORS (Cross-Origin Resource Sharing) y baneando IPs que hagan *polling* frecuente desde navegadores.
+Los proveedores aeronáuticos protegen sus endpoints con potentes firewalls de capa 7 (WAF) como **Akamai**, aplicando bloqueos severos por CORS y baneando IPs.
 
-### 💡 La Solución: In-Memory Scraper Engine
-AeroLit resuelve esto delegando toda la carga al backend de Node.js (`server/aena-scraper.ts`):
+### 💡 La Solución: Parallel Chunking Engine en Serverless
+AeroLit resuelve esto delegando toda la carga a las funciones Serverless (`server/aena-scraper.ts`):
 
-1. **Recolección Silenciosa Servidor-a-Servidor:**
-   - El servidor bypassa CORS y los mecanismos de bot-detection del navegador inyectando *headers* específicos y *cookies* validadas.
-   - Realiza un barrido iterativo de los 48 aeropuertos españoles (introduciendo pausas intencionadas para no ahogar los servidores de AENA).
-2. **Caché en RAM de Ultra-Baja Latencia:**
-   - Los datos brutos se mapean al estándar *Aviationstack* y se guardan directamente en la memoria RAM del servidor de Node.
-   - La recolección se lanza asíncronamente en un cronograma (1 hora de intervalo).
-3. **Proxy Inverso en Desarrollo:**
-   - Para evadir colisiones de puerto, Vite (`vite.config.ts`) intercepta las llamadas frontend a `/api/*` y las redirige limpiamente al puerto de Express, simulando un mismo origen.
+1. **Recolección en Bloques (Chunking):**
+   - Para no exceder el límite de ejecución Serverless (10 segundos), el scraping iterativo de los aeropuertos se realiza en lotes paralelos usando `Promise.all()`, acortando un proceso de 20s a menos de 2s.
+2. **Extracción Silenciosa Servidor-a-Servidor:**
+   - El servidor bypassa CORS inyectando *headers* específicos y *cookies* validadas.
+3. **Lazy Fetching y Caché en Tiempo de Ejecución:**
+   - Las instancias del scraper evitan inicializar procesos en segundo plano (imposible en Serverless). Utilizan una estrategia de Lazy Fetching y almacenamiento temporal en caché en memoria durante la vida efímera de la Lambda.
 
 ---
 
 ## 3. Motor Híbrido y Simulación de Estado
 
-Descargar todos los vuelos del país de golpe una vez por hora soluciona el problema de red, pero los usuarios esperan ver cambios en tiempo real (segundo a segundo).
+Obtener vuelos a demanda resuelve la limitación Serverless, pero los usuarios esperan ver cambios en tiempo real.
 
-La solución es el **Client-Side State Simulation (Simulación de Estado en el Cliente)** impulsado por el componente \`<live-clock>\`:
+La solución es el **Client-Side State Simulation (Simulación de Estado en el Cliente)** impulsado por el componente `<live-clock>`:
 - El frontend sincroniza su "latido" con la hora local exacta.
 - Constantemente compara el instante actual con la `horaProgramada` de todos los vuelos descargados.
 - Transiciona **localmente** los estados sin necesidad del backend:
   - `horaProgramada` > `ahora` ➔ **Scheduled** (Programado)
   - `horaProgramada` <= `ahora` y `horaAterrizaje` > `ahora` ➔ **Active** (Despegó)
   - `horaAterrizaje` <= `ahora` ➔ **Landed** (Aterrizado)
-- Esto produce una UI extremadamente viva sin consumir ancho de banda en *polling*.
+- Esto produce una UI extremadamente viva sin consumir ancho de banda de red en repetidos accesos Serverless.
 
 ---
 
-## 4. Protección de API de Radar en Vivo
+## 4. Protección de API de Radar en Vivo (ADSB.lol)
 
-Al igual que ocurre con los vuelos de AENA, **OpenSky Network** aplica bloqueos estrictos a las IPs que realizan excesivas peticiones desde un navegador (HTTP 429 Too Many Requests). 
+Al igual que ocurre con los vuelos de AENA, las redes públicas como OpenSky Network aplican baneos severos a las direcciones IP de Datacenters y proveedores en la nube como Vercel (AWS). 
 
-Para garantizar un radar 100% estable, se ha implementado el **Motor de Extracción OpenSkyScraper** en Node.js (`server/opensky-scraper.ts`):
-1. **Extracción Silenciosa (Server-Side):** El backend extrae posiciones mediante una llamada HTTPS nativa servidor-a-servidor cada 15 segundos.
-2. **Distribución RAM (Client-Side):** Los clientes frontend no interactúan con OpenSky directamente. Consumen el endpoint interno `/api/radar` que devuelve instantáneamente la última lectura de la memoria RAM del servidor.
-3. **Pausado en Background (Frontend):** Para ahorrar recursos de red locales, el componente `<aerolit-radar>` pausa su refresco visual automáticamente empleando la API `document.hidden` cuando el usuario cambia de pestaña.
+Para garantizar un radar 100% estable en producción, se ha migrado a **ADSB.lol**:
+1. **Datos Comunitarios (Server-Side):** El backend se conecta a la API abierta de ADSB.lol (que no banea IPs Cloud), interceptando señales ADS-B de aviones reales.
+2. **Capa de Abstracción:** El endpoint interno `/api/radar` captura los datos de ADSB.lol, los transforma al vuelo al antiguo array multi-dimensional (estilo OpenSky) y los entrega al cliente, evitando así refactorizaciones innecesarias en el frontend.
+3. **Pausado en Background (Frontend):** Para ahorrar recursos de red, el componente `<aerolit-radar>` pausa su refresco visual usando `document.hidden` cuando el usuario cambia de pestaña.
 
 ---
 
 ## 5. Testing, Calidad y Documentación
 
 La fiabilidad es crítica en entornos aeronáuticos. 
-- **Vitest & Supertest:** La cobertura de test es superior al **90% global**.
-  - **Servidor:** Se inyectan *mocks* simulando red caída, APIs corruptas y timeouts para probar que el Scraper de Node nunca crashea y responde vía Supertest. Cobertura del backend: **95-98%**.
+- **Vitest:** La cobertura de test global del proyecto se mantiene robusta.
+  - **Servidor:** Se inyectan *mocks* interceptando llamadas HTTPS a ADSB.lol y a AENA para verificar el parseo, los timeouts y la lógica de Lazy Fetching Serverless.
   - **Cliente:** Se usan *Fake Timers* y *JSDOM* para probar la reactividad sin esperar, testeando componentes web nativos a gran velocidad.
-- **Documentación JSDoc:** La arquitectura exige tipado y comentarios JSDoc obligatorios para modelos, servicios de ingesta e interfaces del scraper, garantizando mantenibilidad a largo plazo.
 
 ---
-*Documento generado para el equipo de desarrollo y auditoría técnica.*
 
 ## 6. Desarrollo impulsado por IA Agéntica (Agentic AI)
 

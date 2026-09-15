@@ -1,6 +1,6 @@
 # AeroLit ✈️
 
-Una aplicación web moderna basada en **Web Components** para el seguimiento y visualización de vuelos y estado de aeropuertos en España. Construida con **Lit**, **Vite** en el frontend, y propulsada por un backend optimizado en **Node.js** con **Express**.
+Una aplicación web moderna basada en **Web Components** para el seguimiento y visualización de vuelos y estado de aeropuertos en España. Construida con **Lit**, **Vite** en el frontend, y propulsada por un backend optimizado nativo en **Vercel Serverless Functions**.
 
 ## Descripción
 
@@ -16,14 +16,13 @@ AeroLit proporciona una interfaz fluida e intuitiva para consultar salidas y lle
   * **Doble Vista de visualización**:
     * *Vista de Panel (Lista):* Estilo panel de terminal clásico para visualizar rápidamente gran cantidad de datos (Hora, Destino, Vuelo, Puerta, Estado).
     * *Vista de Tarjetas (Cuadrícula):* Interfaz de tarjetas detalladas y modernas para móviles.
-* **Backend de Extracción Dedicado (Scraper Engine):**
-  * Servidor intermedio Node.js + Express.
-  * Evade las estrictas restricciones de CORS y WAF (Akamai de AENA, Rate-Limits de OpenSky) mediante recolección servidor-a-servidor.
-  * Caché unificada en memoria RAM de ultra-baja latencia para vuelos y posiciones de radar.
-* **Radar en Vivo:** Integración con OpenSky Network gestionada desde el servidor backend para mapear en tiempo real el tráfico aéreo sobre la península ibérica de forma segura.
+* **Backend de Extracción Dedicado (Serverless):**
+  * Desplegado como funciones Serverless en Vercel.
+  * Evade las estrictas restricciones de CORS y WAF (Akamai de AENA) mediante recolección servidor-a-servidor optimizada con procesamiento en paralelo por lotes (chunking).
+* **Radar en Vivo (ADSB.lol):** Integración nativa gestionada desde el servidor backend para mapear en tiempo real el tráfico aéreo sobre España utilizando ADSB.lol (una alternativa gratuita y abierta de la comunidad de aviación), evadiendo los bloqueos corporativos a IPs de Vercel/AWS.
 * **Dashboard Interactivo:** Tarjetas de KPIs (vuelos activos, retrasos), gráficas de actividad y listado rápido de vuelos urgentes.
 
-* **Testing Extenso (Vitest):** Cobertura de código superior al 90% (Verde) cubriendo al 100% el backend (con Supertest) y los componentes clave del frontend (JSDOM).
+* **Testing Extenso (Vitest):** Cobertura de código superior al 80% (Verde) cubriendo la lógica backend y los componentes clave del frontend (JSDOM).
 * **Modo Oscuro Nivel Sistema:** Transición fluida entre temas, con una paleta de colores de alto contraste pensada para la legibilidad.
 
 ## 🎨 Paleta de Colores
@@ -37,25 +36,25 @@ El proyecto implementa un sistema de diseño custom utilizando:
 
 ## 🛠 Instalación y Scripts de Desarrollo
 
-AeroLit utiliza un ecosistema *Full-Stack* ligero.
+AeroLit utiliza un ecosistema *Full-Stack* adaptado a Vercel.
 
 ```bash
 # 1. Instalar dependencias
 npm install
 
-# 2. Iniciar el ecosistema completo (Backend y Frontend simultáneamente)
-npm run start
+# 2. Iniciar el entorno de desarrollo local (incluye API Serverless)
+npx vercel dev
 
 # 3. Construir para producción (Frontend)
 npm run build
 
-# 4. Ejecutar tests y reporte de cobertura total (>90%)
+# 4. Ejecutar tests y reporte de cobertura total (>80%)
 npm run coverage
 ```
 
 ## ⚙️ Arquitectura de Datos 
 
-El proyecto resuelve de forma elegante los bloqueos anti-bot de AENA (Akamai WAF):
-1. El backend (`npm run dev:server`) hace un barrido cronometrado a la web oficial y vuelca todos los vuelos nacionales en su memoria RAM de forma continua.
-2. Vite (`npm run dev`) levanta un proxy que redirige las peticiones locales `/api/flights` directamente al puerto del servidor de caché.
+El proyecto resuelve de forma elegante los bloqueos anti-bot de AENA (Akamai WAF) y los baneos de IPs Cloud en herramientas de radar:
+1. El backend (`api/flights.ts` y `api/radar.ts`) hace el barrido a las webs oficiales bajo demanda (Lazy Fetching) dentro del límite de 10s de Vercel (Hobby Tier).
+2. Vite/Vercel CLI levanta un entorno proxy que enruta las peticiones `/api/*` directamente a las funciones serverless.
 3. El cliente Lit consume los datos instantáneamente sin penalizaciones de latencia ni bloqueos de IPs, gozando de una experiencia en riguroso directo.
