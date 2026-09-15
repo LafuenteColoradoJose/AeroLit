@@ -40,7 +40,7 @@ app.get('/api/radar', async (req, res) => {
 
 // Iniciamos el servidor sólo si es el proceso principal (evita bloqueos en los tests)
 /* c8 ignore next 5 */
-if (process.env.NODE_ENV !== 'test') {
+if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
   app.listen(PORT, () => {
       console.log(`[Server] Backend proxy escuchando en http://localhost:${PORT}`);
   });

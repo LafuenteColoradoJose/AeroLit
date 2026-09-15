@@ -170,14 +170,18 @@ export class AenaScraper {
     console.log(`[Scraper] Iniciando extracción de vuelos a las ${new Date().toLocaleTimeString()}...`);
     const allFlights: any[] = [];
     
-    for (let i = 0; i < AIRPORTS.length; i++) {
-      const iata = AIRPORTS[i];
-      const [salidas, llegadas] = await Promise.all([
+    // Chunking to avoid Vercel 10s timeout
+    const chunkSize = 12;
+    for (let i = 0; i < AIRPORTS.length; i += chunkSize) {
+      const chunk = AIRPORTS.slice(i, i + chunkSize);
+      const promises = chunk.flatMap(iata => [
         fetchAena(iata, 'S'),
         fetchAena(iata, 'L')
       ]);
-      allFlights.push(...salidas.map(mapAenaToAviationstack), ...llegadas.map(mapAenaToAviationstack));
-      await new Promise(r => setTimeout(r, 100)); // Delay para no ahogar los servidores de AENA
+      const results = await Promise.all(promises);
+      results.forEach(flights => {
+        allFlights.push(...flights.map(mapAenaToAviationstack));
+      });
     }
     
     const uniqueFlights: any[] = [];
