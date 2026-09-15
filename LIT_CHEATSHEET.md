@@ -33,6 +33,7 @@
 - [11. Context API (@lit/context)](#sec-11)
 - [12. Shadow DOM y Proyección (Slots)](#sec-12)
 - [13. Controladores Reactivos](#sec-13)
+- [14. Formularios y Extracción de Datos](#sec-14)
 
 ---
 
@@ -387,3 +388,53 @@ export class DisplayReloj extends LitElement {
   }
 }
 ```
+
+<div class="page-break"></div>
+<a name="sec-14"></a>
+<h2><img src="https://api.iconify.design/lucide:form-input.svg?color=%23324fff" width="28" align="absmiddle"> 14. Formularios y Extracción de Datos</h2>
+<a href="https://lit.dev/docs/components/events/" class="doc-link" target="_blank"><img src="https://api.iconify.design/lucide:external-link.svg?color=%23666" width="14" align="absmiddle"> Leer sobre eventos en lit.dev</a>
+
+Lit **no** tiene un sistema propio de formularios complejos. Abraza la **plataforma Web**, utilizando elementos `<form>` nativos y la API estándar `FormData`. Todo es asombrosamente sencillo si conoces JavaScript moderno.
+
+### Recolección Nativa con FormData (Recomendado)
+Para recolectar la información al enviar, atrapa el evento `@submit`, cancela la recarga y usa `FormData`.
+
+```typescript
+@customElement('form-registro')
+export class FormRegistro extends LitElement {
+  private _handleSubmit(e: Event) {
+    e.preventDefault(); // Impide recargar
+    const dataObj = Object.fromEntries(new FormData(e.target as HTMLFormElement).entries());
+    console.log("Datos listos:", dataObj);
+  }
+  render() {
+    return html`
+      <form @submit=${this._handleSubmit}>
+        <!-- IMPORTANTÍSIMO: usar atributo "name" -->
+        <input type="text" name="usr" required />
+        <button type="submit">Enviar</button>
+      </form>`;
+  }
+}
+```
+
+<div style="break-inside: avoid; page-break-inside: avoid;">
+
+### Two-Way Data Binding Manual
+Lit implementa flujo *unidireccional*. Para actualizar variables en tiempo real a cada pulsación, escucha `@input`.
+
+```typescript
+@customElement('buscador-en-vivo')
+export class BuscadorEnVivo extends LitElement {
+  @state() private t: string = "";
+  private _onInput(e: Event) {
+    this.t = (e.target as HTMLInputElement).value; // Dispara re-render
+  }
+  render() {
+    return html`
+      <input type="text" .value=${this.t} @input=${this._onInput} />
+      <p>Buscando: <strong>${this.t}</strong></p>`;
+  }
+}
+```
+</div>
