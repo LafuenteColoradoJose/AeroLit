@@ -7,6 +7,10 @@ export default defineConfig({
         target: 'https://opensky-network.org',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/opensky/, '/api')
+      },
+      '/api/flights': {
+        target: 'http://localhost:3000',
+        changeOrigin: true
       }
     }
   }

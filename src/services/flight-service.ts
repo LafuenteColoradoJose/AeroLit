@@ -97,8 +97,8 @@ export class FlightService {
         }
       }
 
-      // 2. Fetch a la red
-      const response = await fetch('/src/assets/mock-flights.json?v=' + new Date().getTime());
+      // 2. Fetch a la red (Directo al nuevo Backend Node)
+      const response = await fetch('/api/flights?v=' + new Date().getTime());
       if (!response.ok) {
         throw new Error(`Network response was not ok: ${response.statusText}`);
       }
@@ -111,58 +111,6 @@ export class FlightService {
       } else if (Array.isArray(data)) {
         flightsArray = data;
       }
-      
-      // --- INYECCIÓN DE LÓGICA ETERNAL MOCK ---
-      if (flightsArray.length > 0) {
-        // Encontrar fecha base (la primera válida)
-        const firstValid = flightsArray.find((f: any) => f.flight_date || f.departure?.scheduled);
-        const firstFlightDate = firstValid ? (firstValid.flight_date || firstValid.departure?.scheduled) : null;
-        
-        if (firstFlightDate) {
-            const baseDate = new Date(firstFlightDate);
-            baseDate.setHours(0, 0, 0, 0); // Inicio del día base
-            
-            const today = new Date();
-            today.setHours(0, 0, 0, 0); // Inicio de hoy
-            
-            const diffTime = today.getTime() - baseDate.getTime();
-            
-            // Si hay diferencia, desplazamos todos los vuelos al día de hoy
-            if (diffTime !== 0) {
-                flightsArray = flightsArray.map((f: any) => {
-                    const shiftDate = (dateStr: string | null) => {
-                        if (!dateStr) return dateStr;
-                        const d = new Date(dateStr);
-                        if (isNaN(d.getTime())) return dateStr;
-                        d.setTime(d.getTime() + diffTime);
-                        
-                        // Si era formato ISO, devolver en ISO para no romper parseos
-                        if (dateStr.includes('T')) {
-                           // Devolvemos el formato exacto sin cambiar zonas horarias drásticamente
-                           // Algunos mocks vienen en formato '2023-10-27T08:00:00+00:00'
-                           return d.toISOString();
-                        }
-                        return d.toISOString();
-                    };
-
-                    if (f.flight_date) f.flight_date = shiftDate(f.flight_date)?.split('T')[0];
-                    
-                    if (f.departure) {
-                        if (f.departure.scheduled) f.departure.scheduled = shiftDate(f.departure.scheduled);
-                        if (f.departure.estimated) f.departure.estimated = shiftDate(f.departure.estimated);
-                        if (f.departure.actual) f.departure.actual = shiftDate(f.departure.actual);
-                    }
-                    if (f.arrival) {
-                        if (f.arrival.scheduled) f.arrival.scheduled = shiftDate(f.arrival.scheduled);
-                        if (f.arrival.estimated) f.arrival.estimated = shiftDate(f.arrival.estimated);
-                        if (f.arrival.actual) f.arrival.actual = shiftDate(f.arrival.actual);
-                    }
-                    return f;
-                });
-            }
-        }
-      }
-      // ----------------------------------------
 
       if (flightsArray.length > 0) {
         this.flights = flightsArray;

@@ -4,7 +4,7 @@
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=flat-square&logo=typescript)](https://www.typescriptlang.org)
 [![Lit](https://img.shields.io/badge/Lit-3.x-324FFF?style=flat-square&logo=lit)](https://lit.dev)
-[![Vite](https://img.shields.io/badge/Vite-5.x-646CFF?style=flat-square&logo=vite)](https://vitejs.dev)
+[![Node.js](https://img.shields.io/badge/Node.js-20.x-339933?style=flat-square&logo=node.js)](https://nodejs.org)
 [![Vitest](https://img.shields.io/badge/Vitest-1.x-FCC72B?style=flat-square&logo=vitest)](https://vitest.dev)
 
 **Documentación de Arquitectura, Patrones de Diseño y Estrategia de Datos**
@@ -15,91 +15,88 @@
 
 ## 📋 Tabla de Contenidos
 
-1. [Arquitectura del Frontend](#1-arquitectura-del-frontend)
-2. [Estrategia de Datos: Evasión de Rate-Limits (Anti-WAF)](#2-estrategia-de-datos-evasión-de-rate-limits-anti-waf)
-3. [FlightService & Eternal Mock](#3-flightservice--eternal-mock)
-4. [Paginación y Motor de Filtros](#4-paginación-y-motor-de-filtros)
-5. [Simulación de Estado en el Cliente](#5-simulación-de-estado-en-el-cliente)
-6. [Testing, Calidad y Documentación](#6-testing-calidad-y-documentación)
-7. [Desarrollo impulsado por IA Agéntica](#7-desarrollo-impulsado-por-ia-agéntica)
+1. [Arquitectura Full-Stack](#1-arquitectura-full-stack)
+2. [Estrategia de Datos: Evasión de Rate-Limits (Anti-WAF)](#2-estrategia-de-datos-evasi%C3%B3n-de-rate-limits-anti-waf)
+3. [Motor Híbrido y Simulación de Estado](#3-motor-h%C3%ADbrido-y-simulaci%C3%B3n-de-estado)
+4. [Protección de API de Radar en Vivo](#4-protecci%C3%B3n-de-api-de-radar-en-vivo)
+5. [Testing, Calidad y Documentación](#5-testing-calidad-y-documentaci%C3%B3n)
+6. [Desarrollo impulsado por IA Agéntica](#6-desarrollo-impulsado-por-ia-ag%C3%A9ntica)
 
 ---
 
-## 1. Arquitectura del Frontend
+## 1. Arquitectura Full-Stack
 
-AeroLit está construido bajo el paradigma de **Component-Driven Design (Diseño Orientado a Componentes)** utilizando **Lit** (Web Components estándar) y **TypeScript**. 
+AeroLit ha evolucionado a una arquitectura *Full-Stack* dividida en dos capas especializadas:
 
-Esto garantiza:
-- **Encapsulamiento total:** Cada componente (ej. \`<live-clock>\`, \`<urgent-flights>\`) gestiona su propio estado, ciclo de vida y estilos mediante Shadow DOM.
-- **Bajo acoplamiento:** Los componentes no dependen unos de otros directamente, comunicándose mediante eventos (Custom Events) o consumiendo servicios compartidos (\`flight-service.ts\`).
-- **Rendimiento Nativo:** Al utilizar estándares web en lugar de Virtual DOM pesados, el uso de memoria es mínimo y el renderizado es inmediato.
+### Capa Cliente (Frontend)
+Construida bajo el paradigma de **Component-Driven Design** utilizando **Lit** (Web Components) y **TypeScript**. 
+- **Encapsulamiento:** Cada componente (\`<live-clock>\`, \`<urgent-flights>\`) gestiona su propio estado y ciclo de vida mediante Shadow DOM.
+- **Rendimiento:** No se utiliza Virtual DOM; la reactividad ataca directamente a los estándares de la plataforma web.
+
+### Capa Servidor (Backend)
+Desarrollada sobre **Node.js** y **Express**.
+- Responsable exclusivo de extraer, normalizar y cachear los datos de tráfico aéreo.
+- Expone endpoints estables (`/api/flights`) al frontend.
 
 ---
 
 ## 2. Estrategia de Datos: Evasión de Rate-Limits (Anti-WAF)
 
 ### ⚠️ El Problema
-El principal desafío técnico del proyecto es la ingesta de datos en tiempo real. Los proveedores aeronáuticos (como Aena) protegen sus endpoints con potentes firewalls de capa 7 (WAF) como **Akamai**, aplicando *Rate-Limits* muy estrictos. Hacer *polling* (peticiones continuas) cada pocos segundos para actualizar el dashboard resulta en un baneo inmediato de la IP (HTTP 429 / HTTP 403).
+Los proveedores aeronáuticos protegen sus endpoints con potentes firewalls de capa 7 (WAF) como **Akamai**, aplicando bloqueos severos por CORS (Cross-Origin Resource Sharing) y baneando IPs que hagan *polling* frecuente desde navegadores.
 
-### 💡 La Solución: Caché Híbrida Predictiva
-Para resolver este problema, AeroLit implementa un patrón avanzado de **Caché Híbrida** en el servicio de ingesta (\`flight-service.ts\`):
+### 💡 La Solución: In-Memory Scraper Engine
+AeroLit resuelve esto delegando toda la carga al backend de Node.js (`server/aena-scraper.ts`):
 
-1. **Sincronización Masiva (Base Schedule):**
-   - Se realiza una única petición "pesada" cada **12 horas**.
-   - Esta petición descarga el bloque completo de vuelos programados (\`scheduled\`) para el día.
-   - Estos datos se almacenan en memoria/Local Storage y forman la "Caché Base".
-
-2. **Polling Ligero de Deltas (Updates):**
-   - Para mantener el rigor del tiempo real sin disparar las alarmas del WAF, se realiza una micro-petición cada **15 minutos**.
-   - Esta petición **solo** consulta vuelos con cambios críticos (retrasos severos, cancelaciones o desvíos) en la próxima ventana de 2 horas.
-   - Las deltas se fusionan con la Caché Base.
-
-### 🛡️ Protección de API en Tiempo Real (Radar)
-Además de la caché predictiva para vuelos programados, el componente `<aerolit-radar>` realiza consultas constantes (cada 60 segundos) a la API de **OpenSky Network**. Para evitar bloqueos temporales por exceso de cuota (HTTP 429), se ha implementado:
-1. **Pausado en Background:** Uso nativo de `document.hidden` (Page Visibility API). Si la pestaña no está visible, el intervalo se suspende.
-2. **Caché Reactiva en Servicio (`flight-service.ts`):** Se retiene en memoria (`livePlanesCache`) el payload de OpenSky durante 30 segundos. Solicitudes redundantes disparadas por la UI (o por doble renderizado) obtienen la caché sin golpear la red.
-
+1. **Recolección Silenciosa Servidor-a-Servidor:**
+   - El servidor bypassa CORS y los mecanismos de bot-detection del navegador inyectando *headers* específicos y *cookies* validadas.
+   - Realiza un barrido iterativo de los 48 aeropuertos españoles (introduciendo pausas intencionadas para no ahogar los servidores de AENA).
+2. **Caché en RAM de Ultra-Baja Latencia:**
+   - Los datos brutos se mapean al estándar *Aviationstack* y se guardan directamente en la memoria RAM del servidor de Node.
+   - La recolección se lanza asíncronamente en un cronograma (1 hora de intervalo).
+3. **Proxy Inverso en Desarrollo:**
+   - Para evadir colisiones de puerto, Vite (`vite.config.ts`) intercepta las llamadas frontend a `/api/*` y las redirige limpiamente al puerto de Express, simulando un mismo origen.
 
 ---
 
-## 3. Simulación de Estado en el Cliente
+## 3. Motor Híbrido y Simulación de Estado
 
-Dado que solo descargamos datos masivos cada 12 horas, ¿cómo logramos que el Dashboard parezca vivo segundo a segundo? Mediante la **Simulación de Estado en el Cliente (Client-Side State Simulation)**.
+Descargar todos los vuelos del país de golpe una vez por hora soluciona el problema de red, pero los usuarios esperan ver cambios en tiempo real (segundo a segundo).
 
-El componente \`<live-clock>\` no es solo un elemento visual, actúa como el "latido" (heartbeat) de la aplicación:
-- El frontend compara de forma continua la hora actual (\`currentTime\`) con la hora de salida (\`departureTime\`) de los vuelos en caché.
-- Cuando la hora local supera la hora de despegue, el motor de AeroLit transiciona **automáticamente y de forma local** el estado del vuelo de \`scheduled\` a \`active\`.
-- Esto genera un flujo constante de datos dinámicos en la UI (los contadores suben y bajan, los vuelos entran y salen de los radares) **sin consumir ni un solo byte de ancho de banda** ni requerir peticiones al servidor.
+La solución es el **Client-Side State Simulation (Simulación de Estado en el Cliente)** impulsado por el componente \`<live-clock>\`:
+- El frontend sincroniza su "latido" con la hora local exacta.
+- Constantemente compara el instante actual con la `horaProgramada` de todos los vuelos descargados.
+- Transiciona **localmente** los estados sin necesidad del backend:
+  - `horaProgramada` > `ahora` ➔ **Scheduled** (Programado)
+  - `horaProgramada` <= `ahora` y `horaAterrizaje` > `ahora` ➔ **Active** (Despegó)
+  - `horaAterrizaje` <= `ahora` ➔ **Landed** (Aterrizado)
+- Esto produce una UI extremadamente viva sin consumir ancho de banda en *polling*.
 
 ---
 
+## 4. Protección de API de Radar en Vivo
 
-## 6. Testing, Calidad y Documentación
+El componente `<aerolit-radar>` realiza consultas constantes (cada 60s) a la API de **OpenSky Network**. Para evitar bloqueos temporales por cuotas (HTTP 429), se ha implementado:
+1. **Pausado en Background:** Uso nativo de `document.hidden` (Page Visibility API). Si la pestaña pierde visibilidad, el polling del radar se suspende de inmediato.
+2. **Caché Reactiva de Memoria:** El `flight-service.ts` retiene el payload geoespacial durante 30 segundos. Si el usuario navega entre vistas, recupera la posición exacta al instante en vez de disparar otro *fetch*.
+
+---
+
+## 5. Testing, Calidad y Documentación
 
 La fiabilidad es crítica en entornos aeronáuticos. 
-- **Vitest & Open-WC:** Toda la lógica de componentes y servicios está testeada de forma unitaria en entornos JSDOM. Se aplican técnicas de *Mocking* profundo (ej. inyección simulada de *Chart.js* y *Leaflet*) y uso de *Fake Timers* (`vi.useFakeTimers()`) para probar la reactividad sin esperar.
-- **Cobertura Métrica:** El CI exige superar el umbral del **80% (Verde)** en `Statements, Branches, Functions y Lines`.
-- **Documentación JSDoc & TypeDoc:** La arquitectura exige tipado y comentarios JSDoc obligatorios para modelos y métodos expuestos. Una tarea automatizada (`npm run docs`) extrae esta metadata compilandola en un manual HTML hipervinculado, manteniendo una "Single Source of Truth".
-
+- **Vitest & Supertest:** La cobertura de test es superior al **90% global**.
+  - **Servidor:** Se inyectan *mocks* simulando red caída, APIs corruptas y timeouts para probar que el Scraper de Node nunca crashea y responde vía Supertest. Cobertura del backend: **95-98%**.
+  - **Cliente:** Se usan *Fake Timers* y *JSDOM* para probar la reactividad sin esperar, testeando componentes web nativos a gran velocidad.
+- **Documentación JSDoc:** La arquitectura exige tipado y comentarios JSDoc obligatorios para modelos, servicios de ingesta e interfaces del scraper, garantizando mantenibilidad a largo plazo.
 
 ---
 *Documento generado para el equipo de desarrollo y auditoría técnica.*
 
-## 7. Desarrollo impulsado por IA Agéntica (Agentic AI)
+## 6. Desarrollo impulsado por IA Agéntica (Agentic AI)
 
-Dado el paradigma actual donde la programación asistida por agentes autónomos de IA es un estándar en la industria, el desarrollo de **AeroLit** se ha beneficiado enormemente del uso de "Skills" (habilidades) específicas para la IA.
+El desarrollo de **AeroLit** se ha beneficiado enormemente del uso de "Skills" (habilidades) específicas para la IA.
 
-En concreto, se han empleado las siguientes herramientas agénticas:
-*   **Agent Skills (by Addy Osmani):** Una potente suite de habilidades que proporciona al agente de IA flujos de trabajo estructurados. Se ha utilizado para el desarrollo guiado por pruebas (*Test-Driven Development*), revisión cruzada de código (*Code Review*) y resolución de problemas (*Debugging*), garantizando así un código robusto y una cobertura de tests total (100% passing en Vitest).
-*   **Modern Web Guidance & Frontend Engineering:** Skills enfocadas en asegurar que el código generado sigue las convenciones más modernas del desarrollo web: uso de **Lit** para Web Components estándar, estado reactivo (decorators `@state`), uso avanzado de CSS (variables y *Container Queries*) y buenas prácticas de rendimiento y accesibilidad.
-
-El ciclo de desarrollo riguroso asistido por IA seguido fue:
-
-```text
-  DEFINE          PLAN           BUILD          VERIFY         REVIEW          SHIP
- ┌──────┐      ┌──────┐      ┌──────┐      ┌──────┐      ┌──────┐      ┌──────┐
- │ Idea │ ───▶ │ Spec │ ───▶ │ Code │ ───▶ │ Test │ ───▶ │  QA  │ ───▶ │  Go  │
- │Refine│      │  PRD │      │ Impl │      │Debug │      │ Gate │      │ Live │
- └──────┘      └──────┘      └──────┘      └──────┘      └──────┘      └──────┘
-  /spec          /plan          /build        /test         /review       /ship
-```
+Se han empleado las siguientes herramientas agénticas:
+*   **Agent Skills (by Addy Osmani):** Habilidades que proporcionan al agente de IA flujos de trabajo estructurados. Utilizado para el desarrollo guiado por pruebas (*TDD*), revisión cruzada de código y resolución sistemática de problemas (*Debugging*).
+*   **Modern Web Guidance & Frontend Engineering:** Skills enfocadas en convenciones modernas: uso de **Lit** para Web Components, estado reactivo (`@state`), CSS nativo avanzado y optimización de rendimiento y accesibilidad (A11y).
