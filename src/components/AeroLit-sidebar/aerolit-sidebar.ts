@@ -278,10 +278,6 @@ export class AerolitSidebar extends LitElement {
           <span class="icon"><ph-globe-hemisphere-west weight="duotone"></ph-globe-hemisphere-west></span>
           <span class="text">Radar en Vivo</span>
         </a>
-        <a class="nav-item" href="/settings" aria-label="Abrir los ajustes de la aplicación" title="Ajustes" @click=${(e: Event) => this.navigate(e, '/settings')}>
-          <span class="icon"><ph-gear weight="duotone"></ph-gear></span>
-          <span class="text">Ajustes</span>
-        </a>
       </nav>
 
       <div class="footer">
