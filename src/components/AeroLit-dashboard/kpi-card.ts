@@ -126,6 +126,27 @@ export class KpiCard extends LitElement {
     .trend ph-trend-up, .trend ph-trend-down {
       font-size: 1rem;
     }
+
+    @media (max-width: 768px) {
+      :host {
+        padding: 1rem;
+      }
+      .value {
+        font-size: 1.5rem;
+      }
+      .title {
+        font-size: 0.75rem;
+      }
+      .icon-wrapper {
+        width: 36px;
+        height: 36px;
+        font-size: 1.4rem;
+      }
+      .trend {
+        font-size: 0.75rem;
+        padding: 2px 6px;
+      }
+    }
   `;
 
   render() {

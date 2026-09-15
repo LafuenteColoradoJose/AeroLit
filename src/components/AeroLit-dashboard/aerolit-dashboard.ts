@@ -26,9 +26,17 @@ export class AerolitDashboard extends LitElement {
     
 
     static styles = css`
+        :host {
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+        }
         .dashboard-container {
             padding: 2rem;
             color: var(--text-color);
+            box-sizing: border-box;
+            max-width: 100%;
+            overflow-x: hidden;
         }
         .dashboard-header {
             display: flex;
@@ -65,10 +73,28 @@ export class AerolitDashboard extends LitElement {
             grid-template-columns: 1fr;
             gap: 1.5rem;
             margin-top: 2rem;
+            min-width: 0; /* Permite a los hijos encogerse por debajo de su contenido interno (útil para Canvas/Gráficas) */
         }
         @media (min-width: 1024px) {
             .dashboard-widgets {
                 grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        /* Ajustes Mobile */
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding: 1rem;
+            }
+            .dashboard-header {
+                flex-direction: column;
+            }
+            h1 {
+                font-size: 1.5rem;
+            }
+            .kpi-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
             }
         }
     `;

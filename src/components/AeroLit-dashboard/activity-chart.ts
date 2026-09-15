@@ -27,6 +27,8 @@ export class ActivityChart extends LitElement {
   static styles = css`
     :host {
       display: block;
+      box-sizing: border-box;
+      max-width: 100%;
       margin-top: 2rem;
       background-color: var(--card-bg);
       border-radius: 16px;
@@ -46,6 +48,13 @@ export class ActivityChart extends LitElement {
       opacity: 0.9;
     }
 
+    h2 span {
+      flex: 1;
+      white-space: normal;
+      line-height: 1.2;
+      word-break: normal;
+    }
+
     .chart-container {
       position: relative;
       height: 300px;
@@ -57,6 +66,21 @@ export class ActivityChart extends LitElement {
       padding: 2rem;
       opacity: 0.6;
       font-style: italic;
+    }
+
+    /* Ajustes Mobile */
+    @media (max-width: 768px) {
+      :host {
+        padding: 1rem;
+        margin-top: 1rem;
+      }
+      h2 {
+        font-size: 0.95rem; /* Letra más pequeña para no pisar el borde */
+        gap: 6px;
+      }
+      .chart-container {
+        height: 250px;
+      }
     }
   `;
 
@@ -190,7 +214,7 @@ export class ActivityChart extends LitElement {
     return html`
       <h2>
         <ph-chart-line-up weight="bold"></ph-chart-line-up>
-        Actividad de Vuelos (Hoy)
+        <span>Actividad de Vuelos (Hoy)</span>
       </h2>
       <div class="chart-container" style="display: ${this.loading ? 'none' : 'block'}">
         <canvas></canvas>

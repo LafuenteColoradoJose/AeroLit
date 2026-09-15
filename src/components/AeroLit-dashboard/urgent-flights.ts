@@ -28,6 +28,8 @@ export class UrgentFlights extends LitElement {
   static styles = css`
     :host {
       display: block;
+      box-sizing: border-box;
+      max-width: 100%;
       margin-top: 2rem;
       background-color: var(--card-bg);
       border-radius: 16px;
@@ -40,11 +42,19 @@ export class UrgentFlights extends LitElement {
     h2 {
       margin-top: 0;
       display: flex;
-      align-items: center;
+      align-items: center; /* Alineación vertical */
       gap: 10px;
       font-size: 1.25rem;
       margin-bottom: 1.5rem;
     }
+    
+    h2 span {
+      flex: 1; /* Toma el espacio restante */
+      white-space: normal;
+      line-height: 1.2;
+      word-break: normal; /* Asegura que corte por palabra y no por letra */
+    }
+
     .urgent-title {
       color: var(--error-color);
     }
@@ -58,6 +68,26 @@ export class UrgentFlights extends LitElement {
 
     .table-container {
       overflow-x: auto;
+    }
+
+    /* Ajustes Mobile */
+    @media (max-width: 768px) {
+      :host {
+        padding: 1rem;
+        margin-top: 1rem;
+      }
+      h2 {
+        font-size: 0.95rem; /* Letra más pequeña para evitar cortes */
+        gap: 6px;
+      }
+      th, td {
+        padding: 8px 6px;
+        font-size: 0.75rem; /* Celdas un poco más ajustadas */
+      }
+      .badge {
+        padding: 2px 6px;
+        font-size: 0.65rem;
+      }
     }
 
     table {
@@ -142,8 +172,8 @@ export class UrgentFlights extends LitElement {
     return html`
       <h2 class="${isUrgent ? 'urgent-title' : 'upcoming-title'}">
         ${isUrgent 
-          ? html`<ph-warning weight="duotone"></ph-warning> Atención Requerida (Vuelos Urgentes)`
-          : html`<ph-airplane-takeoff weight="duotone"></ph-airplane-takeoff> Próximos Vuelos Programados`
+          ? html`<ph-warning weight="duotone"></ph-warning> <span>Atención Requerida (Vuelos Urgentes)</span>`
+          : html`<ph-airplane-takeoff weight="duotone"></ph-airplane-takeoff> <span>Próximos Vuelos Programados</span>`
         }
       </h2>
       

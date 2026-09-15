@@ -142,6 +142,47 @@ export class AerolitSidebar extends LitElement {
     ph-chart-bar, ph-airplane, ph-gear, ph-moon, ph-sun, ph-caret-left, ph-caret-right, ph-globe-hemisphere-west {
       font-size: 1.5rem;
     }
+
+    /* Estilos Responsivos (Móviles) */
+    @media (max-width: 768px) {
+      :host, :host([collapsed]) {
+        width: 100vw !important;
+        height: 65px;
+        flex-direction: row;
+        border-right: none;
+        border-top: 2px solid var(--secondary-color);
+        z-index: 1000;
+        bottom: 0;
+      }
+      .header {
+        display: none; /* Ocultamos el logo en móvil */
+      }
+      .nav-links {
+        flex-direction: row;
+        padding: 0;
+        gap: 0;
+      }
+      .nav-item {
+        flex: 1;
+        justify-content: center;
+        padding: 0;
+      }
+      .nav-item:hover {
+        border-left: none;
+        border-top: 4px solid var(--secondary-color);
+      }
+      .icon {
+        margin: 0;
+      }
+      .text, :host([collapsed]) .text {
+        display: none !important;
+      }
+      .footer {
+        border-top: none;
+        border-left: 1px solid rgba(255,255,255,0.1);
+        padding: 0 1rem;
+      }
+    }
   `;
 
   @state()
