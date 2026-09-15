@@ -5,6 +5,9 @@ import '@phosphor-icons/webcomponents/PhAirplaneInFlight';
 import '@phosphor-icons/webcomponents/PhXCircle';
 import '@phosphor-icons/webcomponents/PhClock';
 import '@phosphor-icons/webcomponents/PhListChecks';
+import '@phosphor-icons/webcomponents/PhCode';
+import '@phosphor-icons/webcomponents/PhGithubLogo';
+import '@phosphor-icons/webcomponents/PhLinkedinLogo';
 import { flightService, type KpiStats } from '../../services/flight-service';
 import './kpi-card';
 import './urgent-flights';
@@ -81,10 +84,16 @@ export class AerolitDashboard extends LitElement {
             }
         }
         
+        /* Mobile Credits Card - por defecto oculto */
+        .mobile-credits-card {
+            display: none;
+        }
+        
         /* Ajustes Mobile */
         @media (max-width: 768px) {
             .dashboard-container {
                 padding: 1rem;
+                padding-bottom: 3rem;
             }
             .dashboard-header {
                 flex-direction: column;
@@ -95,6 +104,52 @@ export class AerolitDashboard extends LitElement {
             .kpi-grid {
                 grid-template-columns: 1fr 1fr;
                 gap: 1rem;
+            }
+            
+            /* Tarjeta visible en móviles */
+            .mobile-credits-card {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                background-color: var(--card-bg);
+                border: 1px solid rgba(255, 255, 255, 0.05);
+                border-radius: 12px;
+                padding: 1.5rem;
+                margin-top: 2rem;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                text-align: center;
+            }
+            .mobile-credits-card .developed-by {
+                color: var(--text-color);
+                opacity: 0.7;
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                margin-bottom: 0.5rem;
+                display: flex;
+                align-items: center;
+                gap: 4px;
+            }
+            .mobile-credits-card .author-name {
+                font-size: 1.1rem;
+                font-weight: 700;
+                color: var(--secondary-color);
+                text-decoration: none;
+                margin-bottom: 1rem;
+            }
+            .mobile-credits-card .social-links {
+                display: flex;
+                gap: 1.5rem;
+            }
+            .mobile-credits-card .social-link {
+                color: var(--text-color);
+                opacity: 0.8;
+                font-size: 1.5rem;
+                text-decoration: none;
+            }
+            .mobile-credits-card .social-link:hover {
+                color: var(--secondary-color);
+                opacity: 1;
             }
         }
     `;
@@ -147,7 +202,6 @@ export class AerolitDashboard extends LitElement {
                 <p>Bienvenido al sistema de control de vuelos de España.</p>
             </div>
             <live-clock></live-clock>
-            </div>
         </div>
 
         ${this.stats ? html`
@@ -171,6 +225,24 @@ export class AerolitDashboard extends LitElement {
             <activity-chart></activity-chart>
           </div>
         ` : html`<p>Cargando estadísticas...</p>`}
+        
+        <!-- Tarjeta de créditos (Solo visible en móviles) -->
+        <div class="mobile-credits-card">
+          <div class="developed-by">
+            <ph-code weight="bold"></ph-code> Desarrollado por
+          </div>
+          <a class="author-name" href="https://www.joselafuente.dev" target="_blank" rel="noopener" aria-label="Portfolio de José Lafuente">
+            José Lafuente
+          </a>
+          <div class="social-links">
+            <a class="social-link" href="https://github.com/LafuenteColoradoJose" target="_blank" rel="noopener" aria-label="Perfil de GitHub" title="GitHub">
+              <ph-github-logo weight="fill"></ph-github-logo>
+            </a>
+            <a class="social-link" href="https://www.linkedin.com/in/joselafuentecolorado" target="_blank" rel="noopener" aria-label="Perfil de LinkedIn" title="LinkedIn">
+              <ph-linkedin-logo weight="fill"></ph-linkedin-logo>
+            </a>
+          </div>
+        </div>
       </div>
         `;
     }

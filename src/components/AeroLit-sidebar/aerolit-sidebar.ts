@@ -8,6 +8,9 @@ import '@phosphor-icons/webcomponents/PhSun';
 import '@phosphor-icons/webcomponents/PhCaretLeft';
 import '@phosphor-icons/webcomponents/PhCaretRight';
 import '@phosphor-icons/webcomponents/PhGlobeHemisphereWest';
+import '@phosphor-icons/webcomponents/PhCode';
+import '@phosphor-icons/webcomponents/PhGithubLogo';
+import '@phosphor-icons/webcomponents/PhLinkedinLogo';
 
 @customElement('aerolit-sidebar')
 export class AerolitSidebar extends LitElement {
@@ -107,10 +110,66 @@ export class AerolitSidebar extends LitElement {
     :host([collapsed]) .logo ph-airplane {
       margin-right: 0 !important;
     }
-    .footer {
+    .author-credits {
       margin-top: auto;
+      padding: 1.5rem 1rem 0.5rem;
+      text-align: center;
+      font-size: 0.8rem;
+      line-height: 1.6;
+    }
+    .author-credits .developed-by {
+      color: var(--sidebar-text);
+      opacity: 0.7;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+    .author-credits .author-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--secondary-color);
+      text-decoration: none;
+      display: block;
+      margin-bottom: 0.8rem;
+      transition: opacity 0.2s;
+    }
+    .author-credits .author-name:hover {
+      opacity: 0.8;
+      text-decoration: underline;
+    }
+    .author-credits .social-links {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+    }
+    .author-credits .social-link {
+      color: var(--sidebar-text);
+      opacity: 0.7;
+      font-size: 1.25rem;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+    }
+    .author-credits .social-link:hover {
+      opacity: 1;
+      color: var(--secondary-color);
+      transform: translateY(-2px);
+    }
+    :host([collapsed]) .author-credits {
+      display: none;
+    }
+
+    .footer {
       padding: 1rem;
       border-top: 1px solid rgba(255,255,255,0.1);
+      margin-top: 1rem;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -174,7 +233,7 @@ export class AerolitSidebar extends LitElement {
       .icon {
         margin: 0;
       }
-      .text, :host([collapsed]) .text {
+      .text, :host([collapsed]) .text, .author-credits {
         display: none !important;
       }
       .footer {
@@ -279,6 +338,23 @@ export class AerolitSidebar extends LitElement {
           <span class="text">Radar en Vivo</span>
         </a>
       </nav>
+
+      <div class="author-credits">
+        <div class="developed-by">
+          <ph-code weight="bold"></ph-code> Desarrollado por
+        </div>
+        <a class="author-name" href="https://www.joselafuente.dev" target="_blank" rel="noopener" aria-label="Portfolio de José Lafuente">
+          José Lafuente
+        </a>
+        <div class="social-links">
+          <a class="social-link" href="https://github.com/LafuenteColoradoJose" target="_blank" rel="noopener" aria-label="Perfil de GitHub" title="GitHub">
+            <ph-github-logo weight="fill"></ph-github-logo>
+          </a>
+          <a class="social-link" href="https://www.linkedin.com/in/joselafuentecolorado" target="_blank" rel="noopener" aria-label="Perfil de LinkedIn" title="LinkedIn">
+            <ph-linkedin-logo weight="fill"></ph-linkedin-logo>
+          </a>
+        </div>
+      </div>
 
       <div class="footer">
         <button class="theme-toggle-btn" @click=${this.toggleTheme} title="${this.currentTheme === 'light' ? 'Cambiar a Modo Oscuro' : 'Cambiar a Modo Claro'}">
