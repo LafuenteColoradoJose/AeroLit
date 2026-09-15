@@ -1,51 +1,21 @@
-/**
- * @file opensky-scraper.ts
- * @description Motor de extracción de datos del radar (OpenSky Network) en memoria RAM.
- * Descarga las posiciones de los aviones sobre España periódicamente para
- * evitar el rate-limit de la API pública y servir los datos instantáneamente al frontend.
- */
-
 import https from 'https';
 
 export class OpenSkyScraper {
-  /** @private Caché en memoria para las posiciones de los aviones */
   private inMemoryPlanes: any = { states: [] };
-  
-  /** @private Almacena el timestamp de la última extracción exitosa */
   private lastFetchTime: Date | null = null;
   
-  /** 
-   * @private Bounding box aproximado para la península ibérica y Canarias 
-   * (Latitudes: 35.0 a 44.0 | Longitudes: -10.0 a 5.0)
-   */
-  private readonly URL = '/api/states/all?lamin=35.0&lomin=-10.0&lamax=44.0&lomax=5.0';
+  // Usamos ADSB.lol (Gratis, Sin bloqueos a Vercel, Cobertura global)
+  // Radio de 400NM (~740km) centrado en Madrid cubre toda España y parte de Europa/Norte de África
+  private readonly URL = '/v2/lat/40/lon/-3/dist/400';
 
-  /**
-   * @constructor
-   */
-  constructor() {
-    // En entornos Serverless, evitamos setInterval. Haremos Lazy Fetching.
-  }
+  constructor() {}
 
-  /**
-   * Detiene el motor (Compatibilidad hacia atrás para tests)
-   * @public
-   */
-  public stop(): void {
-    // Ya no hay intervalo que detener
-  }
+  public stop(): void {}
 
-  /**
-   * Devuelve el payload actual del espacio aéreo ibérico.
-   * Si la caché tiene más de 10 segundos o está vacía, refresca de forma asíncrona.
-   * @returns {Promise<Object>} JSON con metadatos de la última actualización y el array de vectores.
-   * @public
-   */
   public async getPlanes(): Promise<any> {
     const now = new Date();
     const cacheAge = this.lastFetchTime ? now.getTime() - this.lastFetchTime.getTime() : Infinity;
 
-    // Si la caché es más antigua de 10 segundos, forzamos un refresco (Lazy Fetching Serverless)
     if (cacheAge > 10000) {
       await this.scrapeRadar();
     }
@@ -56,15 +26,10 @@ export class OpenSkyScraper {
     };
   }
 
-  /**
-   * Ejecuta una petición HTTPS nativa servidor-a-servidor contra OpenSky Network.
-   * Devuelve una Promesa para poder hacer await en entornos Serverless (Vercel).
-   * @private
-   */
   private scrapeRadar(): Promise<void> {
     return new Promise((resolve) => {
       const options = {
-        hostname: 'opensky-network.org',
+        hostname: 'api.adsb.lol',
         port: 443,
         path: this.URL,
         method: 'GET',
@@ -82,13 +47,32 @@ export class OpenSkyScraper {
           if (res.statusCode === 200) {
             try {
               const json = JSON.parse(data);
-              this.inMemoryPlanes = json;
+              
+              // Mapeamos el formato de ADSB.lol al formato de OpenSky para no romper el frontend
+              const mappedStates = (json.ac || []).map((ac: any) => {
+                 return [
+                   ac.hex || '000000', // 0: icao24
+                   ac.flight || 'Desconocido', // 1: callsign
+                   'España', // 2: origin_country (ADSB no lo da fácil, ponemos genérico o vacío)
+                   null, // 3: time_position
+                   null, // 4: last_contact
+                   ac.lon, // 5: longitude
+                   ac.lat, // 6: latitude
+                   ac.alt_baro ? ac.alt_baro / 3.28084 : 0, // 7: altitude en metros (frontend lo pasa a pies)
+                   false, // 8: on_ground
+                   ac.gs ? ac.gs * 0.514444 : 0, // 9: velocidad m/s (frontend lo pasa a km/h)
+                   ac.track || 0, // 10: true_track
+                   0 // 11: vertical_rate
+                 ];
+              });
+
+              this.inMemoryPlanes = { states: mappedStates };
               this.lastFetchTime = new Date();
             } catch (e) {
-              console.error('[Radar] Error parseando JSON de OpenSky');
+              console.error('[Radar] Error parseando JSON de ADSB.lol');
             }
           }
-          resolve(); // Resolvemos siempre, incluso si falla, para devolver la caché vieja
+          resolve(); 
         });
       });
 
@@ -107,8 +91,4 @@ export class OpenSkyScraper {
   }
 }
 
-/** 
- * Singleton exportado que mantiene la instancia única del scraper global
- * @type {OpenSkyScraper} 
- */
 export const openskyInstance = new OpenSkyScraper();

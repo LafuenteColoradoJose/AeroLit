@@ -72,7 +72,7 @@ describe('OpenSkyScraper', () => {
   };
 
   it('debería fetchear los aviones correctamente al iniciarse (200 OK y JSON válido)', async () => {
-    const validJson = JSON.stringify({ states: [['mockPlane1'], ['mockPlane2']] });
+    const validJson = JSON.stringify({ ac: [{hex:'1'}, {hex:'2'}] });
     mockHttpsRequest(200, validJson);
 
     scraper = new OpenSkyScraper(); // El constructor llama a scrapeRadar()
@@ -92,7 +92,7 @@ describe('OpenSkyScraper', () => {
     const result = await scraper.getPlanes();
     // Debe devolver el default vacío { states: [] }
     expect(result.data.states.length).toBe(0);
-    expect(consoleSpy).toHaveBeenCalledWith('[Radar] Error parseando JSON de OpenSky');
+    expect(consoleSpy).toHaveBeenCalledWith('[Radar] Error parseando JSON de ADSB.lol');
     
     consoleSpy.mockRestore();
   });
