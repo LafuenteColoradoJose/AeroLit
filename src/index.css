@@ -29,6 +29,7 @@
   
   /* Elementos destacados en azules */
   --primary-color: var(--c-cerulean);
+  --primary-contrast: var(--c-white);
   --secondary-color: var(--c-powder-blue);
   --error-color: var(--c-error);
 
@@ -51,6 +52,7 @@
     
     /* En oscuro usamos los azules más claros para que destaquen */
     --primary-color: var(--c-powder-blue); 
+    --primary-contrast: var(--c-space-cadet);
     --secondary-color: var(--c-cerulean);
     --error-color: var(--c-error);
     
@@ -69,6 +71,7 @@
   --sidebar-text: var(--c-white);
   
   --primary-color: var(--c-powder-blue); 
+  --primary-contrast: var(--c-space-cadet);
   --secondary-color: var(--c-cerulean);
   --error-color: var(--c-error);
   

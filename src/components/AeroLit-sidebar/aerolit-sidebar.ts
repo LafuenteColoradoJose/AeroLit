@@ -266,19 +266,19 @@ export class AerolitSidebar extends LitElement {
       </div>
 
       <nav class="nav-links">
-        <a class="nav-item" href="/" @click=${(e: Event) => this.navigate(e, '/')}>
+        <a class="nav-item" href="/" aria-label="Ir al Inicio (Dashboard)" title="Dashboard" @click=${(e: Event) => this.navigate(e, '/')}>
           <span class="icon"><ph-chart-bar weight="duotone"></ph-chart-bar></span>
           <span class="text">Dashboard</span>
         </a>
-        <a class="nav-item" href="/flights" @click=${(e: Event) => this.navigate(e, '/flights')}>
+        <a class="nav-item" href="/flights" aria-label="Ir al listado de vuelos" title="Vuelos" @click=${(e: Event) => this.navigate(e, '/flights')}>
           <span class="icon"><ph-airplane weight="duotone"></ph-airplane></span>
           <span class="text">Vuelos</span>
         </a>
-        <a class="nav-item" href="/radar" @click=${(e: Event) => this.navigate(e, '/radar')}>
+        <a class="nav-item" href="/radar" aria-label="Abrir el mapa del radar en vivo" title="Radar" @click=${(e: Event) => this.navigate(e, '/radar')}>
           <span class="icon"><ph-globe-hemisphere-west weight="duotone"></ph-globe-hemisphere-west></span>
           <span class="text">Radar en Vivo</span>
         </a>
-        <a class="nav-item" href="/settings" @click=${(e: Event) => this.navigate(e, '/settings')}>
+        <a class="nav-item" href="/settings" aria-label="Abrir los ajustes de la aplicación" title="Ajustes" @click=${(e: Event) => this.navigate(e, '/settings')}>
           <span class="icon"><ph-gear weight="duotone"></ph-gear></span>
           <span class="text">Ajustes</span>
         </a>

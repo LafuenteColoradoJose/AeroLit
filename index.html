@@ -1,18 +1,33 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>aerolit</title>
+    <meta name="description" content="AeroLit - Radar de Vuelos en Tiempo Real. Realiza el seguimiento y descubre información actualizada del espacio aéreo." />
+    <title>AeroLit</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="./src/index.css" />
     <script type="module" src="/src/components/AeroLit-app/aerolit-app.ts"></script>
+    <style>
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border-width: 0;
+      }
+    </style>
   </head>
   <body>
+    <h1 class="sr-only">AeroLit - Sistema Avanzado de Rastreo de Vuelos</h1>
     <aerolit-app></aerolit-app>
   </body>
 </html>

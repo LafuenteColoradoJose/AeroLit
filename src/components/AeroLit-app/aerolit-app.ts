@@ -47,10 +47,10 @@ export class AerolitApp extends LitElement {
   render() {
     return html`
       <!-- 1. Inyectamos el componente aislado del Sidebar -->
-      <aerolit-sidebar></aerolit-sidebar>
+      <aerolit-sidebar role="navigation" aria-label="Navegación principal"></aerolit-sidebar>
 
       <!-- 2. Inyectamos el componente aislado del Router en el main -->
-      <main>
+      <main role="main">
         <aerolit-router></aerolit-router>
       </main>
     `;

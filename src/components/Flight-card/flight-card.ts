@@ -58,7 +58,7 @@ export class FlightCard extends LitElement {
     
     .status.active {
       background-color: var(--primary-color);
-      color: var(--c-white); /* Blanco/claro sobre primario (oscuro) se lee bien */
+      color: var(--primary-contrast); /* Adaptativo al tema */
     }
 
     .route {

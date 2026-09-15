@@ -102,7 +102,7 @@ export class AerolitFlights extends LitElement {
         }
 
         .view-btn:hover { background: rgba(128, 128, 128, 0.1); }
-        .view-btn.active { background: var(--primary-color); color: white; border-color: var(--primary-color); }
+        .view-btn.active { background: var(--primary-color); color: var(--primary-contrast); border-color: var(--primary-color); }
 
         .filters {
             display: flex;
@@ -148,7 +148,7 @@ export class AerolitFlights extends LitElement {
 
         .search-btn {
             background: var(--primary-color);
-            color: white;
+            color: var(--primary-contrast);
             border: none;
             padding: 0.75rem 1.5rem;
             border-radius: 8px;
@@ -211,7 +211,7 @@ export class AerolitFlights extends LitElement {
             grid-template-columns: 1.5fr 2fr 1fr 2fr 1fr 1fr;
             padding: 1rem 1.5rem;
             background: var(--primary-color);
-            color: white;
+            color: var(--primary-contrast);
             font-weight: bold;
             font-size: 0.9rem;
             letter-spacing: 0.05em;
