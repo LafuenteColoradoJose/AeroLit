@@ -319,7 +319,7 @@ export class AerolitSidebar extends LitElement {
     return html`
       <div class="header">
         <div class="logo">
-          <ph-airplane weight="duotone" style="vertical-align: middle; margin-right: 8px;"></ph-airplane> <span class="logo-text">AeroLit</span>
+          <img src="/aerolit-logo.svg" alt="AeroLit Logo" class="logo-icon" /> <span class="logo-text">AeroLit</span>
         </div>
         
       </div>
