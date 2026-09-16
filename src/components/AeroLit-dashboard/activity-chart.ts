@@ -29,6 +29,8 @@ export class ActivityChart extends LitElement {
       display: block;
       box-sizing: border-box;
       max-width: 100%;
+      min-width: 0;
+      overflow: hidden;
       margin-top: 2rem;
       background-color: var(--card-bg);
       border-radius: 16px;

@@ -83,10 +83,7 @@
 body {
   margin: 0;
   font-family: var(--font-body);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  /* ... resto de estilos ... */
+  /* Eliminados display flex y center que rompían el ancho en móviles */
 }
 
 h1, h2, h3, h4, h5, h6, .heading {

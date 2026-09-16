@@ -76,7 +76,8 @@ export class AerolitDashboard extends LitElement {
             grid-template-columns: 1fr;
             gap: 1.5rem;
             margin-top: 2rem;
-            min-width: 0; /* Permite a los hijos encogerse por debajo de su contenido interno (útil para Canvas/Gráficas) */
+            min-width: 0;
+            max-width: 100%; /* Force constraint */ (útil para Canvas/Gráficas) */
         }
         @media (min-width: 1024px) {
             .dashboard-widgets {
@@ -102,7 +103,7 @@ export class AerolitDashboard extends LitElement {
                 font-size: 1.5rem;
             }
             .kpi-grid {
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: 1fr; /* 1 columna en móvil para evitar texto aplastado */
                 gap: 1rem;
             }
             

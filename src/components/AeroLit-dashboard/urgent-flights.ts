@@ -30,6 +30,8 @@ export class UrgentFlights extends LitElement {
       display: block;
       box-sizing: border-box;
       max-width: 100%;
+      min-width: 0;
+      overflow: hidden;
       margin-top: 2rem;
       background-color: var(--card-bg);
       border-radius: 16px;
@@ -83,6 +85,16 @@ export class UrgentFlights extends LitElement {
       th, td {
         padding: 8px 6px;
         font-size: 0.75rem; /* Celdas un poco más ajustadas */
+      }
+      
+      .table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        width: 100%;
+        margin-top: 0.5rem;
+      }
+      table {
+        white-space: nowrap;
       }
       .badge {
         padding: 2px 6px;
@@ -183,7 +195,8 @@ export class UrgentFlights extends LitElement {
           ? html`<div class="empty-state">No hay vuelos para mostrar.</div>`
           : html`
             <div class="table-container">
-              <table>
+              <div class="table-wrapper">
+        <table>
                 <thead>
                   <tr>
                     ${!isUrgent ? html`<th>Hora</th>` : ''}
@@ -240,6 +253,7 @@ export class UrgentFlights extends LitElement {
                   })}
                 </tbody>
               </table>
+      </div>
             </div>
           `
       }
