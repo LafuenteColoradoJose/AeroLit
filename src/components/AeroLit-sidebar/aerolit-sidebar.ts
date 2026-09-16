@@ -43,6 +43,17 @@ export class AerolitSidebar extends LitElement {
       border-bottom: 1px solid rgba(255,255,255,0.1);
     }
 
+    .logo-icon {
+      height: 24px;
+      width: auto;
+      vertical-align: middle;
+      margin-right: 8px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    }
+    :host([collapsed]) .logo-icon {
+      margin-right: 0;
+    }
+
     .logo {
       font-size: 1.5rem;
       font-weight: bold;
@@ -319,7 +330,7 @@ export class AerolitSidebar extends LitElement {
     return html`
       <div class="header">
         <div class="logo">
-          <img src="/aerolit-logo.svg" alt="AeroLit Logo" class="logo-icon" /> <span class="logo-text">AeroLit</span>
+          <img src="/AeroLit_logo.png" alt="AeroLit Logo" class="logo-icon" /> <span class="logo-text">AeroLit</span>
         </div>
         
       </div>
