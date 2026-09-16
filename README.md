@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="public/AeroLit_logo.png" alt="AeroLit Logo" width="150"/>
+</div>
+
 # AeroLit ✈️
 
 Una aplicación web moderna basada en **Web Components** para el seguimiento y visualización de vuelos y estado de aeropuertos en España. Construida con **Lit**, **Vite** en el frontend, y propulsada por un backend optimizado nativo en **Vercel Serverless Functions**.

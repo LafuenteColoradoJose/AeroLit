@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="public/AeroLit_logo.png" alt="AeroLit Logo" width="150"/>
+</div>
+
 # 🛠️ Manual Técnico · AeroLit
 
 <div align="center">
@@ -15,12 +19,18 @@
 
 ## 📋 Tabla de Contenidos
 
-1. [Arquitectura Full-Stack Serverless](#1-arquitectura-full-stack-serverless)
-2. [Estrategia de Datos: Evasión de Rate-Limits (Anti-WAF)](#2-estrategia-de-datos-evasi%C3%B3n-de-rate-limits-anti-waf)
-3. [Motor Híbrido y Simulación de Estado](#3-motor-h%C3%ADbrido-y-simulaci%C3%B3n-de-estado)
-4. [Protección de API de Radar en Vivo (ADSB.lol)](#4-protecci%C3%B3n-de-api-de-radar-en-vivo-adsblol)
-5. [Testing, Calidad y Documentación](#5-testing-calidad-y-documentaci%C3%B3n)
-6. [Desarrollo impulsado por IA Agéntica](#6-desarrollo-impulsado-por-ia-ag%C3%A9ntica)
+- [🛠️ Manual Técnico · AeroLit](#️-manual-técnico--aerolit)
+  - [📋 Tabla de Contenidos](#-tabla-de-contenidos)
+  - [1. Arquitectura Full-Stack Serverless](#1-arquitectura-full-stack-serverless)
+    - [Capa Cliente (Frontend)](#capa-cliente-frontend)
+    - [Capa Servidor (Backend Serverless)](#capa-servidor-backend-serverless)
+  - [2. Estrategia de Datos: Evasión de Rate-Limits (Anti-WAF)](#2-estrategia-de-datos-evasión-de-rate-limits-anti-waf)
+    - [⚠️ El Problema](#️-el-problema)
+    - [💡 La Solución: Parallel Chunking Engine en Serverless](#-la-solución-parallel-chunking-engine-en-serverless)
+  - [3. Motor Híbrido y Simulación de Estado](#3-motor-híbrido-y-simulación-de-estado)
+  - [4. Protección de API de Radar en Vivo (ADSB.lol)](#4-protección-de-api-de-radar-en-vivo-adsblol)
+  - [5. Testing, Calidad y Documentación](#5-testing-calidad-y-documentación)
+  - [6. Desarrollo impulsado por IA Agéntica (Agentic AI)](#6-desarrollo-impulsado-por-ia-agéntica-agentic-ai)
 
 ---
 

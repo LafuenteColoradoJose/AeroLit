@@ -1,20 +1,19 @@
-import { LitElement, html, css } from 'lit';
-import { customElement, state } from 'lit/decorators.js';
-import '@phosphor-icons/webcomponents/PhAirplane';
-import '@phosphor-icons/webcomponents/PhChartBar';
-import '@phosphor-icons/webcomponents/PhGear';
-import '@phosphor-icons/webcomponents/PhMoon';
-import '@phosphor-icons/webcomponents/PhSun';
-import '@phosphor-icons/webcomponents/PhCaretLeft';
-import '@phosphor-icons/webcomponents/PhCaretRight';
-import '@phosphor-icons/webcomponents/PhGlobeHemisphereWest';
-import '@phosphor-icons/webcomponents/PhCode';
-import '@phosphor-icons/webcomponents/PhGithubLogo';
-import '@phosphor-icons/webcomponents/PhLinkedinLogo';
+import { LitElement, html, css } from "lit";
+import { customElement, state } from "lit/decorators.js";
+import "@phosphor-icons/webcomponents/PhAirplane";
+import "@phosphor-icons/webcomponents/PhChartBar";
+import "@phosphor-icons/webcomponents/PhGear";
+import "@phosphor-icons/webcomponents/PhMoon";
+import "@phosphor-icons/webcomponents/PhSun";
+import "@phosphor-icons/webcomponents/PhCaretLeft";
+import "@phosphor-icons/webcomponents/PhCaretRight";
+import "@phosphor-icons/webcomponents/PhGlobeHemisphereWest";
+import "@phosphor-icons/webcomponents/PhCode";
+import "@phosphor-icons/webcomponents/PhGithubLogo";
+import "@phosphor-icons/webcomponents/PhLinkedinLogo";
 
-@customElement('aerolit-sidebar')
+@customElement("aerolit-sidebar")
 export class AerolitSidebar extends LitElement {
-
   @state()
   private isOpen = false;
 
@@ -40,7 +39,7 @@ export class AerolitSidebar extends LitElement {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .logo-icon {
@@ -48,7 +47,7 @@ export class AerolitSidebar extends LitElement {
       width: auto;
       vertical-align: middle;
       margin-right: 8px;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
     }
     :host([collapsed]) .logo-icon {
       margin-right: 0;
@@ -96,7 +95,7 @@ export class AerolitSidebar extends LitElement {
     }
 
     .nav-item:hover {
-      background-color: rgba(255,255,255,0.1);
+      background-color: rgba(255, 255, 255, 0.1);
       border-left: 4px solid var(--secondary-color);
     }
 
@@ -109,9 +108,9 @@ export class AerolitSidebar extends LitElement {
     .text {
       margin-left: 10px;
     }
-    
+
     /* Ocultar texto si está colapsado */
-    :host([collapsed]) .text, 
+    :host([collapsed]) .text,
     :host([collapsed]) .logo-text {
       display: none;
     }
@@ -179,7 +178,7 @@ export class AerolitSidebar extends LitElement {
 
     .footer {
       padding: 1rem;
-      border-top: 1px solid rgba(255,255,255,0.1);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
       margin-top: 1rem;
       display: flex;
       justify-content: center;
@@ -202,20 +201,28 @@ export class AerolitSidebar extends LitElement {
     }
 
     .theme-toggle-btn:hover {
-      background-color: rgba(255,255,255,0.1);
+      background-color: rgba(255, 255, 255, 0.1);
     }
 
     :host([collapsed]) .theme-text {
       display: none;
     }
-    
-    ph-chart-bar, ph-airplane, ph-gear, ph-moon, ph-sun, ph-caret-left, ph-caret-right, ph-globe-hemisphere-west {
+
+    ph-chart-bar,
+    ph-airplane,
+    ph-gear,
+    ph-moon,
+    ph-sun,
+    ph-caret-left,
+    ph-caret-right,
+    ph-globe-hemisphere-west {
       font-size: 1.5rem;
     }
 
     /* Estilos Responsivos (Móviles) */
     @media (max-width: 768px) {
-      :host, :host([collapsed]) {
+      :host,
+      :host([collapsed]) {
         width: 100vw !important;
         height: 65px;
         flex-direction: row;
@@ -244,108 +251,139 @@ export class AerolitSidebar extends LitElement {
       .icon {
         margin: 0;
       }
-      .text, :host([collapsed]) .text, .author-credits {
+
+
+
+      .text,
+      :host([collapsed]) .text,
+      .author-credits {
         display: none !important;
       }
+
       .footer {
         border-top: none;
-        border-left: 1px solid rgba(255,255,255,0.1);
+        border-left: 1px solid rgba(255, 255, 255, 0.1);
         padding: 0 1rem;
       }
     }
   `;
 
   @state()
-  private currentTheme: 'light' | 'dark' = 'light';
+  private currentTheme: "light" | "dark" = "light";
 
   connectedCallback() {
     super.connectedCallback();
     this.initTheme();
     // Siempre iniciamos colapsados (icons only) por defecto
     this.isOpen = false;
-    this.setAttribute('collapsed', '');
+    this.setAttribute("collapsed", "");
 
-    this.addEventListener('mouseenter', this.handleMouseEnter);
-    this.addEventListener('mouseleave', this.handleMouseLeave);
+    this.addEventListener("mouseenter", this.handleMouseEnter);
+    this.addEventListener("mouseleave", this.handleMouseLeave);
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
-    this.removeEventListener('mouseenter', this.handleMouseEnter);
-    this.removeEventListener('mouseleave', this.handleMouseLeave);
+    this.removeEventListener("mouseenter", this.handleMouseEnter);
+    this.removeEventListener("mouseleave", this.handleMouseLeave);
   }
 
   private handleMouseEnter = () => {
     // Expandir en desktop al hacer hover
     if (window.innerWidth > 768) {
       this.isOpen = true;
-      this.removeAttribute('collapsed');
+      this.removeAttribute("collapsed");
     }
-  }
+  };
 
   private handleMouseLeave = () => {
     // Colapsar al quitar el ratón
     if (window.innerWidth > 768) {
       this.isOpen = false;
-      this.setAttribute('collapsed', '');
+      this.setAttribute("collapsed", "");
     }
-  }
+  };
 
   private initTheme() {
     // 1. Mirar si hay preferencia guardada
-    const savedTheme = localStorage.getItem('aerolit-theme') as 'light' | 'dark' | null;
-    
+    const savedTheme = localStorage.getItem("aerolit-theme") as
+      | "light"
+      | "dark"
+      | null;
+
     if (savedTheme) {
       this.currentTheme = savedTheme;
     } else {
       // 2. Si no hay guardada, mirar preferencia del SO
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      this.currentTheme = prefersDark ? 'dark' : 'light';
+      const prefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)",
+      ).matches;
+      this.currentTheme = prefersDark ? "dark" : "light";
     }
 
     this.applyTheme(this.currentTheme);
   }
 
   private toggleTheme() {
-    this.currentTheme = this.currentTheme === 'light' ? 'dark' : 'light';
-    localStorage.setItem('aerolit-theme', this.currentTheme);
+    this.currentTheme = this.currentTheme === "light" ? "dark" : "light";
+    localStorage.setItem("aerolit-theme", this.currentTheme);
     this.applyTheme(this.currentTheme);
   }
 
-  private applyTheme(theme: 'light' | 'dark') {
-    document.documentElement.setAttribute('data-theme', theme);
+  private applyTheme(theme: "light" | "dark") {
+    document.documentElement.setAttribute("data-theme", theme);
   }
-
-  
 
   private navigate(e: Event, path: string) {
     e.preventDefault();
-    window.history.pushState({}, '', path);
-    window.dispatchEvent(new Event('popstate'));
-    
-    
+    window.history.pushState({}, "", path);
+    window.dispatchEvent(new Event("popstate"));
   }
 
   render() {
     return html`
       <div class="header">
         <div class="logo">
-          <img src="/AeroLit_logo.png" alt="AeroLit Logo" class="logo-icon" /> <span class="logo-text">AeroLit</span>
+          <img src="/AeroLit_logo.png" alt="AeroLit Logo" class="logo-icon" />
+          <span class="logo-text">AeroLit</span>
         </div>
-        
       </div>
 
       <nav class="nav-links">
-        <a class="nav-item" href="/" aria-label="Ir al Inicio (Dashboard)" title="Dashboard" @click=${(e: Event) => this.navigate(e, '/')}>
-          <span class="icon"><ph-chart-bar weight="duotone"></ph-chart-bar></span>
+        <a
+          class="nav-item"
+          href="/"
+          aria-label="Ir al Inicio (Dashboard)"
+          title="Dashboard"
+          @click=${(e: Event) => this.navigate(e, "/")}
+        >
+          <span class="icon"
+            ><ph-chart-bar weight="duotone"></ph-chart-bar
+          ></span>
           <span class="text">Dashboard</span>
         </a>
-        <a class="nav-item" href="/flights" aria-label="Ir al listado de vuelos" title="Vuelos" @click=${(e: Event) => this.navigate(e, '/flights')}>
+        <a
+          class="nav-item"
+          href="/flights"
+          aria-label="Ir al listado de vuelos"
+          title="Vuelos"
+          @click=${(e: Event) => this.navigate(e, "/flights")}
+        >
           <span class="icon"><ph-airplane weight="duotone"></ph-airplane></span>
           <span class="text">Vuelos</span>
         </a>
-        <a class="nav-item" href="/radar" aria-label="Abrir el mapa del radar en vivo" title="Radar" @click=${(e: Event) => this.navigate(e, '/radar')}>
-          <span class="icon"><ph-globe-hemisphere-west weight="duotone"></ph-globe-hemisphere-west></span>
+        <a
+          class="nav-item"
+          href="/radar"
+          aria-label="Abrir el mapa del radar en vivo"
+          title="Radar"
+          @click=${(e: Event) => this.navigate(e, "/radar")}
+        >
+          <span class="icon"
+            ><ph-globe-hemisphere-west
+              weight="duotone"
+            ></ph-globe-hemisphere-west
+          ></span>
           <span class="text">Radar en Vivo</span>
         </a>
       </nav>
@@ -354,27 +392,53 @@ export class AerolitSidebar extends LitElement {
         <div class="developed-by">
           <ph-code weight="bold"></ph-code> Desarrollado por
         </div>
-        <a class="author-name" href="https://www.joselafuente.dev" target="_blank" rel="noopener" aria-label="Portfolio de José Lafuente">
+        <a
+          class="author-name"
+          href="https://www.joselafuente.dev"
+          target="_blank"
+          rel="noopener"
+          aria-label="Portfolio de José Lafuente"
+        >
           José Lafuente
         </a>
         <div class="social-links">
-          <a class="social-link" href="https://github.com/LafuenteColoradoJose" target="_blank" rel="noopener" aria-label="Perfil de GitHub" title="GitHub">
+          <a
+            class="social-link"
+            href="https://github.com/LafuenteColoradoJose"
+            target="_blank"
+            rel="noopener"
+            aria-label="Perfil de GitHub"
+            title="GitHub"
+          >
             <ph-github-logo weight="fill"></ph-github-logo>
           </a>
-          <a class="social-link" href="https://www.linkedin.com/in/joselafuentecolorado" target="_blank" rel="noopener" aria-label="Perfil de LinkedIn" title="LinkedIn">
+          <a
+            class="social-link"
+            href="https://www.linkedin.com/in/joselafuentecolorado"
+            target="_blank"
+            rel="noopener"
+            aria-label="Perfil de LinkedIn"
+            title="LinkedIn"
+          >
             <ph-linkedin-logo weight="fill"></ph-linkedin-logo>
           </a>
         </div>
+
       </div>
 
       <div class="footer">
-        <button class="theme-toggle-btn" @click=${this.toggleTheme} title="${this.currentTheme === 'light' ? 'Cambiar a Modo Oscuro' : 'Cambiar a Modo Claro'}">
+        <button
+          class="theme-toggle-btn"
+          @click=${this.toggleTheme}
+          title="${this.currentTheme === "light"
+            ? "Cambiar a Modo Oscuro"
+            : "Cambiar a Modo Claro"}"
+        >
           <span class="icon">
-            ${this.currentTheme === 'light' 
-              ? html`<ph-moon weight="duotone"></ph-moon>` 
+            ${this.currentTheme === "light"
+              ? html`<ph-moon weight="duotone"></ph-moon>`
               : html`<ph-sun weight="duotone"></ph-sun>`}
           </span>
-          
         </button>
       </div>
     `;
@@ -383,6 +447,6 @@ export class AerolitSidebar extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'aerolit-sidebar': AerolitSidebar;
+    "aerolit-sidebar": AerolitSidebar;
   }
 }

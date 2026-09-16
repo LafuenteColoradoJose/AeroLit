@@ -234,6 +234,7 @@ export class AerolitDashboard extends LitElement {
           <a class="author-name" href="https://www.joselafuente.dev" target="_blank" rel="noopener" aria-label="Portfolio de José Lafuente">
             José Lafuente
           </a>
+          <img src="/AeroLit_logo.png" alt="AeroLit Logo" style="height: 24px; margin-bottom: 1rem; opacity: 0.9;" />
           <div class="social-links">
             <a class="social-link" href="https://github.com/LafuenteColoradoJose" target="_blank" rel="noopener" aria-label="Perfil de GitHub" title="GitHub">
               <ph-github-logo weight="fill"></ph-github-logo>
