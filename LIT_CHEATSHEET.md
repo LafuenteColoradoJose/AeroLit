@@ -1,49 +1,129 @@
+---
+pdf_options:
+  displayHeaderFooter: true
+  headerTemplate: "<span></span>"
+  footerTemplate: "<div style=\"width: 100%; text-align: center; font-size: 10px; padding-bottom: 5px;\">Página <span class=\"pageNumber\"></span> de <span class=\"totalPages\"></span></div>"
+  margin:
+    top: "20mm"
+    bottom: "20mm"
+    left: "25mm"
+    right: "20mm"
+---
 <div align="center" style="margin-bottom: 20px;">
-  <img src="https://lit.dev/images/logo.svg" height="50" alt="Lit" style="margin-right: 20px;">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/4/4c/Typescript_logo_2020.svg" height="50" alt="TypeScript" style="margin-right: 20px;">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/9/99/Unofficial_JavaScript_logo_2.svg" height="50" alt="JavaScript">
+  <img src="https://lit.dev/images/logo.svg" height="50" alt="Lit Logo">
 </div>
 
-<h1 align="center">Lit - Cheat Sheet (Guía Profesional)</h1>
-<p align="center"><b>Stack:</b> TypeScript, Lit 3.x, Vite, Web Components.</p>
+<h1 align="center">Lit - Cheat Sheet</h1>
+<p align="center">Construye Web Components rápidos y ligeros basados en los estándares de la plataforma web.</p>
+<p align="center"><b>Stack: Lit 3.x | TypeScript</b></p>
 
----
 <style>
-  @media print {
-    pre, table, blockquote, tr, code, li { page-break-inside: avoid !important; break-inside: avoid !important; }
-    ul, p, h2, h3 { page-break-inside: avoid !important; break-inside: avoid !important; }
-    .page-break { page-break-before: always; }
+  .two-columns {
+    column-count: 2;
+    column-gap: 40px;
+    font-size: 0.9em;
   }
-  .heading-container { display: flex; align-items: center; gap: 10px; margin-top: 1rem; }
-  .doc-link { text-decoration: none; color: #666; font-size: 0.9em; margin-bottom: 15px; display: inline-block; }
-  h2 { margin-bottom: 0.2rem; }
+  
+  @media print {
+    /* Evitar que los títulos se queden huérfanos al final de la página */
+    h1, h2, h3, h4 { 
+      page-break-after: avoid !important; 
+      break-after: avoid !important; 
+      margin-bottom: 4px;
+    }
+    
+    /* Evitar romper bloques de código o tablas, pero PERMITIR romper texto/párrafos 
+       para que no queden huecos blancos enormes al final de las páginas */
+    
+    p, ul, li, pre, blockquote, table, tr, img { 
+      page-break-inside: avoid !important; 
+      break-inside: avoid !important; 
+    }
+    
+    pre {
+      display: inline-block !important;
+      width: 100% !important;
+      margin: 0 !important;
+    }
+    
+    .page-break { 
+      page-break-before: always; 
+      break-before: page; 
+    }
+  }
 </style>
 
+---
+
 ## 📑 Índice
-- [1. Inicialización Rápida](#sec-1)
-- [2. Decoradores Principales (TypeScript)](#sec-2)
-- [3. Template Syntax (lit-html)](#sec-3)
-- [4. Flujo de Control Estándar](#sec-4)
-- [5. Arquitectura: Flujo Unidireccional](#sec-5)
-- [6. Directivas de Estilos Dinámicos](#sec-6)
-- [7. Ciclo de Vida del Web Component](#sec-7)
-- [8. Rendimiento: Renderizado Indexado (repeat)](#sec-8)
-- [9. Flujo de Control Funcional Avanzado](#sec-9)
-- [10. Micro-optimizaciones del DOM](#sec-10)
-- [11. Context API (@lit/context)](#sec-11)
-- [12. Shadow DOM y Proyección (Slots)](#sec-12)
-- [13. Controladores Reactivos](#sec-13)
-- [14. Formularios y Extracción de Datos](#sec-14)
+
+<div class="two-columns">
+
+- [1. INTRODUCTION](#1-introduction) *(p. 2)*
+  - [What is Lit?](#what-is-lit) *(p. 2)*
+  - [Getting Started](#getting-started) *(p. 2)*
+- [2. COMPONENTS](#2-components) *(p. 2)*
+  - [Defining](#defining) *(p. 2)*
+  - [Rendering](#rendering) *(p. 2)*
+  - [Reactive properties](#reactive-properties) *(p. 3)*
+  - [Styles](#styles) *(p. 3)*
+  - [Lifecycle](#lifecycle) *(p. 3)*
+  - [Shadow DOM](#shadow-dom) *(p. 3)*
+  - [Events](#events) *(p. 4)*
+  - [Decorators](#decorators) *(p. 4)*
+  - [Data Flow (Comunicación Padre-Hijo)](#data-flow-comunicacion-padre-hijo) *(p. 4)*
+- [3. TEMPLATES](#3-templates) *(p. 5)*
+  - [Expressions](#expressions) *(p. 5)*
+  - [Conditionals](#conditionals) *(p. 5)*
+  - [Lists](#lists) *(p. 5)*
+  - [Built-in directives](#built-in-directives) *(p. 6)*
+  - [Custom directives](#custom-directives) *(p. 6)*
+- [4. COMPOSITION](#4-composition) *(p. 6)*
+  - [Slots](#slots) *(p. 6)*
+  - [Controllers](#controllers) *(p. 7)*
+- [5. MANAGING DATA](#5-managing-data) *(p. 7)*
+  - [Context](#context) *(p. 7)*
+  - [Tasks](#tasks) *(p. 7)*
+- [6. TOOLS AND WORKFLOWS](#6-tools-and-workflows) *(p. 8)*
+  - [Requirements & Development](#requirements--development) *(p. 8)*
+  - [Testing](#testing) *(p. 8)*
+  - [Publishing & Production](#publishing--production) *(p. 8)*
+  - [Starter kits & Adding Lit](#starter-kits--adding-lit) *(p. 8)*
+- [7. SERVER RENDERING 🧪](#7-server-rendering-) *(p. 9)*
+  - [Overview](#overview) *(p. 9)*
+  - [Server usage](#server-usage) *(p. 9)*
+  - [Client usage (Hydration)](#client-usage-hydration) *(p. 9)*
+  - [Authoring components](#authoring-components) *(p. 9)*
+  - [DOM emulation](#dom-emulation) *(p. 9)*
+- [8. FRAMEWORKS](#8-frameworks) *(p. 10)*
+  - [React](#react) *(p. 10)*
+- [9. LOCALIZATION (@lit/localize)](#9-localization-litlocalize) *(p. 11)*
+  - [Overview](#overview-1) *(p. 11)*
+  - [Runtime mode](#runtime-mode) *(p. 11)*
+  - [Transform mode](#transform-mode) *(p. 11)*
+  - [CLI and config](#cli-and-config) *(p. 11)*
+  - [Best practices](#best-practices) *(p. 11)*
+- [10. RELATED LIBRARIES](#10-related-libraries) *(p. 12)*
+  - [Standalone lit-html](#standalone-lit-html) *(p. 12)*
+  - [Lit Labs 🧪](#lit-labs-) *(p. 12)*
+
+</div>
+
+<div class="page-break"></div>
 
 ---
 
-<div class="page-break"></div>
-<a name="sec-1"></a>
-<h2><img src="https://api.iconify.design/lucide:rocket.svg?color=%23324fff" width="28" align="absmiddle"> 1. Inicialización Rápida</h2>
-<a href="https://lit.dev/docs/getting-started/" class="doc-link" target="_blank"><img src="https://api.iconify.design/lucide:external-link.svg?color=%23666" width="14" align="absmiddle"> Leer en lit.dev</a>
+## 1. INTRODUCTION
 
-Creación de un proyecto moderno usando el template oficial de TypeScript.
+### What is Lit?
+<a href="https://lit.dev/docs/getting-started/#what-is-lit" target="_blank">📖 Leer en lit.dev</a>
 
+Lit es una biblioteca ligera (aprox. 5kb) desarrollada por Google. Proporciona una base reactiva y plantillas declarativas para facilitar la creación de **Web Components** nativos, compatibles con cualquier framework (React, Angular, Vue) o sin ninguno.
+
+### Getting Started
+<a href="https://lit.dev/docs/getting-started/" target="_blank">📖 Leer en lit.dev</a>
+
+Inicializa un proyecto base con TypeScript (recomendado):
 ```bash
 npm create vite@latest my-lit-app -- --template lit-ts
 cd my-lit-app
@@ -51,390 +131,492 @@ npm install
 npm run dev
 ```
 
-<div class="page-break"></div>
-<a name="sec-2"></a>
-<h2><img src="https://api.iconify.design/lucide:tag.svg?color=%23324fff" width="28" align="absmiddle"> 2. Decoradores Principales (TypeScript)</h2>
-<a href="https://lit.dev/docs/components/properties/" class="doc-link" target="_blank"><img src="https://api.iconify.design/lucide:external-link.svg?color=%23666" width="14" align="absmiddle"> Leer en lit.dev</a>
+---
 
-Imports desde `lit/decorators.js`. Lit utiliza el estándar de decoradores de TypeScript para simplificar la creación de Web Components.
+## 2. COMPONENTS
 
-| Decorador | Descripción |
-| :--- | :--- |
-| `@customElement('my-tag')` | Registra la clase como un Custom Element nativo en el DOM del navegador. |
-| `@property({ type: Type })`| Define una propiedad pública reactiva (API del componente). Acepta `String`, `Number`, `Boolean`, `Object`, `Array`. Si su valor cambia, el componente se re-renderiza. |
-| `@state()` | Define un estado interno, privado y reactivo de la clase. Altera la vista cuando cambia. |
-| `@query('#my-id')` | Obtiene una referencia asíncrona, segura y tipada a un nodo interno del Shadow DOM. |
+### Defining
+<a href="https://lit.dev/docs/components/defining/" target="_blank">📖 Leer en lit.dev</a>
 
-> **⚠️ Tip de Mutabilidad:** Lit observa los cambios por *referencia*. Si tu `@state()` o `@property()` es un **Array u Objeto**, mutarlo directamente (ej. `this.arr.push(1)`) **NO** repintará la pantalla. Debes asignar una nueva referencia (`this.arr = [...this.arr, 1]`) o llamar manualmente al método `this.requestUpdate()`.
+Un componente Lit extiende de `LitElement`. Para registrarlo en el navegador, se usa el decorador `@customElement`.
 
-<div class="page-break"></div>
-<a name="sec-3"></a>
-<h2><img src="https://api.iconify.design/lucide:layout-template.svg?color=%23324fff" width="28" align="absmiddle"> 3. Template Syntax (lit-html)</h2>
-<a href="https://lit.dev/docs/templates/expressions/" class="doc-link" target="_blank"><img src="https://api.iconify.design/lucide:external-link.svg?color=%23666" width="14" align="absmiddle"> Leer en lit.dev</a>
-
-Enlaza los datos de la clase TypeScript al HTML de forma puramente declarativa dentro de la función `render()`.
-
-*   **Data Binding (Texto):** Interpolación directa de valores.
-    ```typescript
-    html`<p>Hola, ${this.nombre}</p>`
-    ```
-*   **Property Binding (`.`):** Para pasar estructuras de datos complejas (objetos, arrays) hacia otros Web Components anidados.
-    ```typescript
-    html`<mi-componente .usuario=${this.userObj}></mi-componente>`
-    ```
-*   **Attribute Binding (sin prefijo):** Para inyectar valores en atributos HTML nativos de tipo string o numérico.
-    ```typescript
-    html`<div id=${this.dynamicId}></div>`
-    ```
-*   **Boolean Attribute (`?`):** Inserta o elimina un atributo en el DOM dinámicamente basado en una evaluación booleana (ideal para `disabled`, `readonly`, `hidden`).
-    ```typescript
-    html`<button ?disabled=${this.isLoading}>Enviar</button>`
-    ```
-*   **Event Binding (`@`):** Adjunta un *Event Listener* estándar (nativos o CustomEvents) al elemento.
-    ```typescript
-    html`<button @click=${this.handleClick}>Click</button>`
-    ```
-
-<div class="page-break"></div>
-<a name="sec-4"></a>
-<h2><img src="https://api.iconify.design/lucide:git-branch.svg?color=%23324fff" width="28" align="absmiddle"> 4. Flujo de Control Estándar</h2>
-<a href="https://lit.dev/docs/templates/conditionals/" class="doc-link" target="_blank"><img src="https://api.iconify.design/lucide:external-link.svg?color=%23666" width="14" align="absmiddle"> Leer en lit.dev</a>
-
-Lit no usa motores de plantillas pesados; delega toda la lógica de control a la sintaxis nativa de JavaScript/TypeScript.
-
-### Condicionales (If / Else)
-Tienes dos formas principales según la complejidad:
-*   **En línea (Ternario):** Ideal para alternar bloques simples.
-    ```typescript
-    html`${this.hasAccess ? html`<button>Entrar</button>` : html`<p>Denegado</p>`}`
-    ```
-*   **Bloque clásico (Fuera del HTML):** Si la condición es muy compleja, usa un `if` nativo antes de retornar.
-    ```typescript
-    render() {
-      if (this.isLoading) return html`<loading-spinner></loading-spinner>`;
-      return html`<main-content></main-content>`;
-    }
-    ```
-
-### Bucles y Listas (For)
-Tampoco hay directivas especiales, se manipulan arrays de forma nativa:
-*   **Mapeo en línea (`.map`):** La forma estándar.
-    ```typescript
-    html`
-      <ul>
-        ${this.items.map((item: Item) => html`<li>${item.name}</li>`)}
-      </ul>
-    `
-    ```
-*   **Bucle clásico (`for...of`):** Útil si necesitas filtrar u operar con lógica antes de pintar.
-    ```typescript
-    render() {
-      const listHtml = [];
-      for (const item of this.items) {
-        if (item.isActive) listHtml.push(html`<li>${item.name}</li>`);
-      }
-      return html`<ul>${listHtml}</ul>`;
-    }
-    ```
-
-<div class="page-break"></div>
-<a name="sec-5"></a>
-<h2><img src="https://api.iconify.design/lucide:arrow-down-up.svg?color=%23324fff" width="28" align="absmiddle"> 5. Arquitectura: Flujo Unidireccional</h2>
-<a href="https://lit.dev/docs/components/events/" class="doc-link" target="_blank"><img src="https://api.iconify.design/lucide:external-link.svg?color=%23666" width="14" align="absmiddle"> Leer en lit.dev</a>
-
-La regla de oro para la comunicación entre componentes Web es: **Propiedades hacia abajo, Eventos hacia arriba.**
-
-### ⬇️ Hacia los Hijos (Inyección de Propiedades)
-El componente superior expone y transmite los datos usando la sintaxis de punto (`.`).
 ```typescript
-// En el componente Superior (Padre):
-html`<item-card .item=${this.miDato}></item-card>`
+import { LitElement } from 'lit';
+import { customElement } from 'lit/decorators.js';
 
-// En el componente Inferior (item-card.ts):
-@property({ type: Object }) item?: Item;
+@customElement('simple-greeting')
+export class SimpleGreeting extends LitElement { }
 ```
 
-### ⬆️ Hacia los Padres (Despacho de Eventos)
-El componente inferior emite eventos personalizados usando la API nativa `CustomEvent`, configurada para traspasar el límite del Shadow DOM.
+### Rendering
+<a href="https://lit.dev/docs/components/rendering/" target="_blank">📖 Leer en lit.dev</a>
+
+El método `render()` devuelve un literal de plantilla `html`. Se ejecuta automáticamente cuando cambian las propiedades reactivas.
+
 ```typescript
-// En el componente Inferior (Despacha):
-private seleccionar(): void {
-  this.dispatchEvent(new CustomEvent('item-seleccionado', {
-    detail: { id: this.item?.id },
-    bubbles: true, 
-    composed: true // Atraviesa el Shadow DOM
+import { html } from 'lit';
+
+render() {
+  return html`<p>¡Hola Mundo!</p>`;
+}
+```
+
+<div class="page-break"></div>
+
+### Reactive properties
+<a href="https://lit.dev/docs/components/properties/" target="_blank">📖 Leer en lit.dev</a>
+
+*   **`@property` (Públicas):** Forman parte de la API del componente (Atributos HTML).
+*   **`@state` (Privadas):** Estado interno del componente.
+
+```typescript
+import { property, state } from 'lit/decorators.js';
+
+@property({ type: String, attribute: 'user-name' }) name = 'Anónimo';
+@property({ type: Number }) count = 0;
+@state() private _isOpen = false;
+```
+
+### Styles
+<a href="https://lit.dev/docs/components/styles/" target="_blank">📖 Leer en lit.dev</a>
+
+Definidos usando `css` e inyectados en el Shadow DOM, encapsulando el diseño.
+
+```typescript
+import { css } from 'lit';
+
+static styles = css`
+  :host { display: block; color: var(--theme-color, blue); }
+`;
+```
+
+### Lifecycle
+<a href="https://lit.dev/docs/components/lifecycle/" target="_blank">📖 Leer en lit.dev</a>
+
+*   **`connectedCallback()`**: Insertado en el DOM (¡Llamar a `super.connectedCallback()`!).
+*   **`disconnectedCallback()`**: Eliminado del DOM (Limpieza).
+*   **`willUpdate()`**: Antes del render. Para calcular variables derivadas.
+*   **`firstUpdated()`**: Después del primer render. El DOM local ya existe.
+*   **`updated()`**: Después de cada renderizado.
+
+### Shadow DOM
+<a href="https://lit.dev/docs/components/shadow-dom/" target="_blank">📖 Leer en lit.dev</a>
+
+Por defecto, Lit usa Shadow DOM (`this.renderRoot`). Para renderizar en el Light DOM global:
+```typescript
+protected createRenderRoot() { return this; }
+```
+
+<div class="page-break"></div>
+
+### Events
+<a href="https://lit.dev/docs/components/events/" target="_blank">📖 Leer en lit.dev</a>
+
+*   **Escuchar:** `@click=${this._handler}`
+*   **Despachar:** Usa la API nativa `CustomEvent`.
+
+```typescript
+private _dispatchClick() {
+  this.dispatchEvent(new CustomEvent('my-event', {
+    detail: { message: 'Hola' },
+    bubbles: true, composed: true // Cruza el Shadow DOM
   }));
 }
-
-// En el componente Superior (Escucha):
-html`<item-card @item-seleccionado=${this.manejarSeleccion}></item-card>`
-
-private manejarSeleccion(event: CustomEvent<{id: string}>): void {
-  console.log("Elemento seleccionado ID:", event.detail.id);
-}
 ```
 
-<div class="page-break"></div>
-<a name="sec-6"></a>
-<h2><img src="https://api.iconify.design/lucide:paint-bucket.svg?color=%23324fff" width="28" align="absmiddle"> 6. Directivas de Estilos Dinámicos</h2>
-<a href="https://lit.dev/docs/templates/directives/#classmap-and-stylemap" class="doc-link" target="_blank"><img src="https://api.iconify.design/lucide:external-link.svg?color=%23666" width="14" align="absmiddle"> Leer en lit.dev</a>
+### Decorators
+<a href="https://lit.dev/docs/components/decorators/" target="_blank">📖 Leer en lit.dev</a>
 
-Imports desde `lit/directives/...`
+*   **`@query('#my-id')`**: Referencia al primer elemento en el Shadow DOM.
+*   **`@queryAll('.item')`**: Referencia a todos los elementos coincidentes.
+*   **`@queryAsync('#my-id')`**: Devuelve una promesa del elemento (útil si está condicionado).
 
-*   **classMap:** Evalúa y aplica clases CSS al elemento de manera reactiva y limpia.
-    ```typescript
-    import { classMap } from 'lit/directives/class-map.js';
-    
-    const classes = { active: this.isActive, error: this.hasError };
-    html`<div class=${classMap(classes)}></div>`
-    ```
-*   **styleMap:** Genera estilos en línea (inline-styles) reaccionando al estado local.
-    ```typescript
-    import { styleMap } from 'lit/directives/style-map.js';
-    
-    const styles = { color: 'red', marginTop: '10px' };
-    html`<div style=${styleMap(styles)}></div>`
-    ```
+### Data Flow (Comunicación Padre-Hijo)
+El flujo de datos en Web Components sigue una regla de oro: **Propiedades hacia abajo, Eventos hacia arriba**.
 
-<div class="page-break"></div>
-<a name="sec-7"></a>
-<h2><img src="https://api.iconify.design/lucide:clock.svg?color=%23324fff" width="28" align="absmiddle"> 7. Ciclo de Vida del Web Component</h2>
-<a href="https://lit.dev/docs/components/lifecycle/" class="doc-link" target="_blank"><img src="https://api.iconify.design/lucide:external-link.svg?color=%23666" width="14" align="absmiddle"> Leer en lit.dev</a>
+```text
+      [ COMPONENTE PADRE ]
+        │              ▲
+Propiedades (.dato)    │
+   Hacia abajo         │ Eventos (@evento)
+        │              │ Hacia arriba
+        ▼              │
+      [ COMPONENTE HIJO ]
+```
 
-Métodos base heredados de `LitElement` que facilitan enganchar lógica en puntos deterministas del renderizado.
-
-| Método | Descripción y Casos de Uso |
-| :--- | :--- |
-| `connectedCallback()` | El elemento se ha añadido físicamente al DOM. Instante recomendado para arrancar `setInterval`, adjuntar `addEventListener` a `window` o iniciar peticiones asíncronas. **Es imperativo llamar a `super.connectedCallback()`**. |
-| `firstUpdated()` | Lit ha completado el primer renderizado. El árbol HTML local está disponible; seguro para leer medidas físicas, canvas o instanciar librerías de terceros (ej. Chart.js) seleccionando nodos con `@query`. |
-| `updated(changedProps)` | Se invoca tras cada ciclo de repintado exitoso. Contiene un `Map` para revisar si mutó una propiedad en concreto frente a su valor anterior. |
-| `disconnectedCallback()` | El elemento se ha desmontado del DOM. **Obligatorio** para recolección de basura (limpiar event listeners remotos, limpiar timers) y evitar *memory leaks*. |
-
-<div class="page-break"></div>
-<a name="sec-8"></a>
-<h2><img src="https://api.iconify.design/lucide:zap.svg?color=%23324fff" width="28" align="absmiddle"> 8. Rendimiento: Renderizado Indexado (repeat)</h2>
-<a href="https://lit.dev/docs/templates/directives/#repeat" class="doc-link" target="_blank"><img src="https://api.iconify.design/lucide:external-link.svg?color=%23666" width="14" align="absmiddle"> Leer en lit.dev</a>
-
-Para evitar los cuellos de botella del `.map()` estándar (que destruye y reconstruye todos los nodos DOM si cambia el índice o el orden), la directiva `repeat()` asocia nodos a una llave única para moverlos en lugar de borrarlos.
-
+**Ejemplo Práctico:**
 ```typescript
-import { repeat } from 'lit/directives/repeat.js';
+// 🔼 COMPONENTE PADRE (Superior)
+// Inyecta los datos hacia abajo (.user) y escucha eventos hacia arriba (@user-updated)
+html`<user-card .user=${this.currentUser} @user-updated=${this._onUpdate}></user-card>`
 
-html`
-  <ul>
-    ${repeat(
-      this.items, 
-      (item: Item) => item.id, // Identity Key (inmutable)
-      (item: Item, index: number) => html`<li>${index}: ${item.name}</li>`
-    )}
-  </ul>
-`
+// --------------------------------------------------------------------------
+
+// 🔽 COMPONENTE HIJO (Inferior - user-card)
+// 1. Expone la propiedad pública para recibir los datos del padre
+@property({ type: Object }) user = {};
+
+// 2. En alguna interacción, despacha el evento hacia arriba informando al padre
+this.dispatchEvent(new CustomEvent('user-updated', { detail: this.user }));
 ```
 
 <div class="page-break"></div>
-<a name="sec-9"></a>
-<h2><img src="https://api.iconify.design/lucide:brain.svg?color=%23324fff" width="28" align="absmiddle"> 9. Flujo de Control Funcional Avanzado</h2>
-<a href="https://lit.dev/docs/templates/directives/#cache" class="doc-link" target="_blank"><img src="https://api.iconify.design/lucide:external-link.svg?color=%23666" width="14" align="absmiddle"> Leer en lit.dev</a>
 
-Lit provee directivas declarativas para simplificar ternarios anidados y agilizar el motor del DOM virtual.
+## 3. TEMPLATES
 
-*   **Cache:** Extrae el fragmento condicional inactivo y lo pausa en memoria en lugar de destruirlo físicamente. Óptimo al alternar componentes complejos como vistas o pestañas para garantizar recargas instantáneas.
+### Expressions
+<a href="https://lit.dev/docs/templates/expressions/" target="_blank">📖 Leer en lit.dev</a>
+
+*   **Texto:** <code>html`&lt;p&gt;${this.name}&lt;/p&gt;`</code>
+*   **Atributos:** <code>html`&lt;div id=${this.id}&gt;&lt;/div&gt;`</code>
+*   **Booleanos (`?`):** <code>html`&lt;input ?disabled=${this.isDisabled}&gt;`</code>
+*   **Propiedades (`.`):** Pasa objetos. <code>html`&lt;my-list .items=${this.arrayData}&gt;&lt;/my-list&gt;`</code>
+*   **Eventos (`@`):** <code>html`&lt;button @click=${this._handleClick}&gt;&lt;/button&gt;`</code>
+
+### Conditionals
+<a href="https://lit.dev/docs/templates/conditionals/" target="_blank">📖 Leer en lit.dev</a>
+
+Usa JS estándar (`if`, ternarios) o directivas.
+*   **Ternarios:** <code>html`${this.active ? html`&lt;b&gt;Sí&lt;/b&gt;` : html`&lt;i&gt;No&lt;/i&gt;`}`</code>
+*   **`cache()`:** Mantiene en memoria componentes inactivos en lugar de destruirlos. Ideal para vistas pesadas.
     ```typescript
     import { cache } from 'lit/directives/cache.js';
+    html`${cache(this.active ? html`<vista-a></vista-a>` : html`<vista-b></vista-b>`)}`
+    ```
+
+### Lists
+<a href="https://lit.dev/docs/templates/lists/" target="_blank">📖 Leer en lit.dev</a>
+
+*   **`.map()` nativo:**
+    ```typescript
+    html`<ul>${this.items.map(item => html`<li>${item}</li>`)}</ul>`
+    ```
+*   **`repeat()`:** Renderizado indexado eficiente. Si el array cambia de orden, recicla los nodos DOM existentes basándose en una clave (key) única.
+    ```typescript
+    import { repeat } from 'lit/directives/repeat.js';
     
-    html`${cache(this.vista === 'lista' ? html`<vista-lista></vista-lista>` : html`<vista-grid></vista-grid>`)}`
-    ```
-*   **When:** Directiva sintáctica que remplaza las expresiones ternarias aportando legibilidad al *early return*.
-    ```typescript
-    import { when } from 'lit/directives/when.js';
-    
-    html`${when(
-      this.user, 
-      () => html`<p>Bienvenido ${this.user!.name}</p>`, 
-      () => html`<p>Sesión expirada</p>`
-    )}`
+    html`<ul>
+      ${repeat(this.items, (item) => item.id, (item) => html`<li>${item.name}</li>`)}
+    </ul>`
     ```
 
 <div class="page-break"></div>
-<a name="sec-10"></a>
-<h2><img src="https://api.iconify.design/lucide:gauge.svg?color=%23324fff" width="28" align="absmiddle"> 10. Micro-optimizaciones del DOM</h2>
-<a href="https://lit.dev/docs/components/lifecycle/#willupdate" class="doc-link" target="_blank"><img src="https://api.iconify.design/lucide:external-link.svg?color=%23666" width="14" align="absmiddle"> Leer en lit.dev</a>
 
-*   **`willUpdate(changedProperties)`:** Se acciona *antes* de la fase síncrona de `render()`. Es el escenario adecuado para la computación de estados derivados o formatters pesados (ej. sumas totales o transformación de strings). Modificar estados aquí **no disparará un nuevo ciclo de renderizado**.
-    ```typescript
-    protected willUpdate(changedProperties: PropertyValues<this>): void {
-      if (changedProperties.has('precioBase') || changedProperties.has('impuestos')) {
-        this.precioTotal = this.precioBase + this.impuestos; // 1 solo repaint
-      }
-    }
-    ```
-*   **`await this.updateComplete`:** Promesa arquitectónica del motor Lit. Permite pausar la ejecución de una función asíncrona hasta asegurar que las actualizaciones de estado recientes han terminado de pintarse físicamente en la pantalla.
-    ```typescript
-    async abrirDialogo(): Promise<void> {
-      this.dialogoVisible = true;
-      await this.updateComplete; // Garantiza que el nodo HTML existe
-      this.dialogElement?.showModal();
-    }
-    ```
+### Built-in directives
+<a href="https://lit.dev/docs/templates/directives/" target="_blank">📖 Leer en lit.dev</a>
 
-<div class="page-break"></div>
-<a name="sec-11"></a>
-<h2><img src="https://api.iconify.design/lucide:syringe.svg?color=%23324fff" width="28" align="absmiddle"> 11. Context API (@lit/context)</h2>
-<a href="https://lit.dev/docs/data/context/" class="doc-link" target="_blank"><img src="https://api.iconify.design/lucide:external-link.svg?color=%23666" width="14" align="absmiddle"> Leer en lit.dev</a>
+Las directivas optimizan el renderizado y resuelven tareas comunes. Se importan desde `lit/directives/...`:
 
-Herramienta de Inyección de Dependencias. Soluciona el problema de paso en cascada (*Prop Drilling*), distribuyendo contextos, configuraciones o variables globales sin conectarlos manualmente jerarquía por jerarquía.
+*   🎨 **Estilos y Clases**
+    *   `classMap`: Aplica clases dinámicamente. `class=${classMap({ active: this.isActive })}`
+    *   `styleMap`: Aplica estilos en línea. `style=${styleMap({ color: this.textColor })}`
+*   🔄 **Renderizado y Control de Flujo**
+    *   `repeat`: Bucle eficiente basado en keys.
+    *   `map`: Versión simplificada para mapear iterables.
+    *   `when`: Alternativa declarativa a un if/else ternario.
+    *   `choose`: Alternativa declarativa a un switch-case.
+    *   `cache`: Cachea el DOM de las ramas inactivas de un condicional.
+    *   `keyed`: Fuerza la destrucción y recreación de un nodo cuando su key cambia.
+*   🛡️ **Seguridad y DOM Crudo**
+    *   `unsafeHTML`: Renderiza un string crudo como HTML (¡Cuidado con XSS!).
+    *   `unsafeSVG`: Renderiza un string crudo como SVG.
+*   ⚡ **Asincronía e Interacción**
+    *   `until`: Muestra contenido temporal mientras se resuelve una Promesa.
+    *   `asyncAppend` / `asyncReplace`: Renderizan valores emitidos por un AsyncIterable.
+*   🛠️ **Otras utilidades**
+    *   `ifDefined`: Si el valor es `undefined`, elimina el atributo HTML por completo.
+    *   `live`: Fuerza a Lit a ignorar su caché interna y sobreescribir un atributo de un input si fue modificado manualmente por el usuario.
+    *   `ref`: Obtiene una referencia a un nodo DOM renderizado sin usar `@query`.
 
-```typescript
-import { createContext, provide, consume } from '@lit/context';
-import type { UserContext } from './types';
+### Custom directives
+<a href="https://lit.dev/docs/templates/custom-directives/" target="_blank">📖 Leer en lit.dev</a>
 
-// 1. Declarar Token Simbólico
-export const userContext = createContext<UserContext>('user-context');
+Extiende `Directive` o `AsyncDirective` para interacciones avanzadas que requieren acceso directo a las partes del DOM antes o durante el ciclo de actualización de Lit.
 
-// 2. Elemento Proveedor (Módulo superior/Padre)
-@customElement('app-root')
-export class AppRoot extends LitElement {
-  @provide({ context: userContext })
-  @state() user: UserContext = { name: 'Admin', role: 'admin' };
-}
+---
 
-// 3. Elemento Consumidor (Descendientes en cualquier capa)
-@customElement('user-profile')
-export class UserProfile extends LitElement {
-  @consume({ context: userContext, subscribe: true })
-  @state() user!: UserContext; 
-}
-```
+## 4. COMPOSITION
 
-<div class="page-break"></div>
-<a name="sec-12"></a>
-<h2><img src="https://api.iconify.design/lucide:puzzle.svg?color=%23324fff" width="28" align="absmiddle"> 12. Shadow DOM y Proyección (Slots)</h2>
-<a href="https://lit.dev/docs/components/shadow-dom/" class="doc-link" target="_blank"><img src="https://api.iconify.design/lucide:external-link.svg?color=%23666" width="14" align="absmiddle"> Leer en lit.dev</a>
+### Slots
+<a href="https://lit.dev/docs/components/shadow-dom/#slots" target="_blank">📖 Leer en lit.dev</a>
 
-Patrón para crear componentes contenedores reutilizables inyectando HTML desde el componente padre.
+Inyecta HTML desde el consumidor (Light DOM) hacia el componente (Shadow DOM).
 
 ```html
-<!-- Instanciación e Inyección externa -->
-<tarjeta-informativa>
-  <h2 slot="titulo">Alerta Global</h2>
-  <p>Texto distribuido hacia el default slot de la tarjeta.</p>
-</tarjeta-informativa>
+<!-- Consumidor -->
+<my-card><h1 slot="title">Título</h1></my-card>
 ```
-
 ```typescript
-// Estructura interna de tarjeta-informativa.ts
+// Componente
 render() {
-  return html`
-    <header> 
-      <slot name="titulo">Título de respaldo</slot> 
-    </header>
-    <main> 
-      <slot></slot> <!-- Receptor HTML genérico --> 
-    </main>
-  `;
+  return html`<header><slot name="title"></slot></header>`;
 }
 ```
-*   **Estilizado cruzado de los Slots:** Como el Shadow DOM garantiza total encapsulación, el único puente de comunicación CSS permitido hacia los elementos proyectados es el pseudo-elemento especial `::slotted()`.
-    ```css
-    ::slotted(h2) { 
-      color: var(--primary-color); 
-      font-weight: bold;
-      margin: 0;
-    }
-    ```
 
 <div class="page-break"></div>
-<a name="sec-13"></a>
-<h2><img src="https://api.iconify.design/lucide:cpu.svg?color=%23324fff" width="28" align="absmiddle"> 13. Controladores Reactivos</h2>
-<a href="https://lit.dev/docs/composition/controllers/" class="doc-link" target="_blank"><img src="https://api.iconify.design/lucide:external-link.svg?color=%23666" width="14" align="absmiddle"> Leer en lit.dev</a>
 
-Patrón arquitectónico de Lit para extraer, encapsular y reutilizar la lógica de estado o ciclo de vida (ej. Fetching de APIs, subscripción a Websockets o Timers recurrentes) sin ensuciar la clase visual del componente.
+### Controllers
+<a href="https://lit.dev/docs/composition/controllers/" target="_blank">📖 Leer en lit.dev</a>
+
+Extraen lógica de estado o ciclo de vida (ej. Timers, Fetch) fuera del componente visual.
 
 ```typescript
 import { ReactiveController, ReactiveControllerHost } from 'lit';
 
-// 1. Entidad Controladora Aislada
-export class RelojLogicoController implements ReactiveController {
-  private timer?: number;
-  public valor: Date = new Date();
-
-  constructor(private host: ReactiveControllerHost) {
-    this.host.addController(this); // Registrar la vinculación del ciclo
-  }
-
-  hostConnected(): void {
-    this.timer = window.setInterval(() => {
-      this.valor = new Date();
-      this.host.requestUpdate(); // Emite señal síncrona de renderizado al Host
-    }, 1000);
-  }
-
-  hostDisconnected(): void {
-    clearInterval(this.timer); // Prevención de Fugas de memoria
-  }
+export class ClockController implements ReactiveController {
+  constructor(private host: ReactiveControllerHost) { host.addController(this); }
+  hostConnected() { /* iniciar timer y llamar a this.host.requestUpdate() */ }
 }
+```
 
-// 2. Composición de UI (Múltiples componentes pueden rehusarlo)
-@customElement('display-reloj')
-export class DisplayReloj extends LitElement {
-  private clock = new RelojLogicoController(this); // Instancia pura
+---
+
+## 5. MANAGING DATA
+
+### Context
+<a href="https://lit.dev/docs/data/context/" target="_blank">📖 Leer en lit.dev</a>
+
+Evita el "Prop Drilling". Provee datos globalmente para que los hijos los consuman.
+
+```typescript
+import { createContext, provide, consume } from '@lit/context';
+const userCtx = createContext<User>('user-context');
+
+@provide({ context: userCtx }) @state() user = { name: 'Admin' }; // Padre
+@consume({ context: userCtx }) @state() user!: User; // Hijo
+```
+
+### Tasks
+<a href="https://lit.dev/docs/data/task/" target="_blank">📖 Leer en lit.dev</a>
+
+El estándar moderno para manejar promesas y llamadas a APIs de forma declarativa.
+
+```typescript
+import { Task } from '@lit/task';
+
+class ApiComponent extends LitElement {
+  @property() productId = 1;
+
+  private _apiTask = new Task(this, {
+    task: async ([id]) => await (await fetch(`/api/item/${id}`)).json(),
+    args: () => [this.productId] // Reejecuta si el ID cambia
+  });
 
   render() {
-    return html`
-      <div class="clock-ui">
-        Tiempo Local: <strong>${this.clock.valor.toLocaleTimeString()}</strong>
-      </div>
-    `;
+    return this._apiTask.render({
+      pending: () => html`<p>Cargando...</p>`,
+      complete: (data) => html`<h1>${data.name}</h1>`,
+      error: (e) => html`<p>Error: ${e}</p>`
+    });
   }
 }
 ```
 
 <div class="page-break"></div>
-<a name="sec-14"></a>
-<h2><img src="https://api.iconify.design/lucide:form-input.svg?color=%23324fff" width="28" align="absmiddle"> 14. Formularios y Extracción de Datos</h2>
-<a href="https://lit.dev/docs/components/events/" class="doc-link" target="_blank"><img src="https://api.iconify.design/lucide:external-link.svg?color=%23666" width="14" align="absmiddle"> Leer sobre eventos en lit.dev</a>
 
-Lit **no** tiene un sistema propio de formularios complejos. Abraza la **plataforma Web**, utilizando elementos `<form>` nativos y la API estándar `FormData`. Todo es asombrosamente sencillo si conoces JavaScript moderno.
+## 6. TOOLS AND WORKFLOWS
 
-### Recolección Nativa con FormData (Recomendado)
-Para recolectar la información al enviar, atrapa el evento `@submit`, cancela la recarga y usa `FormData`.
+### Requirements & Development
+<a href="https://lit.dev/docs/tools/development/" target="_blank">📖 Leer en lit.dev</a>
+
+Lit requiere un entorno Node.js y navegadores modernos. Ya que Lit usa módulos ES, necesitas herramientas de desarrollo que soporten resolución nativa de módulos. 
+Para un desarrollo local rápido y con HMR (Hot Module Replacement), la comunidad y el equipo de Lit recomiendan encarecidamente el uso de **Vite** o **Web Dev Server**.
+
+### Testing
+<a href="https://lit.dev/docs/tools/testing/" target="_blank">📖 Leer en lit.dev</a>
+
+Los Web Components deben testearse en navegadores reales, no solo en entornos DOM emulados (como JSDOM).
+*   **Herramienta de Testing:** Web Test Runner (`@web/test-runner`).
+*   **Librerías de Ayuda:** `@open-wc/testing` (provee funciones como `fixture` y aserciones adaptadas para Shadow DOM).
 
 ```typescript
-@customElement('form-registro')
-export class FormRegistro extends LitElement {
-  private _handleSubmit(e: Event) {
-    e.preventDefault(); // Impide recargar
-    const dataObj = Object.fromEntries(new FormData(e.target as HTMLFormElement).entries());
-    console.log("Datos listos:", dataObj);
-  }
-  render() {
-    return html`
-      <form @submit=${this._handleSubmit}>
-        <!-- IMPORTANTÍSIMO: usar atributo "name" -->
-        <input type="text" name="usr" required />
-        <button type="submit">Enviar</button>
-      </form>`;
-  }
+import { fixture, expect, html } from '@open-wc/testing';
+import './my-element.js';
+
+it('renders default text', async () => {
+  const el = await fixture(html`<my-element></my-element>`);
+  expect(el.shadowRoot!.textContent).to.include('¡Hola Mundo!');
+});
+```
+
+### Publishing & Production
+<a href="https://lit.dev/docs/tools/publishing/" target="_blank">📖 Leer en lit.dev</a>
+
+*   **Publicar (Publishing):** Distribuye tus componentes a NPM sin empaquetar, como módulos ES nativos y emite tus archivos `.d.ts` de TypeScript. Deja que el consumidor final decida cómo empaquetarlo.
+*   **Producción (Production):** Al compilar tu aplicación final para producción, utiliza herramientas (Vite, Rollup) que soporten **minificación** y **tree-shaking** para eliminar el código muerto, asegurando que el bundle de Lit siga pesando lo mínimo indispensable (≈ 5kb).
+
+### Starter kits & Adding Lit
+<a href="https://lit.dev/docs/tools/starter-kits/" target="_blank">📖 Leer en lit.dev</a>
+
+*   **Añadir Lit a un proyecto existente:** Si ya tienes una aplicación vanilla, Angular o Vue, integrarlo es tan fácil como hacer `npm i lit` y empezar a crear componentes. No requiere configuraciones engorrosas de Webpack gracias al estándar de los módulos ES.
+*   **Kits de Inicio Oficiales:** Puedes encontrar los repositorios oficiales de plantillas en GitHub (ej. `lit/lit-element-starter-ts`) que incluyen configuración de TypeScript, linting, formateo y testing ya preparados.
+
+<div class="page-break"></div>
+
+## 7. SERVER RENDERING 🧪
+
+### Overview
+<a href="https://lit.dev/docs/ssr/overview/" target="_blank">📖 Leer en lit.dev</a>
+
+Lit soporta renderizado del lado del servidor (SSR) mediante el paquete `@lit-labs/ssr` (actualmente en fase de laboratorios/experimental). Permite pre-renderizar los Web Components en el backend (Node.js) para mejorar el SEO y reducir el tiempo del *First Contentful Paint* (FCP).
+
+### Server usage
+<a href="https://lit.dev/docs/ssr/server-usage/" target="_blank">📖 Leer en lit.dev</a>
+
+En el servidor, no tienes acceso nativo al DOM. Lit provee una función `render` que toma tu plantilla y devuelve un iterable de strings (HTML estático).
+
+```javascript
+import { render } from '@lit-labs/ssr';
+import { html } from 'lit';
+import './my-element.js';
+
+const htmlIterable = render(html`<my-element></my-element>`);
+// Unir o streamear el iterable hacia la respuesta HTTP...
+```
+
+### Client usage (Hydration)
+<a href="https://lit.dev/docs/ssr/client-usage/" target="_blank">📖 Leer en lit.dev</a>
+
+Una vez que el navegador descarga el HTML pre-renderizado, Lit necesita hacerlo interactivo sin reconstruir el DOM. A este proceso se le llama **Hydration**.
+
+*   Debes cargar `@lit-labs/ssr-client/lit-element-hydrate-support.js` en el cliente **antes** de definir tus componentes para que Lit sepa que debe "hidratar" en lugar de "reemplazar".
+
+### Authoring components
+<a href="https://lit.dev/docs/ssr/authoring/" target="_blank">📖 Leer en lit.dev</a>
+
+Para que tus componentes sean compatibles con SSR (Isomórficos), debes evitar el uso de APIs exclusivas del navegador (como `window` o `document`) durante la construcción y el `render()`.
+*   **Regla de oro:** Cualquier código que necesite interactuar con el DOM real (como llamadas a `querySelector`, `addEventListener` al window, o librerías externas que asuman que están en un navegador) debe ir dentro de **`firstUpdated()`** o `connectedCallback()`, ya que estos métodos del ciclo de vida **no** se ejecutan en el servidor, solo en el cliente.
+
+### DOM emulation
+<a href="https://lit.dev/docs/ssr/dom-emulation/" target="_blank">📖 Leer en lit.dev</a>
+
+Lit SSR está diseñado para funcionar sin un DOM completo en Node (lo que lo hace rapidísimo). Sin embargo, si al importar tus módulos de componentes necesitas algunas interfaces globales del DOM, Lit provee un paquete `@lit-labs/dom-shim` que emula las piezas mínimas necesarias (como `HTMLElement`, `customElements`) para que el código no falle (arroje errores de undefined) al evaluarse en Node.js.
+
+<div class="page-break"></div>
+
+## 8. FRAMEWORKS
+
+### React
+<a href="https://lit.dev/docs/frameworks/react/" target="_blank">📖 Leer en lit.dev</a>
+
+Aunque los componentes de Lit funcionan perfectamente en Vue, Angular, Svelte o Vanilla JS por ser estándares web nativos, React históricamente ha tenido particularidades a la hora de inyectar propiedades complejas (objetos/arrays) o de escuchar eventos personalizados (CustomEvents).
+
+Para garantizar que un componente Lit se comporte exactamente como un componente React 100% nativo, Lit provee el paquete oficial `@lit/react`.
+
+Este paquete exporta la función `createComponent`, que genera un *Wrapper* de React alrededor de tu Web Component, permitiendo usar *props* clásicas y mapear tus eventos personalizados a los `onEvent` de React.
+
+**Ejemplo de Integración:**
+
+```typescript
+// 1. Instalar la dependencia
+// npm i @lit/react
+
+import React from 'react';
+import { createComponent } from '@lit/react';
+import { SimpleGreeting } from './simple-greeting.js'; // Tu componente Lit
+
+// 2. Crear el componente Wrapper de React
+export const SimpleGreetingReact = createComponent({
+  tagName: 'simple-greeting',
+  elementClass: SimpleGreeting,
+  react: React,
+  events: {
+    // Mapea tu CustomEvent interno a un prop de React (onMyEvent)
+    onMyEvent: 'my-event',
+  },
+});
+
+// 3. Consumirlo en tu JSX
+function App() {
+  return (
+    <SimpleGreetingReact 
+      name="Ecosistema React" 
+      onMyEvent={(e) => console.log('El componente Lit disparó el evento:', e.detail)}
+    />
+  );
 }
 ```
 
-<div style="break-inside: avoid; page-break-inside: avoid;">
+<div class="page-break"></div>
 
-### Two-Way Data Binding Manual
-Lit implementa flujo *unidireccional*. Para actualizar variables en tiempo real a cada pulsación, escucha `@input`.
+## 9. LOCALIZATION (@lit/localize)
+
+### Overview
+<a href="https://lit.dev/docs/localization/overview/" target="_blank">📖 Leer en lit.dev</a>
+
+Lit posee una herramienta oficial, `@lit/localize`, enfocada exclusivamente en traducir componentes Lit de manera eficiente. Su principal característica es que las traducciones se integran directamente en las plantillas `lit-html`.
+
+### Runtime mode
+<a href="https://lit.dev/docs/localization/runtime-mode/" target="_blank">📖 Leer en lit.dev</a>
+
+En el modo *runtime* (tiempo de ejecución), las traducciones se cargan dinámicamente (vía `fetch` o importaciones dinámicas JS) mientras la aplicación está corriendo. 
+*   **Pros:** Solo se genera un *build* (paquete) de tu aplicación. Es más fácil de desplegar.
+*   **Contras:** Hay una pequeña penalización de rendimiento inicial porque el usuario tiene que descargar el idioma antes de que se repinte el componente.
+
+### Transform mode
+<a href="https://lit.dev/docs/localization/transform-mode/" target="_blank">📖 Leer en lit.dev</a>
+
+En el modo *transform* (tiempo de compilación), las traducciones se inyectan estáticamente durante el proceso de *build*.
+*   **Pros:** Es **extremadamente rápido**. No hay penalización de rendimiento (Zero overhead).
+*   **Contras:** Genera una carpeta o paquete completo distinto por cada idioma (ej. `/es/index.html`, `/en/index.html`), por lo que la gestión en el servidor o CDN es ligeramente más compleja.
+
+### CLI and config
+<a href="https://lit.dev/docs/localization/cli-and-config/" target="_blank">📖 Leer en lit.dev</a>
+
+Para automatizar la extracción de textos y compilación, utilizas el paquete CLI `@lit/localize-tools`.
+1.  Se define un archivo `lit-localize.json` indicando tu idioma de origen (ej. `en`) y tus idiomas objetivo (ej. `es`, `fr`).
+2.  El comando `lit-localize extract` busca en tu código y genera archivos XLIFF (`.xlf`), el formato estándar para agencias de traducción.
+3.  El comando `lit-localize build` compila esos `.xlf` de vuelta a código TypeScript/JavaScript.
+
+### Best practices
+<a href="https://lit.dev/docs/localization/best-practices/" target="_blank">📖 Leer en lit.dev</a>
+
+*   Envuelve todos los strings traducibles en la función `msg()` que proporciona la librería.
+*   **Usa plantillas dentro de `msg()`** para interpolar variables, en lugar de concatenar cadenas sueltas. El traductor necesita contexto completo de la oración.
 
 ```typescript
-@customElement('buscador-en-vivo')
-export class BuscadorEnVivo extends LitElement {
-  @state() private t: string = "";
-  private _onInput(e: Event) {
-    this.t = (e.target as HTMLInputElement).value; // Dispara re-render
-  }
-  render() {
-    return html`
-      <input type="text" .value=${this.t} @input=${this._onInput} />
-      <p>Buscando: <strong>${this.t}</strong></p>`;
-  }
+import { msg, str } from '@lit/localize';
+
+render() {
+  // Evitar esto (difícil de traducir)
+  // return html`<p>${msg('Bienvenido')} ${this.user}</p>`;
+
+  // Hacer esto (Provee contexto total)
+  return html`<p>${msg(str`Bienvenido, ${this.user}`)}</p>`;
 }
 ```
-</div>
+
+<div class="page-break"></div>
+
+## 10. RELATED LIBRARIES
+
+### Standalone lit-html
+<a href="https://lit.dev/docs/libraries/standalone-templates/" target="_blank">📖 Leer en lit.dev</a>
+
+Aunque Lit suele usarse para crear Web Components con la clase `LitElement`, puedes usar el motor de plantillas **`lit-html`** de manera totalmente independiente.
+
+Esto es útil cuando quieres el poder del renderizado rápido y declarativo en una aplicación Vanilla JS **sin la encapsulación ni el ciclo de vida de un Web Component**.
+
+```javascript
+// Usar lit-html directamente sin LitElement
+import { html, render } from 'lit-html';
+
+// 1. Declarar la plantilla
+const myTemplate = (name) => html`<p>Hola, ${name}!</p>`;
+
+// 2. Renderizarla físicamente dentro de cualquier elemento del DOM clásico
+const container = document.body;
+render(myTemplate('Mundo'), container);
+```
+
+### Lit Labs 🧪
+<a href="https://lit.dev/docs/libraries/labs/" target="_blank">📖 Leer en lit.dev</a>
+
+Lit Labs es el área de pruebas donde el equipo de Google desarrolla y estabiliza nuevas funcionalidades antes de integrarlas al core oficial de Lit. Usar paquetes de `@lit-labs/` implica que son experimentales y sus APIs pueden tener *breaking changes* (cambios que rompen compatibilidad).
+
+Algunos de los paquetes de Labs más interesantes incluyen:
+*   **`@lit-labs/virtualizer`**: Un componente vital para renderizar listas con miles de elementos, mostrando solo los que caben en pantalla para mantener el rendimiento al máximo (Scroll Virtual).
+*   **`@lit-labs/router`**: Un enrutador del lado del cliente diseñado específicamente para componentes Lit, con soporte de rutas anidadas.
+*   **`@lit-labs/ssr`**: El paquete para renderizado del lado del servidor (que ya repasamos en la sección 7).
+*   **`@lit-labs/motion`**: Directivas súper sencillas para hacer animaciones FLIP que transicionan elementos suavemente cuando se reordenan o mueven por la pantalla.
+
