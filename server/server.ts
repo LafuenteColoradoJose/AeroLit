@@ -30,12 +30,15 @@ app.get('/api/flights', async (req, res) => {
 
 /**
  * @route GET /api/radar
- * @description Endpoint que retorna las posiciones de aviones en vivo 
- * (Caché extraída de OpenSky Network sin penalización de rate-limit).
+ * @description Endpoint que retorna las posiciones de aeronaves en vivo
+ * (caché extraída de ADSB.lol, con cobertura multi-centro y sin bloqueos de IP).
  */
 app.get('/api/radar', async (req, res) => {
     const planes = await openskyInstance.getPlanes();
-    res.json(planes.data); 
+    res.json({
+        states: planes.data.states ?? [],
+        lastUpdate: planes.lastUpdate
+    });
 });
 
 // Iniciamos el servidor sólo si es el proceso principal (evita bloqueos en los tests)

@@ -124,7 +124,7 @@ describe('FlightService', () => {
     flightService.stopHybridEngine();
   });
 
-  it('debería obtener aviones en vivo de OpenSky y cachearlos', async () => {
+  it('debería obtener aviones en vivo del radar y cachearlos', async () => {
     const mockStates = {
       states: [
         ["4b1815", "SWR94P", "Switzerland", 1680517559, 1680517559, 8.5284, 47.4721, 6301.74, false, 203.49, 172.93, 0, null, 6423.66, null, false, 0]
@@ -138,6 +138,9 @@ describe('FlightService', () => {
 
     const planes = await flightService.getLivePlanes();
     expect(planes.length).toBe(1);
+    expect(planes[0].callsign).toBe('SWR94P');
+    expect(planes[0].altitude).toBe(Math.round(6301.74 * 3.28084));
+    expect(planes[0].velocity).toBe(Math.round(203.49 * 3.6));
     
     (globalThis.fetch as any).mockClear();
     const planesCached = await flightService.getLivePlanes();
@@ -145,9 +148,63 @@ describe('FlightService', () => {
     expect(globalThis.fetch).toHaveBeenCalledTimes(0);
   });
 
-  it('debería devolver array vacío si falla OpenSky', async () => {
-    globalThis.fetch = vi.fn().mockRejectedValue(new Error('OpenSky Error'));
+  it('debería descartar aeronaves sin coordenadas o en tierra', async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({
+        states: [
+          ["ok1", "OK1", "Spain", null, null, -3.5, 40.4, 1000, false, 100, 90],
+          ["ground", "GND", "Spain", null, null, -3.5, 40.4, 0, true, 0, 0],
+          ["nocoords", "NC", "Spain", null, null, null, null, 1000, false, 100, 90]
+        ]
+      }),
+    });
+
     const planes = await flightService.getLivePlanes();
-    expect(planes).toEqual([]);
+
+    expect(planes).toHaveLength(1);
+    expect(planes[0].callsign).toBe('OK1');
+  });
+
+  it('debería reutilizar la última lectura si falla una actualización', async () => {
+    const mockStates = {
+      states: [
+        ["4b1815", "SWR94P", "Switzerland", 1680517559, 1680517559, 8.5284, 47.4721, 6301.74, false, 203.49, 172.93]
+      ]
+    };
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(mockStates),
+    });
+
+    const first = await flightService.getLivePlanes();
+    expect(first).toHaveLength(1);
+
+    await vi.advanceTimersByTimeAsync(31_000);
+    globalThis.fetch = vi.fn().mockRejectedValue(new Error('radar caído'));
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    const second = await flightService.getLivePlanes();
+
+    expect(second).toEqual(first);
+    expect(warnSpy).toHaveBeenCalled();
+  });
+
+  it('debería propagar el error si falla el radar y no hay caché', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    globalThis.fetch = vi.fn().mockRejectedValue(new Error('OpenSky Error'));
+
+    await expect(flightService.getLivePlanes()).rejects.toThrow('OpenSky Error');
+  });
+
+  it('debería propagar el estado HTTP si el endpoint del radar no responde 200', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 503,
+      json: () => Promise.resolve({ error: 'sin datos' }),
+    });
+
+    await expect(flightService.getLivePlanes()).rejects.toThrow('Radar no disponible (503)');
   });
 });

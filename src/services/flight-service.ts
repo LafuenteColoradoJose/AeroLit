@@ -320,6 +320,8 @@ export class FlightService {
   _reset() {
     this.flights = [];
     this.fetchPromise = null;
+    this.livePlanesCache = null;
+    this.lastLivePlanesFetch = 0;
     this.stopHybridEngine();
     if (typeof window !== 'undefined') {
         localStorage.removeItem(CACHE_KEY);
@@ -328,12 +330,15 @@ export class FlightService {
   }
 
   /**
-   * Recupera datos de posición en tiempo real desde la API pública de OpenSky Network.
-   * @deprecated Úsese con precaución en producción por límites de Rate-Limiting.
-   * 
-   * @returns {Promise<any[]>} Array de posiciones aéreas parseadas.
+   * Recupera las posiciones de aeronaves en tiempo real desde el endpoint interno `/api/radar`.
+   *
+   * Mantiene una caché de 30 segundos para no saturar el backend. Si la actualización
+   * falla pero existe una lectura anterior, devuelve esa última lectura válida; si no
+   * hay caché disponible, propaga el error para que el radar pueda mostrar un aviso.
+   *
+   * @returns {Promise<any[]>} Array de posiciones normalizadas para el mapa.
+   * @throws {Error} Si no hay caché disponible y la petición al radar falla.
    */
-  
   async getLivePlanes(): Promise<any[]> {
     const now = Date.now();
     if (this.livePlanesCache && (now - this.lastLivePlanesFetch < 30000)) {
@@ -342,28 +347,32 @@ export class FlightService {
 
     try {
       const response = await fetch('/api/radar');
-      if (!response.ok) throw new Error('Error en el servidor radar');
+      if (!response.ok) throw new Error(`Radar no disponible (${response.status})`);
       const data = await response.json();
-      
+
       const planes = (data.states || [])
         .filter((state: any) => state[5] != null && state[6] != null && !state[8])
         .map((state: any) => ({
-          callsign: state[1] ? state[1].trim() : 'Desconocido',
-          country: state[2],
+          callsign: state[1] ? String(state[1]).trim() : 'Desconocido',
+          country: state[2] || 'Desconocido',
           longitude: state[5],
           latitude: state[6],
-          altitude: state[7] != null ? Math.round(state[7] * 3.28084) : 0,
-          velocity: state[9] != null ? Math.round(state[9] * 3.6) : 0,
-          direction: state[10] || 0
+          altitude: Number.isFinite(Number(state[7])) ? Math.round(Number(state[7]) * 3.28084) : 0,
+          velocity: Number.isFinite(Number(state[9])) ? Math.round(Number(state[9]) * 3.6) : 0,
+          direction: Number(state[10]) || 0
         }));
-      
+
       this.livePlanesCache = planes;
       this.lastLivePlanesFetch = Date.now();
       return planes;
 
     } catch (error) {
+      if (this.livePlanesCache) {
+        console.warn('⚠️ No se pudo actualizar el radar; se usa la última lectura disponible.');
+        return this.livePlanesCache;
+      }
       console.error('Error fetching live planes:', error);
-      return [];
+      throw error;
     }
   }
 }

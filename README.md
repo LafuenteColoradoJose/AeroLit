@@ -23,7 +23,7 @@ AeroLit proporciona una interfaz fluida e intuitiva para consultar salidas y lle
 * **Backend de Extracción Dedicado (Serverless):**
   * Desplegado como funciones Serverless en Vercel.
   * Evade las estrictas restricciones de CORS y WAF (Akamai de AENA) mediante recolección servidor-a-servidor optimizada con procesamiento en paralelo por lotes (chunking).
-* **Radar en Vivo (ADSB.lol):** Integración nativa gestionada desde el servidor backend para mapear en tiempo real el tráfico aéreo sobre España utilizando ADSB.lol (una alternativa gratuita y abierta de la comunidad de aviación), evadiendo los bloqueos corporativos a IPs de Vercel/AWS.
+* **Radar en Vivo (ADSB.lol):** Integración nativa gestionada desde el servidor backend para mapear en tiempo real el tráfico aéreo sobre España utilizando ADSB.lol (una alternativa gratuita y abierta de la comunidad de aviación), evadiendo los bloqueos corporativos a IPs de Vercel/AWS. El backend consulta **5 centros en paralelo** (Madrid, Barcelona, Sevilla, Santiago y Canarias) con el radio máximo permitido de **250 NM**, deduplica por `hex` y conserva el último snapshot válido si una consulta falla.
 * **Dashboard Interactivo:** Tarjetas de KPIs (vuelos activos, retrasos), gráficas de actividad y listado rápido de vuelos urgentes.
 
 * **Testing Extenso (Vitest):** Cobertura de código superior al 80% (Verde) cubriendo la lógica backend y los componentes clave del frontend (JSDOM).

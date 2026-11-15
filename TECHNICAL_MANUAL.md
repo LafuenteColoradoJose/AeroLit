@@ -88,8 +88,10 @@ Al igual que ocurre con los vuelos de AENA, las redes públicas como OpenSky Net
 
 Para garantizar un radar 100% estable en producción, se ha migrado a **ADSB.lol**:
 1. **Datos Comunitarios (Server-Side):** El backend se conecta a la API abierta de ADSB.lol (que no banea IPs Cloud), interceptando señales ADS-B de aviones reales.
-2. **Capa de Abstracción:** El endpoint interno `/api/radar` captura los datos de ADSB.lol, los transforma al vuelo al antiguo array multi-dimensional (estilo OpenSky) y los entrega al cliente, evitando así refactorizaciones innecesarias en el frontend.
-3. **Pausado en Background (Frontend):** Para ahorrar recursos de red, el componente `<aerolit-radar>` pausa su refresco visual usando `document.hidden` cuando el usuario cambia de pestaña.
+2. **Cobertura Multi-Centro:** ADSB.lol limita cada consulta a **250 NM**, por lo que el backend lanza **5 peticiones en paralelo** (Madrid, Barcelona, Sevilla, Santiago y Canarias), fusiona los resultados y deduplica por `hex`. Así se cubre toda España, incluidas Galicia y Canarias, sin superar el límite del proveedor.
+3. **Capa de Abstracción:** El endpoint interno `/api/radar` captura los datos de ADSB.lol, los transforma al vuelo al antiguo array multi-dimensional (estilo OpenSky) y los entrega al cliente, evitando así refactorizaciones innecesarias en el frontend.
+4. **Resiliencia:** Si una o varias consultas fallan, se conserva el último snapshot válido y se registra el código HTTP del error. El cliente mantiene una caché de 30 s y muestra un aviso con reintento manual si no hay datos disponibles.
+5. **Pausado en Background (Frontend):** Para ahorrar recursos de red, el componente `<aerolit-radar>` pausa su refresco visual usando `document.hidden` cuando el usuario cambia de pestaña.
 
 ---
 
